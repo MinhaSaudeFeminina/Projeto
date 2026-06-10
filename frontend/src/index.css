@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Leckerli+One&family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Identidade visual — Minha Saúde Feminina
+  Paleta:
+    #FBF4EB  cream
+    #FBD9E5  soft pink
+    #C43A4A  deep red (primary)
+    #C56682  rose
+    #E7A48C  peach
+  Tipografia:
+    Display: Leckerli One (script)
+    Texto:   Barlow Condensed (substituto de Gabriel Sans Condensed)
+*/
+
+@layer base {
+  :root {
+    --background: 33 60% 97%;          /* cream ainda mais claro */
+    --foreground: 354 25% 25%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 354 25% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 354 25% 25%;
+
+    --primary: 354 50% 60%;            /* rosa-vermelho suavizado */
+    --primary-foreground: 33 60% 98%;
+
+    --secondary: 340 75% 95%;          /* rosa pastel mais claro */
+    --secondary-foreground: 354 40% 40%;
+
+    --muted: 33 50% 95%;
+    --muted-foreground: 354 12% 50%;
+
+    --accent: 18 70% 85%;              /* peach claro */
+    --accent-foreground: 354 35% 30%;
+
+    --rose: 342 45% 70%;
+    --rose-foreground: 0 0% 100%;
+
+    --destructive: 0 60% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 340 35% 92%;
+    --input: 340 35% 92%;
+    --ring: 354 50% 65%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 33 55% 96%;          /* sidebar clara */
+    --sidebar-foreground: 354 25% 35%;
+    --sidebar-primary: 354 50% 65%;
+    --sidebar-primary-foreground: 33 60% 98%;
+    --sidebar-accent: 340 70% 94%;
+    --sidebar-accent-foreground: 354 45% 40%;
+    --sidebar-border: 340 35% 90%;
+    --sidebar-ring: 354 50% 65%;
+
+    --success: 155 40% 55%;
+    --success-foreground: 0 0% 100%;
+    --warning: 35 75% 65%;
+    --warning-foreground: 35 80% 20%;
+    --info: 342 45% 70%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(354 55% 68%), hsl(342 50% 75%));
+    --gradient-soft: linear-gradient(135deg, hsl(33 60% 97%), hsl(340 75% 95%));
+    --gradient-warm: linear-gradient(135deg, hsl(340 75% 94%), hsl(18 70% 88%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(33 55% 97%), hsl(340 60% 95%));
+  }
+
+  .dark {
+    --background: 354 25% 10%;
+    --foreground: 33 60% 92%;
+    --card: 354 25% 14%;
+    --card-foreground: 33 60% 92%;
+    --popover: 354 25% 14%;
+    --popover-foreground: 33 60% 92%;
+    --primary: 354 60% 58%;
+    --primary-foreground: 33 60% 97%;
+    --secondary: 354 25% 22%;
+    --secondary-foreground: 33 60% 92%;
+    --muted: 354 20% 20%;
+    --muted-foreground: 33 30% 70%;
+    --accent: 18 50% 55%;
+    --accent-foreground: 33 60% 95%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 354 20% 24%;
+    --input: 354 20% 24%;
+    --ring: 354 60% 58%;
+    --sidebar-background: 354 40% 14%;
+    --sidebar-foreground: 33 60% 92%;
+    --sidebar-primary: 18 60% 65%;
+    --sidebar-primary-foreground: 354 56% 20%;
+    --sidebar-accent: 354 35% 22%;
+    --sidebar-accent-foreground: 33 60% 92%;
+    --sidebar-border: 354 30% 22%;
+    --sidebar-ring: 18 60% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: hsl(354 55% 32%);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Leckerli One', cursive;
+    font-weight: 400;
+    color: hsl(354 60% 38%);
+  }
+  .text-heading { color: hsl(354 55% 32%); }
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-soft { background: var(--gradient-soft); }
+  .gradient-warm { background: var(--gradient-warm); }
+  .gradient-sidebar { background: var(--gradient-sidebar); }
+}
