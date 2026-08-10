@@ -1,59 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Minha Saúde Feminina Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API Laravel do incremento administrativo do Minha Saúde Feminina.
 
-## About Laravel
+Este backend atende somente o portal administrativo web neste incremento. O app mobile, usuários finais comuns e endpoints específicos do app ficam fora do escopo ativo.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Ambiente
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2 ou superior, conforme versão suportada pelo projeto Laravel.
+- Laravel 11.x/12.x ou versão vigente instalada no projeto.
+- PostgreSQL como banco relacional principal.
+- API REST versionada para o portal administrativo, com prefixo esperado `/api/v1/admin`.
+- Autenticação administrativa por sessão/token revogável.
+- Mailer configurado em modo `log`, sandbox ou serviço transacional durante desenvolvimento.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Variáveis Esperadas
 
-## Learning Laravel
+Configurações mínimas esperadas no `.env` ou ambiente equivalente:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- `APP_URL`
+- `APP_LOCALE=pt_BR`
+- `APP_FALLBACK_LOCALE=pt_BR`
+- `APP_FAKER_LOCALE=pt_BR`
+- `DB_CONNECTION=pgsql`
+- `DB_HOST`
+- `DB_PORT=5432`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `MAIL_MAILER`
+- `MAIL_FROM_ADDRESS`
+- `MAIL_FROM_NAME`
+- `FRONTEND_URL`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## PostgreSQL e UTF-8
 
-## Laravel Sponsors
+O banco PostgreSQL deve ser criado com encoding UTF-8. Textos de conteúdos, categorias, fases da vida, faixas etárias, auditoria e notificações administrativas devem preservar acentos, cedilha e caracteres especiais.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Exemplo de expectativa para banco:
 
-### Premium Partners
+```sql
+CREATE DATABASE woman_health
+  WITH ENCODING 'UTF8'
+  TEMPLATE template0;
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Respostas JSON, validações, e-mails e logs devem ser produzidos considerando UTF-8. Quando aplicável, respostas devem usar `Content-Type: application/json; charset=UTF-8`.
 
-## Contributing
+## Escopo da API Administrativa
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Este incremento cobre:
 
-## Code of Conduct
+- Autenticação administrativa.
+- Gestão de usuários administrativos.
+- Perfis e permissões administrativas.
+- Categorias de conteúdo.
+- Fases da vida e faixas etárias associadas a conteúdos.
+- Gestão de conteúdos educativos.
+- Fluxo editorial: Rascunho → Em revisão → Aprovado → Publicado → Arquivado.
+- Auditoria editorial e histórico de alterações.
+- Notificações administrativas no painel e por e-mail.
+- Busca administrativa tolerante a acentos.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Perfis Administrativos
 
-## Security Vulnerabilities
+- Acadêmica/autora: cria rascunhos, edita os próprios rascunhos e envia para revisão.
+- Revisor/professor: revisa, aprova ou solicita ajustes.
+- Admin: gerencia usuários administrativos, permissões, conteúdos, publicação e arquivamento.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+O backend deve aplicar permissões com middleware e policies. O portal pode ocultar ações, mas não é a fonte final de autorização.
 
-## License
+## Auditoria e Logs
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Eventos editoriais e administrativos relevantes devem registrar ator, ação, data/hora, estado anterior, estado resultante e comentário quando aplicável.
+
+Logs não devem expor:
+
+- Senhas.
+- Tokens.
+- Dados internos de segurança.
+- Conteúdo completo desnecessário.
+- Payloads sensíveis ou extensos sem finalidade operacional clara.
+
+## E-mails Administrativos
+
+E-mails administrativos devem:
+
+- Estar em Português do Brasil.
+- Preservar acentuação, cedilha e caracteres especiais.
+- Informar evento e ação necessária.
+- Direcionar a pessoa autorizada ao portal administrativo.
+- Evitar carregar o conteúdo editorial completo quando o portal autenticado puder exibir os detalhes.
+
+## Fora do Escopo deste Incremento
+
+- App mobile.
+- React Native ou Expo.
+- Cadastro, login, validação de e-mail ou perfil de usuárias finais.
+- Ciclo menstrual.
+- Registro de sintomas.
+- Lembretes mobile.
+- Push notifications mobile.
+- Perguntas para consulta.
+- Resumo visual para consulta.
+- Assistente de IA.
+- Integração com UBS, prontuário eletrônico ou serviços públicos.
+- Exportação PDF.
+- Monetização, anúncios ou pagamentos.
+- Diagnóstico automatizado, prescrição ou orientação de dosagem.

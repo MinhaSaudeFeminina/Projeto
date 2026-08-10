@@ -13,7 +13,7 @@
 
 pest()->extend(Tests\TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+    ->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,4 +44,19 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function adminWithRoleForEditorial(string $roleName): array
+{
+    $role = \App\Models\AdminRole::firstOrCreate(['name' => $roleName], ['permissions' => ['*']]);
+    $user = \App\Models\User::factory()->create([
+        'user_type' => 'admin_user',
+        'is_active' => true,
+        'password' => \Illuminate\Support\Facades\Hash::make('password'),
+    ]);
+    $user->adminRoles()->attach($role->id);
+
+    $abilities = $roleName === \App\Models\AdminRole::ADMIN ? ['*'] : [$roleName];
+
+    return [$user, $user->createToken('admin-web', $abilities)->plainTextToken];
 }

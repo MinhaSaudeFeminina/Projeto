@@ -1,15 +1,40 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
+use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
+use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
+use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('auth')->group(function (): void {
-    Route::post('login', [AuthController::class, 'login'])->name('auth.login');
-    Route::post('register', [AuthController::class, 'register'])->name('auth.register');
+Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
+    Route::prefix('auth')->name('auth.')->group(function (): void {
+        Route::post('login', [AdminAuthController::class, 'login'])->name('login');
 
-    Route::middleware('auth:sanctum')->group(function (): void {
-        Route::get('me', [AuthController::class, 'me'])->name('auth.me');
-        Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
-        Route::post('destroy', [AuthController::class, 'destroy'])->name('auth.delete');
+        Route::middleware(['auth:sanctum', 'admin.role'])->group(function (): void {
+            Route::get('me', [AdminAuthController::class, 'me'])->name('me');
+            Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
+        });
+    });
+
+    Route::middleware(['auth:sanctum', 'admin.role'])->group(function (): void {
+        Route::get('dashboard', [AdminDashboardController::class, 'show'])->name('dashboard');
+        Route::get('admin-users', [AdminUserController::class, 'index'])->name('admin-users.index');
+        Route::post('admin-users', [AdminUserController::class, 'store'])->name('admin-users.store');
+        Route::patch('admin-users/{adminUser}', [AdminUserController::class, 'update'])->name('admin-users.update');
+        Route::get('roles', [RolePermissionController::class, 'roles'])->name('roles.index');
+        Route::get('permissions', [RolePermissionController::class, 'permissions'])->name('permissions.index');
+        Route::get('contents', [AdminContentController::class, 'index'])->name('contents.index');
+        Route::post('contents', [AdminContentController::class, 'store'])->name('contents.store');
+        Route::get('contents/{content}', [AdminContentController::class, 'show'])->name('contents.show');
+        Route::patch('contents/{content}', [AdminContentController::class, 'update'])->name('contents.update');
+        Route::post('contents/{content}/submit-review', [EditorialActionController::class, 'submitReview'])->name('contents.submit-review');
+        Route::post('contents/{content}/request-adjustments', [EditorialActionController::class, 'requestAdjustments'])->name('contents.request-adjustments');
+        Route::post('contents/{content}/approve', [EditorialActionController::class, 'approve'])->name('contents.approve');
+        Route::post('contents/{content}/publish', [EditorialActionController::class, 'publish'])->middleware('admin.role:admin')->name('contents.publish');
+        Route::post('contents/{content}/archive', [EditorialActionController::class, 'archive'])->middleware('admin.role:admin')->name('contents.archive');
+        Route::get('contents/{content}/audit', [AdminContentAuditController::class, 'index'])->name('contents.audit');
     });
 });

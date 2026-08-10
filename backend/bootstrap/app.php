@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'admin.role' => \App\Http\Middleware\EnsureAdminRole::class,
+            'abilities' => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
+            'ability' => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
+        ]);
+
         $middleware->redirectGuestsTo(function (Request $request): ?string {
             return $request->is('api/*') ? null : '/login';
         });

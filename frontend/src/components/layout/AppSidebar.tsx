@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { hasAdminRole } from '@/state/adminAuthStore';
 import {
   LayoutDashboard, FileText, FolderOpen, Route, Thermometer,
   Bell, MessageCircleQuestion, Users, Send, Phone,
@@ -26,6 +27,7 @@ const menuItems = [
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const visibleItems = menuItems.filter((item) => item.path !== '/usuarios-painel' || hasAdminRole('admin'));
 
   return (
     <aside className={cn(
@@ -47,7 +49,7 @@ export function AppSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-        {menuItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/' && location.pathname.startsWith(item.path));
           return (

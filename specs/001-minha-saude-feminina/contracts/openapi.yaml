@@ -1,0 +1,788 @@
+openapi: 3.0.3
+info:
+  title: Minha Saúde Feminina Admin API
+  version: 1.0.0
+  description: API administrativa para o incremento de portal web, backend Laravel e PostgreSQL.
+servers:
+  - url: /api/v1/admin
+paths:
+  /auth/login:
+    post:
+      summary: Autentica usuária administrativa
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sessão administrativa criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciais inválidas ou acesso inativo
+  /auth/logout:
+    post:
+      summary: Encerra sessão administrativa
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logout realizado
+  /auth/me:
+    get:
+      summary: Retorna usuária administrativa autenticada
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Usuária autenticada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+
+  /admin-users:
+    get:
+      summary: Lista usuárias administrativas
+      tags: [Admin Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuárias administrativas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminUser'
+    post:
+      summary: Cria usuária administrativa
+      tags: [Admin Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserWrite'
+      responses:
+        '201':
+          description: Usuária administrativa criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '403':
+          description: Perfil sem permissão
+  /admin-users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza usuária administrativa
+      tags: [Admin Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserWrite'
+      responses:
+        '200':
+          description: Usuária administrativa atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUser'
+        '403':
+          description: Perfil sem permissão
+
+  /roles:
+    get:
+      summary: Lista perfis administrativos
+      tags: [Roles]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfis administrativos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminRoleRecord'
+  /permissions:
+    get:
+      summary: Lista permissões administrativas
+      tags: [Roles]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Permissões administrativas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
+
+  /categories:
+    get:
+      summary: Lista categorias de conteúdo
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Categorias
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentCategory'
+    post:
+      summary: Cria categoria de conteúdo
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryWrite'
+      responses:
+        '201':
+          description: Categoria criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentCategory'
+  /categories/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza categoria de conteúdo
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryWrite'
+      responses:
+        '200':
+          description: Categoria atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentCategory'
+  /life-stages:
+    get:
+      summary: Lista fases da vida
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fases da vida
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LifeStage'
+  /age-ranges:
+    get:
+      summary: Lista faixas etárias
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Faixas etárias
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgeRange'
+
+  /contents:
+    get:
+      summary: Lista e busca conteúdos administrativos
+      tags: [Contents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Termo de busca tolerante a acentos
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/EditorialStatus'
+        - name: author_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de conteúdos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EducationalContent'
+    post:
+      summary: Cria conteúdo em Rascunho
+      tags: [Contents]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentWrite'
+      responses:
+        '201':
+          description: Conteúdo criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+  /contents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Detalha conteúdo
+      tags: [Contents]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Conteúdo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+    patch:
+      summary: Atualiza conteúdo conforme permissões
+      tags: [Contents]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentWrite'
+      responses:
+        '200':
+          description: Conteúdo atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+        '403':
+          description: Perfil sem permissão
+
+  /contents/{id}/submit-review:
+    post:
+      summary: Envia Rascunho para revisão
+      tags: [Editorial Workflow]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Conteúdo Em revisão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+  /contents/{id}/request-adjustments:
+    post:
+      summary: Solicita ajustes e retorna conteúdo para Rascunho
+      tags: [Editorial Workflow]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditorialComment'
+      responses:
+        '200':
+          description: Ajustes solicitados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+  /contents/{id}/approve:
+    post:
+      summary: Aprova conteúdo Em revisão
+      tags: [Editorial Workflow]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditorialComment'
+      responses:
+        '200':
+          description: Conteúdo aprovado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+  /contents/{id}/publish:
+    post:
+      summary: Publica conteúdo Aprovado
+      tags: [Editorial Workflow]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Conteúdo publicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+  /contents/{id}/archive:
+    post:
+      summary: Arquiva conteúdo Publicado
+      tags: [Editorial Workflow]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Conteúdo arquivado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EducationalContent'
+
+  /contents/{id}/audit:
+    get:
+      summary: Lista auditoria editorial de um conteúdo
+      tags: [Audit]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Eventos de auditoria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EditorialAuditEvent'
+  /contents/{id}/revisions:
+    get:
+      summary: Lista histórico de alterações de um conteúdo
+      tags: [Audit]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Histórico de alterações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentRevision'
+
+  /notifications:
+    get:
+      summary: Lista notificações administrativas
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Notificações da usuária autenticada
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminNotification'
+  /notifications/{id}/read:
+    post:
+      summary: Marca notificação como lida
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Notificação marcada como lida
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/AdminUser'
+    AdminRole:
+      type: string
+      enum: [academic_author, reviewer_professor, admin]
+    AdminRoleRecord:
+      type: object
+      required: [id, key, name]
+      properties:
+        id:
+          type: integer
+        key:
+          $ref: '#/components/schemas/AdminRole'
+        name:
+          type: string
+          example: "Acadêmica/autora"
+        description:
+          type: string
+          nullable: true
+    Permission:
+      type: object
+      required: [id, key, name]
+      properties:
+        id:
+          type: integer
+        key:
+          type: string
+          example: "content.publish"
+        name:
+          type: string
+          example: "Publicar conteúdo"
+        description:
+          type: string
+          nullable: true
+    AdminUser:
+      type: object
+      required: [id, name, email, role, is_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Dra. Ana Luísa"
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/AdminRole'
+        is_active:
+          type: boolean
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+    AdminUserWrite:
+      type: object
+      required: [name, email, role, is_active]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/AdminRole'
+        is_active:
+          type: boolean
+        password:
+          type: string
+          format: password
+          description: Obrigatório na criação; opcional na edição.
+    EditorialStatus:
+      type: string
+      enum: [draft, in_review, approved, published, archived]
+    ContentWrite:
+      type: object
+      required: [title, body, category_id]
+      properties:
+        title:
+          type: string
+          example: "Saúde íntima e menstruação"
+        summary:
+          type: string
+          example: "Orientações educativas sobre saúde íntima."
+        body:
+          type: string
+        category_id:
+          type: integer
+        life_stage_ids:
+          type: array
+          items:
+            type: integer
+        age_range_ids:
+          type: array
+          items:
+            type: integer
+    EducationalContent:
+      type: object
+      required: [id, title, body, status, author_id, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        body:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        category_id:
+          type: integer
+        life_stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LifeStage'
+        age_ranges:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgeRange'
+        status:
+          $ref: '#/components/schemas/EditorialStatus'
+        author_id:
+          type: integer
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    EditorialComment:
+      type: object
+      required: [comment]
+      properties:
+        comment:
+          type: string
+          example: "Revisar acentuação e incluir orientação sobre quando procurar atendimento."
+    CategoryWrite:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: "Saúde íntima"
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+    ContentCategory:
+      type: object
+      required: [id, name, slug, is_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Saúde íntima"
+        slug:
+          type: string
+          example: "saude-intima"
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+    LifeStage:
+      type: object
+      required: [id, key, name]
+      properties:
+        id:
+          type: integer
+        key:
+          type: string
+          example: "climaterio_menopausa"
+        name:
+          type: string
+          example: "Climatério/menopausa"
+        description:
+          type: string
+          nullable: true
+        sort_order:
+          type: integer
+    AgeRange:
+      type: object
+      required: [id, label]
+      properties:
+        id:
+          type: integer
+        label:
+          type: string
+          example: "50+"
+        min_age:
+          type: integer
+          nullable: true
+        max_age:
+          type: integer
+          nullable: true
+        sort_order:
+          type: integer
+    EditorialAuditEvent:
+      type: object
+      required: [id, actor_id, action, occurred_at]
+      properties:
+        id:
+          type: integer
+        actor_id:
+          type: integer
+        content_id:
+          type: integer
+          nullable: true
+        target_admin_user_id:
+          type: integer
+          nullable: true
+        action:
+          type: string
+        previous_status:
+          $ref: '#/components/schemas/EditorialStatus'
+        new_status:
+          $ref: '#/components/schemas/EditorialStatus'
+        comment:
+          type: string
+          nullable: true
+        occurred_at:
+          type: string
+          format: date-time
+    ContentRevision:
+      type: object
+      required: [id, content_id, version, changed_by, created_at]
+      properties:
+        id:
+          type: integer
+        content_id:
+          type: integer
+        version:
+          type: integer
+        changed_by:
+          type: integer
+        change_summary:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    AdminNotification:
+      type: object
+      required: [id, recipient_id, type, title, message, created_at]
+      properties:
+        id:
+          type: integer
+        recipient_id:
+          type: integer
+        content_id:
+          type: integer
+          nullable: true
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        action_url:
+          type: string
+          nullable: true
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+        email_sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        email_failed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time

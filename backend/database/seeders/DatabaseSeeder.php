@@ -16,13 +16,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
+        $this->call([
+            ContentTaxonomySeeder::class,
+            AdminRolePermissionSeeder::class,
+        ]);
+
+        $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Administrador',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'user_type' => 'admin_user',
+                'is_active' => true,
             ],
         );
+
+        $role = \App\Models\AdminRole::where('key', \App\Models\AdminRole::ADMIN)->first();
+
+        if ($role) {
+            $admin->adminRoles()->syncWithoutDetaching([$role->id]);
+        }
     }
 }
