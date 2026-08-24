@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
 use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
+use App\Http\Controllers\Api\V1\Admin\ContentRevisionController as AdminContentRevisionController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
@@ -41,5 +42,6 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::post('contents/{content}/publish', [EditorialActionController::class, 'publish'])->middleware('admin.role:admin')->name('contents.publish');
         Route::post('contents/{content}/archive', [EditorialActionController::class, 'archive'])->middleware('admin.role:admin')->name('contents.archive');
         Route::get('contents/{content}/audit', [AdminContentAuditController::class, 'index'])->name('contents.audit');
+        Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');
     });
 });

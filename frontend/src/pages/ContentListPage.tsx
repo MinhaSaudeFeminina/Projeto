@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { listAdminContents, type AdminContent } from "@/services/api/contentApi";
 import { archiveContent, publishContent } from "@/services/api/editorialApi";
-import { hasAdminRole } from "@/state/adminAuthStore";
+import { getAdminUser, hasAdminRole } from "@/state/adminAuthStore";
 
 export default function ContentListPage() {
   const [contents, setContents] = useState<AdminContent[]>([]);
@@ -23,7 +23,9 @@ export default function ContentListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const currentUser = getAdminUser();
   const isAdmin = hasAdminRole("admin");
+  const isReviewer = hasAdminRole("reviewer_professor");
 
   async function loadContents(filters: { q?: string; status?: string } = {}) {
     setIsLoading(true);
@@ -109,7 +111,9 @@ export default function ContentListPage() {
                 <TableCell>
                   <div className="flex flex-wrap gap-2">
                     <Button asChild variant="outline" size="sm"><Link to={`/conteudos/${content.id}`}>Abrir</Link></Button>
-                    <Button asChild variant="ghost" size="sm"><Link to={`/conteudos/${content.id}/auditoria`}><FileClock className="mr-1 h-4 w-4" />Metadados</Link></Button>
+                    {isAdmin || isReviewer || content.author_id === currentUser?.id ? (
+                      <Button asChild variant="ghost" size="sm"><Link to={`/conteudos/${content.id}/auditoria`}><FileClock className="mr-1 h-4 w-4" />Auditoria</Link></Button>
+                    ) : null}
                     {isAdmin && content.status === "approved" ? (
                       <Button
                         type="button"

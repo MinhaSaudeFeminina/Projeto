@@ -225,19 +225,19 @@
 
 ### Tests for User Story 6
 
-- [ ] T107 [P] [US6] Create content audit backend test in backend/tests/Feature/Admin/ContentAuditTest.php
-- [ ] T108 [P] [US6] Create content history backend test in backend/tests/Feature/Admin/ContentHistoryTest.php
-- [ ] T109 [P] [US6] Create audit authorization backend test in backend/tests/Feature/Admin/AuditAuthorizationTest.php
-- [ ] T110 [P] [US6] Create content audit page test in frontend/src/tests/pages/ContentAuditPage.test.tsx
+- [X] T107 [P] [US6] Create content audit backend test in backend/tests/Feature/Admin/ContentAuditTest.php
+- [X] T108 [P] [US6] Create content history backend test in backend/tests/Feature/Admin/ContentHistoryTest.php
+- [X] T109 [P] [US6] Create audit authorization backend test in backend/tests/Feature/Admin/AuditAuthorizationTest.php
+- [X] T110 [P] [US6] Create content audit page test in frontend/src/tests/pages/ContentAuditPage.test.tsx
 
 ### Implementation for User Story 6
 
-- [ ] T111 [US6] Implement content audit controller in backend/app/Http/Controllers/Api/V1/Admin/ContentAuditController.php
-- [ ] T112 [US6] Implement content revision controller in backend/app/Http/Controllers/Api/V1/Admin/ContentRevisionController.php
-- [ ] T113 [US6] Add content audit and revision routes in backend/routes/api.php
-- [ ] T114 [US6] Implement audit API service in frontend/src/services/api/auditApi.ts
-- [ ] T115 [US6] Implement content audit page with event list and revision history in frontend/src/pages/ContentAuditPage.tsx
-- [ ] T116 [US6] Implement audit event timeline component in frontend/src/components/content/AuditTimeline.tsx
+- [X] T111 [US6] Implement content audit controller in backend/app/Http/Controllers/Api/V1/Admin/ContentAuditController.php
+- [X] T112 [US6] Implement content revision controller in backend/app/Http/Controllers/Api/V1/Admin/ContentRevisionController.php
+- [X] T113 [US6] Add content audit and revision routes in backend/routes/api.php
+- [X] T114 [US6] Implement audit API service in frontend/src/services/api/auditApi.ts
+- [X] T115 [US6] Implement content audit page with event list and revision history in frontend/src/pages/ContentAuditPage.tsx
+- [X] T116 [US6] Implement audit event timeline component in frontend/src/components/content/AuditTimeline.tsx
 
 **Checkpoint**: US6 is independently functional and testable.
 

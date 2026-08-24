@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, FileClock } from "lucide-react";
+import { AuditTimeline } from "@/components/content/AuditTimeline";
 import { EditorialStatusBadge } from "@/components/content/EditorialStatusBadge";
 import { Button } from "@/components/ui/button";
 import { getAdminContent, type AdminContent } from "@/services/api/contentApi";
+import {
+  getContentAudit,
+  getContentRevisions,
+  type ContentRevision,
+  type EditorialAuditEvent,
+} from "@/services/api/auditApi";
 
 type MetadataItemProps = {
   label: string;
@@ -36,6 +43,8 @@ function MetadataItem({ label, actorId, date, emptyText }: MetadataItemProps) {
 export default function ContentAuditPage() {
   const { id } = useParams();
   const [content, setContent] = useState<AdminContent | null>(null);
+  const [events, setEvents] = useState<EditorialAuditEvent[]>([]);
+  const [revisions, setRevisions] = useState<ContentRevision[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,8 +55,16 @@ export default function ContentAuditPage() {
       return;
     }
 
-    getAdminContent(contentId)
-      .then(setContent)
+    Promise.all([
+      getAdminContent(contentId),
+      getContentAudit(contentId),
+      getContentRevisions(contentId),
+    ])
+      .then(([contentRecord, auditEvents, contentRevisions]) => {
+        setContent(contentRecord);
+        setEvents(auditEvents);
+        setRevisions(contentRevisions);
+      })
       .catch((caught: Error) => setError(caught.message));
   }, [id]);
 
@@ -80,6 +97,48 @@ export default function ContentAuditPage() {
         <MetadataItem label="Publicação" actorId={content.published_by} date={content.published_at} emptyText="Ainda não publicado" />
         <MetadataItem label="Arquivamento" actorId={content.archived_by} date={content.archived_at} emptyText="Ainda não arquivado" />
       </dl>
+
+      <section className="space-y-4" aria-labelledby="audit-timeline-heading">
+        <div>
+          <h2 id="audit-timeline-heading" className="text-xl font-semibold">Linha do tempo editorial</h2>
+          <p className="text-sm text-muted-foreground">Eventos imutáveis registrados durante o fluxo do conteúdo.</p>
+        </div>
+        <AuditTimeline events={events} />
+      </section>
+
+      <section className="space-y-4" aria-labelledby="revision-history-heading">
+        <div>
+          <h2 id="revision-history-heading" className="text-xl font-semibold">Histórico de versões</h2>
+          <p className="text-sm text-muted-foreground">Snapshots preservados a cada alteração editorial relevante.</p>
+        </div>
+        {revisions.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p> : (
+          <div className="space-y-3">
+            {revisions.map((revision) => (
+              <details key={revision.id} className="rounded border bg-card p-4">
+                <summary className="cursor-pointer list-none">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold">Versão {revision.version}: {revision.title_snapshot}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {revision.changed_by_user?.name ?? `Usuário #${revision.changed_by}`} · {formatDate(revision.created_at)}
+                      </p>
+                    </div>
+                    <EditorialStatusBadge status={revision.status_snapshot} />
+                  </div>
+                </summary>
+                <div className="mt-4 space-y-3 border-t pt-4 text-sm">
+                  {revision.change_summary ? <p><span className="font-medium">Alteração:</span> {revision.change_summary}</p> : null}
+                  {revision.summary_snapshot ? <p><span className="font-medium">Resumo:</span> {revision.summary_snapshot}</p> : null}
+                  <div>
+                    <p className="font-medium">Conteúdo da versão</p>
+                    <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{revision.body_snapshot}</p>
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

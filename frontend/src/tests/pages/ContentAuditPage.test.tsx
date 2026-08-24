@@ -3,12 +3,18 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { vi } from "vitest";
 import ContentAuditPage from "@/pages/ContentAuditPage";
 import { getAdminContent } from "@/services/api/contentApi";
+import { getContentAudit, getContentRevisions } from "@/services/api/auditApi";
 
 vi.mock("@/services/api/contentApi", () => ({
   getAdminContent: vi.fn(),
 }));
 
-test("displays publication and archive metadata", async () => {
+vi.mock("@/services/api/auditApi", () => ({
+  getContentAudit: vi.fn(),
+  getContentRevisions: vi.fn(),
+}));
+
+test("displays publication metadata, audit timeline and revision history", async () => {
   vi.mocked(getAdminContent).mockResolvedValue({
     id: 10,
     title: "Saúde em todas as fases",
@@ -34,6 +40,43 @@ test("displays publication and archive metadata", async () => {
     archived_at: "2026-08-24T14:00:00.000Z",
     updated_at: "2026-08-24T14:00:00.000Z",
   });
+  vi.mocked(getContentAudit).mockResolvedValue([
+    {
+      id: 2,
+      actor_id: 3,
+      actor: { id: 3, name: "Administradora" },
+      action: "published",
+      previous_status: "approved",
+      new_status: "published",
+      comment: null,
+      occurred_at: "2026-08-24T13:00:00.000Z",
+    },
+    {
+      id: 1,
+      actor_id: 2,
+      actor: { id: 2, name: "Revisora" },
+      action: "adjustments_requested",
+      previous_status: "in_review",
+      new_status: "draft",
+      comment: "Incluir orientação profissional.",
+      occurred_at: "2026-08-24T11:00:00.000Z",
+    },
+  ]);
+  vi.mocked(getContentRevisions).mockResolvedValue([
+    {
+      id: 2,
+      content_id: 10,
+      changed_by: 3,
+      changed_by_user: { id: 3, name: "Administradora" },
+      version: 2,
+      title_snapshot: "Saúde em todas as fases",
+      summary_snapshot: "Conteúdo publicado.",
+      body_snapshot: "Orientações educativas.",
+      status_snapshot: "published",
+      change_summary: "Conteúdo publicado",
+      created_at: "2026-08-24T13:00:00.000Z",
+    },
+  ]);
 
   render(
     <MemoryRouter initialEntries={["/conteudos/10/auditoria"]}>
@@ -47,4 +90,9 @@ test("displays publication and archive metadata", async () => {
   expect(screen.getByText("Publicação")).toBeInTheDocument();
   expect(screen.getByText("Arquivamento")).toBeInTheDocument();
   expect(screen.getAllByText("Responsável: usuário #3")).toHaveLength(2);
+  expect(screen.getByRole("heading", { name: "Linha do tempo editorial" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Conteúdo publicado" })).toBeInTheDocument();
+  expect(screen.getByText("Comentário: Incluir orientação profissional.")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Histórico de versões" })).toBeInTheDocument();
+  expect(screen.getByText("Versão 2: Saúde em todas as fases")).toBeInTheDocument();
 });
