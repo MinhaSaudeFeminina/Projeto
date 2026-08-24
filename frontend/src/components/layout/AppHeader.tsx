@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Bell, LogOut, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,12 @@ import { clearAdminSession, getAdminToken, getAdminUser } from "@/state/adminAut
 
 interface AppHeaderProps {
   title?: string;
+  unreadNotifications?: number;
+}
+
+function notificationLabel(count: number): string {
+  if (count === 0) return "Notificações: nenhuma não lida";
+  return `Notificações: ${count} ${count === 1 ? "não lida" : "não lidas"}`;
 }
 
 function initials(name: string | undefined): string {
@@ -26,7 +32,7 @@ function initials(name: string | undefined): string {
     .toUpperCase();
 }
 
-export function AppHeader({ title }: AppHeaderProps) {
+export function AppHeader({ title, unreadNotifications = 0 }: AppHeaderProps) {
   const navigate = useNavigate();
   const adminUser = getAdminUser();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -59,9 +65,15 @@ export function AppHeader({ title }: AppHeaderProps) {
           <Input placeholder="Buscar conteúdos..." className="w-64 border-0 bg-muted/50 pl-9" />
         </div>
 
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notificações">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+        <Button asChild variant="ghost" size="icon" className="relative">
+          <Link to="/notificacoes" aria-label={notificationLabel(unreadNotifications)}>
+            <Bell className="h-5 w-5" />
+            {unreadNotifications > 0 ? (
+              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-primary px-1 text-center text-xs text-primary-foreground">
+                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+              </span>
+            ) : null}
+          </Link>
         </Button>
 
         <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
@@ -43,5 +44,7 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::post('contents/{content}/archive', [EditorialActionController::class, 'archive'])->middleware('admin.role:admin')->name('contents.archive');
         Route::get('contents/{content}/audit', [AdminContentAuditController::class, 'index'])->name('contents.audit');
         Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
     });
 });

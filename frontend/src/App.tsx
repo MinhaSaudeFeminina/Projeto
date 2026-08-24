@@ -14,7 +14,7 @@ import SymptomsPage from "@/pages/SymptomsPage";
 import RemindersPage from "@/pages/RemindersPage";
 import QuestionsPage from "@/pages/QuestionsPage";
 import AppUsersPage from "@/pages/AppUsersPage";
-import NotificationsPage from "@/pages/NotificationsPage";
+import AdminNotificationsPage from "@/pages/AdminNotificationsPage";
 import SupportPage from "@/pages/SupportPage";
 import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -46,7 +46,7 @@ const App = () => (
               <Route path="/lembretes" element={<RemindersPage />} />
               <Route path="/perguntas" element={<QuestionsPage />} />
               <Route path="/usuarias" element={<AppUsersPage />} />
-              <Route path="/notificacoes" element={<NotificationsPage />} />
+              <Route path="/notificacoes" element={<AdminNotificationsPage />} />
               <Route path="/apoio" element={<SupportPage />} />
               <Route path="/relatorios" element={<ReportsPage />} />
               <Route path="/configuracoes" element={<SettingsPage />} />

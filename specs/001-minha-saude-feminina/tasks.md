@@ -251,23 +251,23 @@
 
 ### Tests for User Story 7
 
-- [ ] T117 [P] [US7] Create admin notification backend test in backend/tests/Feature/Admin/AdminNotificationTest.php
-- [ ] T118 [P] [US7] Create notification recipient resolver unit test in backend/tests/Unit/Notifications/AdminNotificationRecipientResolverTest.php
-- [ ] T119 [P] [US7] Create admin notification e-mail rendering test in backend/tests/Feature/Mail/AdminNotificationMailTest.php
-- [ ] T120 [P] [US7] Create admin notifications page test in frontend/src/tests/pages/AdminNotificationsPage.test.tsx
+- [X] T117 [P] [US7] Create admin notification backend test in backend/tests/Feature/Admin/AdminNotificationTest.php
+- [X] T118 [P] [US7] Create notification recipient resolver unit test in backend/tests/Unit/Notifications/AdminNotificationRecipientResolverTest.php
+- [X] T119 [P] [US7] Create admin notification e-mail rendering test in backend/tests/Feature/Mail/AdminNotificationMailTest.php
+- [X] T120 [P] [US7] Create admin notifications page test in frontend/src/tests/pages/AdminNotificationsPage.test.tsx
 
 ### Implementation for User Story 7
 
-- [ ] T121 [US7] Implement admin notification recipient resolver in backend/app/Services/Notifications/AdminNotificationRecipientResolver.php
-- [ ] T122 [US7] Implement admin notification service in backend/app/Services/Notifications/AdminNotificationService.php
-- [ ] T123 [US7] Implement admin action required mailable in backend/app/Mail/AdminActionRequiredMail.php
-- [ ] T124 [US7] Implement admin notification mail sender in backend/app/Services/Notifications/AdminNotificationMailSender.php
-- [ ] T125 [US7] Implement admin notification controller in backend/app/Http/Controllers/Api/V1/Admin/AdminNotificationController.php
-- [ ] T126 [US7] Add admin notification routes in backend/routes/api.php
-- [ ] T127 [US7] Configure mail UTF-8 sender defaults in backend/config/mail.php
-- [ ] T128 [US7] Implement notification API service in frontend/src/services/api/notificationApi.ts
-- [ ] T129 [US7] Implement admin notifications page in frontend/src/pages/AdminNotificationsPage.tsx
-- [ ] T130 [US7] Add notifications indicator to admin layout in frontend/src/components/layout/AdminLayout.tsx
+- [X] T121 [US7] Implement admin notification recipient resolver in backend/app/Services/Notifications/AdminNotificationRecipientResolver.php
+- [X] T122 [US7] Implement admin notification service in backend/app/Services/Notifications/AdminNotificationService.php
+- [X] T123 [US7] Implement admin action required mailable in backend/app/Mail/AdminActionRequiredMail.php
+- [X] T124 [US7] Implement admin notification mail sender in backend/app/Services/Notifications/AdminNotificationMailSender.php
+- [X] T125 [US7] Implement admin notification controller in backend/app/Http/Controllers/Api/V1/Admin/AdminNotificationController.php
+- [X] T126 [US7] Add admin notification routes in backend/routes/api.php
+- [X] T127 [US7] Configure mail UTF-8 sender defaults in backend/config/mail.php
+- [X] T128 [US7] Implement notification API service in frontend/src/services/api/notificationApi.ts
+- [X] T129 [US7] Implement admin notifications page in frontend/src/pages/AdminNotificationsPage.tsx
+- [X] T130 [US7] Add notifications indicator to admin layout in frontend/src/components/layout/AdminLayout.tsx
 
 **Checkpoint**: US7 is independently functional and testable.
 

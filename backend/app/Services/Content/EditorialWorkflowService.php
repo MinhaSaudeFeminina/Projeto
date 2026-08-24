@@ -5,6 +5,7 @@ namespace App\Services\Content;
 use App\Models\EducationalContent;
 use App\Models\User;
 use App\Services\Audit\AuditRecorder;
+use App\Services\Notifications\AdminNotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -13,11 +14,12 @@ class EditorialWorkflowService
     public function __construct(
         private readonly AuditRecorder $audit,
         private readonly ContentRevisionRecorder $revisions,
+        private readonly AdminNotificationService $notifications,
     ) {}
 
     public function submit(EducationalContent $content, User $actor): EducationalContent
     {
-        return $this->transition(
+        return $this->transitionAndNotify(
             content: $content,
             actor: $actor,
             expectedState: EducationalContent::DRAFT,
@@ -36,7 +38,7 @@ class EditorialWorkflowService
 
     public function approve(EducationalContent $content, User $actor, ?string $comment = null): EducationalContent
     {
-        return $this->transition(
+        return $this->transitionAndNotify(
             content: $content,
             actor: $actor,
             expectedState: EducationalContent::IN_REVIEW,
@@ -54,7 +56,7 @@ class EditorialWorkflowService
 
     public function requestAdjustments(EducationalContent $content, User $actor, string $comment): EducationalContent
     {
-        return $this->transition(
+        return $this->transitionAndNotify(
             content: $content,
             actor: $actor,
             expectedState: EducationalContent::IN_REVIEW,
@@ -70,7 +72,7 @@ class EditorialWorkflowService
 
     public function publish(EducationalContent $content, User $actor): EducationalContent
     {
-        return $this->transition(
+        return $this->transitionAndNotify(
             content: $content,
             actor: $actor,
             expectedState: EducationalContent::APPROVED,
@@ -83,7 +85,7 @@ class EditorialWorkflowService
 
     public function archive(EducationalContent $content, User $actor): EducationalContent
     {
-        return $this->transition(
+        return $this->transitionAndNotify(
             content: $content,
             actor: $actor,
             expectedState: EducationalContent::PUBLISHED,
@@ -91,6 +93,35 @@ class EditorialWorkflowService
             action: 'archived',
             attributes: ['archived_by' => $actor->id, 'archived_at' => now()],
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function transitionAndNotify(
+        EducationalContent $content,
+        User $actor,
+        string $expectedState,
+        string $newState,
+        string $action,
+        array $attributes = [],
+        ?string $comment = null,
+        bool $requiresApprovalMetadata = false,
+    ): EducationalContent {
+        $updatedContent = $this->transition(
+            $content,
+            $actor,
+            $expectedState,
+            $newState,
+            $action,
+            $attributes,
+            $comment,
+            $requiresApprovalMetadata,
+        );
+
+        $this->notifications->notify($action, $updatedContent, $actor);
+
+        return $updatedContent;
     }
 
     /**
