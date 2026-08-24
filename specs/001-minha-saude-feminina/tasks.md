@@ -200,18 +200,18 @@
 
 ### Tests for User Story 5
 
-- [ ] T098 [P] [US5] Create publish/archive workflow backend test in backend/tests/Feature/Admin/PublishArchiveContentTest.php
-- [ ] T099 [P] [US5] Create publish/archive authorization backend test in backend/tests/Feature/Admin/PublishArchiveAuthorizationTest.php
-- [ ] T100 [P] [US5] Create publication metadata backend test in backend/tests/Feature/Admin/PublicationMetadataTest.php
+- [X] T098 [P] [US5] Create publish/archive workflow backend test in backend/tests/Feature/Admin/PublishArchiveContentTest.php
+- [X] T099 [P] [US5] Create publish/archive authorization backend test in backend/tests/Feature/Admin/PublishArchiveAuthorizationTest.php
+- [X] T100 [P] [US5] Create publication metadata backend test in backend/tests/Feature/Admin/PublicationMetadataTest.php
 
 ### Implementation for User Story 5
 
-- [ ] T101 [US5] Extend editorial workflow service with publish and archive transitions in backend/app/Services/Content/EditorialWorkflowService.php
-- [ ] T102 [US5] Extend editorial action controller with publish and archive actions in backend/app/Http/Controllers/Api/V1/Admin/EditorialActionController.php
-- [ ] T103 [US5] Add publish and archive routes in backend/routes/api.php
-- [ ] T104 [US5] Add publish and archive methods to editorial API service in frontend/src/services/api/editorialApi.ts
-- [ ] T105 [US5] Add Admin-only publish and archive controls in frontend/src/pages/ContentListPage.tsx
-- [ ] T106 [US5] Add publication and archive metadata display in frontend/src/pages/ContentAuditPage.tsx
+- [X] T101 [US5] Extend editorial workflow service with publish and archive transitions in backend/app/Services/Content/EditorialWorkflowService.php
+- [X] T102 [US5] Extend editorial action controller with publish and archive actions in backend/app/Http/Controllers/Api/V1/Admin/EditorialActionController.php
+- [X] T103 [US5] Add publish and archive routes in backend/routes/api.php
+- [X] T104 [US5] Add publish and archive methods to editorial API service in frontend/src/services/api/editorialApi.ts
+- [X] T105 [US5] Add Admin-only publish and archive controls in frontend/src/pages/ContentListPage.tsx
+- [X] T106 [US5] Add publication and archive metadata display in frontend/src/pages/ContentAuditPage.tsx
 
 **Checkpoint**: US5 is independently functional and testable.
 

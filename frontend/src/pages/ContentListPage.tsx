@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FilePenLine, Plus, Search } from "lucide-react";
+import { Archive, FileClock, FilePenLine, Plus, Search, Send } from "lucide-react";
 import { EditorialStatusBadge } from "@/components/content/EditorialStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { listAdminContents, type AdminContent } from "@/services/api/contentApi";
+import { archiveContent, publishContent } from "@/services/api/editorialApi";
+import { hasAdminRole } from "@/state/adminAuthStore";
 
 export default function ContentListPage() {
   const [contents, setContents] = useState<AdminContent[]>([]);
@@ -20,6 +22,8 @@ export default function ContentListPage() {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const isAdmin = hasAdminRole("admin");
 
   async function loadContents(filters: { q?: string; status?: string } = {}) {
     setIsLoading(true);
@@ -41,6 +45,23 @@ export default function ContentListPage() {
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void loadContents({ q: query, status });
+  }
+
+  async function handleEditorialAction(content: AdminContent, action: "publish" | "archive") {
+    const actionKey = `${action}-${content.id}`;
+    setPendingAction(actionKey);
+    setError(null);
+
+    try {
+      const updated = action === "publish"
+        ? await publishContent(content.id)
+        : await archiveContent(content.id);
+      setContents((current) => current.map((item) => item.id === updated.id ? updated : item));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Não foi possível concluir a ação editorial.");
+    } finally {
+      setPendingAction(null);
+    }
   }
 
   return (
@@ -85,7 +106,35 @@ export default function ContentListPage() {
                 <TableCell>{content.category?.name}</TableCell>
                 <TableCell><EditorialStatusBadge status={content.status} /></TableCell>
                 <TableCell>{content.author?.name ?? "—"}</TableCell>
-                <TableCell><Button asChild variant="outline" size="sm"><Link to={`/conteudos/${content.id}`}>Abrir</Link></Button></TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-2">
+                    <Button asChild variant="outline" size="sm"><Link to={`/conteudos/${content.id}`}>Abrir</Link></Button>
+                    <Button asChild variant="ghost" size="sm"><Link to={`/conteudos/${content.id}/auditoria`}><FileClock className="mr-1 h-4 w-4" />Metadados</Link></Button>
+                    {isAdmin && content.status === "approved" ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={pendingAction !== null}
+                        onClick={() => void handleEditorialAction(content, "publish")}
+                      >
+                        <Send className="mr-1 h-4 w-4" />
+                        {pendingAction === `publish-${content.id}` ? "Publicando..." : "Publicar"}
+                      </Button>
+                    ) : null}
+                    {isAdmin && content.status === "published" ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        disabled={pendingAction !== null}
+                        onClick={() => void handleEditorialAction(content, "archive")}
+                      >
+                        <Archive className="mr-1 h-4 w-4" />
+                        {pendingAction === `archive-${content.id}` ? "Arquivando..." : "Arquivar"}
+                      </Button>
+                    ) : null}
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

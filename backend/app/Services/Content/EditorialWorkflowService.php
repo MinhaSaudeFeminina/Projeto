@@ -77,6 +77,7 @@ class EditorialWorkflowService
             newState: EducationalContent::PUBLISHED,
             action: 'published',
             attributes: ['published_by' => $actor->id, 'published_at' => now()],
+            requiresApprovalMetadata: true,
         );
     }
 
@@ -103,10 +104,15 @@ class EditorialWorkflowService
         string $action,
         array $attributes = [],
         ?string $comment = null,
+        bool $requiresApprovalMetadata = false,
     ): EducationalContent {
-        return DB::transaction(function () use ($content, $actor, $expectedState, $newState, $action, $attributes, $comment): EducationalContent {
+        return DB::transaction(function () use ($content, $actor, $expectedState, $newState, $action, $attributes, $comment, $requiresApprovalMetadata): EducationalContent {
             $lockedContent = EducationalContent::query()->lockForUpdate()->findOrFail($content->id);
             $this->ensureState($lockedContent, $expectedState);
+
+            if ($requiresApprovalMetadata) {
+                $this->ensureApprovalRecorded($lockedContent);
+            }
 
             $previousState = $lockedContent->status;
             $lockedContent->forceFill([
@@ -134,6 +140,15 @@ class EditorialWorkflowService
         if ($content->status !== $expected) {
             throw ValidationException::withMessages([
                 'status' => ["Estado editorial inválido. Esperado: {$expected}."],
+            ]);
+        }
+    }
+
+    private function ensureApprovalRecorded(EducationalContent $content): void
+    {
+        if ($content->approved_by === null || $content->approved_at === null) {
+            throw ValidationException::withMessages([
+                'approval' => ['A publicação exige uma aprovação editorial registrada.'],
             ]);
         }
     }

@@ -48,6 +48,8 @@ class EducationalContentPolicy
     public function publish(User $user, EducationalContent $content): bool
     {
         return $content->status === EducationalContent::APPROVED
+            && $content->approved_by !== null
+            && $content->approved_at !== null
             && $user->hasAdminRole(AdminRole::ADMIN);
     }
 

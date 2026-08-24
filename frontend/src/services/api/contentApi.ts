@@ -19,6 +19,17 @@ export type AdminContent = {
   life_stages: ContentTaxonomyRecord[];
   age_ranges: ContentTaxonomyRecord[];
   author?: { id: number; name: string };
+  author_id: number;
+  submitted_by: number | null;
+  submitted_at: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  approved_by: number | null;
+  approved_at: string | null;
+  published_by: number | null;
+  published_at: string | null;
+  archived_by: number | null;
+  archived_at: string | null;
   updated_at: string;
 };
 

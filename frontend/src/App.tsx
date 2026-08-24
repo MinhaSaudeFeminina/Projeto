@@ -6,6 +6,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import DashboardPage from "@/pages/DashboardPage";
 import ContentListPage from "@/pages/ContentListPage";
 import ContentEditorPage from "@/pages/ContentEditorPage";
+import ContentAuditPage from "@/pages/ContentAuditPage";
 import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import LifeStagesPage from "@/pages/LifeStagesPage";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/conteudos" element={<ContentListPage />} />
               <Route path="/conteudos/novo" element={<ContentEditorPage />} />
               <Route path="/conteudos/:id" element={<ContentEditorPage />} />
+              <Route path="/conteudos/:id/auditoria" element={<ContentAuditPage />} />
               <Route path="/categorias" element={<CategoriesPage />} />
               <Route path="/trilhas" element={<LifeStagesPage />} />
               <Route path="/sintomas" element={<SymptomsPage />} />

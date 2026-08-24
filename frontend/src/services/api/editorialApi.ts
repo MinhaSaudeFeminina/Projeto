@@ -31,3 +31,13 @@ export async function approveContent(contentId: number, comment?: string): Promi
   );
   return response.data;
 }
+
+export async function publishContent(contentId: number): Promise<AdminContent> {
+  const response = await postEditorialAction(`/admin/contents/${contentId}/publish`);
+  return response.data;
+}
+
+export async function archiveContent(contentId: number): Promise<AdminContent> {
+  const response = await postEditorialAction(`/admin/contents/${contentId}/archive`);
+  return response.data;
+}
