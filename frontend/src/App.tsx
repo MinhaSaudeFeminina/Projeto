@@ -4,7 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import DashboardPage from "@/pages/DashboardPage";
-import ContentsPage from "@/pages/ContentsPage";
+import ContentListPage from "@/pages/ContentListPage";
+import ContentEditorPage from "@/pages/ContentEditorPage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import LifeStagesPage from "@/pages/LifeStagesPage";
 import SymptomsPage from "@/pages/SymptomsPage";
@@ -33,7 +34,9 @@ const App = () => (
           <Route element={<AdminRoutes />}>
             <Route element={<AdminLayout />}>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/conteudos" element={<ContentsPage />} />
+              <Route path="/conteudos" element={<ContentListPage />} />
+              <Route path="/conteudos/novo" element={<ContentEditorPage />} />
+              <Route path="/conteudos/:id" element={<ContentEditorPage />} />
               <Route path="/categorias" element={<CategoriesPage />} />
               <Route path="/trilhas" element={<LifeStagesPage />} />
               <Route path="/sintomas" element={<SymptomsPage />} />

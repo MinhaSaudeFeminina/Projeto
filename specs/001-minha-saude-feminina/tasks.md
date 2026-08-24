@@ -136,29 +136,29 @@
 
 ### Tests for User Story 3
 
-- [ ] T066 [P] [US3] Create content draft backend test in backend/tests/Feature/Admin/ContentDraftTest.php
-- [ ] T067 [P] [US3] Create content ownership authorization test in backend/tests/Feature/Admin/ContentOwnershipTest.php
-- [ ] T068 [P] [US3] Create content taxonomy association test in backend/tests/Feature/Admin/ContentTaxonomyTest.php
-- [ ] T069 [P] [US3] Create content revision backend test in backend/tests/Feature/Admin/ContentRevisionTest.php
-- [ ] T070 [P] [US3] Create content editor page test in frontend/src/tests/pages/ContentEditorPage.test.tsx
-- [ ] T071 [P] [US3] Create PT-BR content accent rendering test in frontend/src/tests/i18n/ContentAccentRendering.test.tsx
+- [X] T066 [P] [US3] Create content draft backend test in backend/tests/Feature/Admin/ContentDraftTest.php
+- [X] T067 [P] [US3] Create content ownership authorization test in backend/tests/Feature/Admin/ContentOwnershipTest.php
+- [X] T068 [P] [US3] Create content taxonomy association test in backend/tests/Feature/Admin/ContentTaxonomyTest.php
+- [X] T069 [P] [US3] Create content revision backend test in backend/tests/Feature/Admin/ContentRevisionTest.php
+- [X] T070 [P] [US3] Create content editor page test in frontend/src/tests/pages/ContentEditorPage.test.tsx
+- [X] T071 [P] [US3] Create PT-BR content accent rendering test in frontend/src/tests/i18n/ContentAccentRendering.test.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T072 [US3] Implement educational content policy in backend/app/Policies/EducationalContentPolicy.php
-- [ ] T073 [US3] Implement content create request with category, life stages, age ranges, and UTF-8 validation in backend/app/Http/Requests/Admin/StoreContentRequest.php
-- [ ] T074 [US3] Implement content update request with own-draft constraints in backend/app/Http/Requests/Admin/UpdateContentRequest.php
-- [ ] T075 [US3] Implement content revision recorder in backend/app/Services/Content/ContentRevisionRecorder.php
-- [ ] T076 [US3] Implement content slug and search text preparation service in backend/app/Services/Content/ContentTextPreparationService.php
-- [ ] T077 [US3] Implement admin content controller for create, list, detail, and update in backend/app/Http/Controllers/Api/V1/Admin/ContentController.php
-- [ ] T078 [US3] Implement taxonomy read controller for categories, life stages, and age ranges in backend/app/Http/Controllers/Api/V1/Admin/TaxonomyController.php
-- [ ] T079 [US3] Add content and taxonomy routes in backend/routes/api.php
-- [ ] T080 [US3] Implement content API service in frontend/src/services/api/contentApi.ts
-- [ ] T081 [US3] Implement taxonomy API service in frontend/src/services/api/taxonomyApi.ts
-- [ ] T082 [US3] Implement content list page in frontend/src/pages/ContentListPage.tsx
-- [ ] T083 [US3] Implement content editor page with category, life-stage, and age-range controls in frontend/src/pages/ContentEditorPage.tsx
-- [ ] T084 [US3] Implement editorial status badge in frontend/src/components/content/EditorialStatusBadge.tsx
-- [ ] T085 [US3] Review content editor PT-BR copy and accent preservation in frontend/src/pages/ContentEditorPage.tsx
+- [X] T072 [US3] Implement educational content policy in backend/app/Policies/EducationalContentPolicy.php
+- [X] T073 [US3] Implement content create request with category, life stages, age ranges, and UTF-8 validation in backend/app/Http/Requests/Admin/StoreContentRequest.php
+- [X] T074 [US3] Implement content update request with own-draft constraints in backend/app/Http/Requests/Admin/UpdateContentRequest.php
+- [X] T075 [US3] Implement content revision recorder in backend/app/Services/Content/ContentRevisionRecorder.php
+- [X] T076 [US3] Implement content slug and search text preparation service in backend/app/Services/Content/ContentTextPreparationService.php
+- [X] T077 [US3] Implement admin content controller for create, list, detail, and update in backend/app/Http/Controllers/Api/V1/Admin/ContentController.php
+- [X] T078 [US3] Implement taxonomy read controller for categories, life stages, and age ranges in backend/app/Http/Controllers/Api/V1/Admin/TaxonomyController.php
+- [X] T079 [US3] Add content and taxonomy routes in backend/routes/api.php
+- [X] T080 [US3] Implement content API service in frontend/src/services/api/contentApi.ts
+- [X] T081 [US3] Implement taxonomy API service in frontend/src/services/api/taxonomyApi.ts
+- [X] T082 [US3] Implement content list page in frontend/src/pages/ContentListPage.tsx
+- [X] T083 [US3] Implement content editor page with category, life-stage, and age-range controls in frontend/src/pages/ContentEditorPage.tsx
+- [X] T084 [US3] Implement editorial status badge in frontend/src/components/content/EditorialStatusBadge.tsx
+- [X] T085 [US3] Review content editor PT-BR copy and accent preservation in frontend/src/pages/ContentEditorPage.tsx
 
 **Checkpoint**: US3 is independently functional and testable.
 

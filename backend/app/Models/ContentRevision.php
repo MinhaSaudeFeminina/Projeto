@@ -21,6 +21,11 @@ class ContentRevision extends Model
         'age_ranges_snapshot',
         'status_snapshot',
         'change_summary',
+        'title',
+        'summary',
+        'body',
+        'status',
+        'change_note',
     ];
 
     protected function casts(): array

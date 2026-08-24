@@ -8,6 +8,16 @@ use App\Models\User;
 
 class EducationalContentPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->hasAnyAdminRole([AdminRole::AUTHOR, AdminRole::REVIEWER, AdminRole::ADMIN]);
+    }
+
+    public function view(User $user, EducationalContent $content): bool
+    {
+        return $this->viewAny($user);
+    }
+
     public function create(User $user): bool
     {
         return $user->hasAnyAdminRole([AdminRole::AUTHOR, AdminRole::ADMIN]);

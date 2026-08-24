@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\AdminRole;
+use App\Models\User;
+use Database\Seeders\AdminRolePermissionSeeder;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,7 +17,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature', 'Unit');
 
@@ -48,15 +54,30 @@ function something()
 
 function adminWithRoleForEditorial(string $roleName): array
 {
-    $role = \App\Models\AdminRole::firstOrCreate(['name' => $roleName], ['permissions' => ['*']]);
-    $user = \App\Models\User::factory()->create([
+    $role = AdminRole::firstOrCreate(['name' => $roleName], ['permissions' => ['*']]);
+    $user = User::factory()->create([
         'user_type' => 'admin_user',
         'is_active' => true,
-        'password' => \Illuminate\Support\Facades\Hash::make('password'),
+        'password' => Hash::make('password'),
     ]);
     $user->adminRoles()->attach($role->id);
 
-    $abilities = $roleName === \App\Models\AdminRole::ADMIN ? ['*'] : [$roleName];
+    $abilities = $roleName === AdminRole::ADMIN ? ['*'] : [$roleName];
 
     return [$user, $user->createToken('admin-web', $abilities)->plainTextToken];
+}
+
+function adminUserWithCanonicalRole(string $roleKey): User
+{
+    (new AdminRolePermissionSeeder)->run();
+
+    $user = User::factory()->create([
+        'user_type' => 'admin_user',
+        'is_active' => true,
+    ]);
+
+    $role = AdminRole::query()->where('key', $roleKey)->firstOrFail();
+    $user->adminRoles()->attach($role);
+
+    return $user;
 }

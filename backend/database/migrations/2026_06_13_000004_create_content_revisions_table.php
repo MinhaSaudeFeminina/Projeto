@@ -45,6 +45,15 @@ return new class extends Migration
                 if (! Schema::hasColumn('content_revisions', 'change_summary')) {
                     $table->text('change_summary')->nullable();
                 }
+                if (! Schema::hasColumn('content_revisions', 'category_snapshot')) {
+                    $table->json('category_snapshot')->nullable();
+                }
+                if (! Schema::hasColumn('content_revisions', 'life_stages_snapshot')) {
+                    $table->json('life_stages_snapshot')->nullable();
+                }
+                if (! Schema::hasColumn('content_revisions', 'age_ranges_snapshot')) {
+                    $table->json('age_ranges_snapshot')->nullable();
+                }
             });
         }
     }

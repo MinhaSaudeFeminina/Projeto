@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
 use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
+use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
@@ -26,6 +27,10 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::patch('admin-users/{adminUser}', [AdminUserController::class, 'update'])->name('admin-users.update');
         Route::get('roles', [RolePermissionController::class, 'roles'])->name('roles.index');
         Route::get('permissions', [RolePermissionController::class, 'permissions'])->name('permissions.index');
+        Route::get('taxonomies', [TaxonomyController::class, 'index'])->name('taxonomies.index');
+        Route::get('categories', [TaxonomyController::class, 'categories'])->name('categories.index');
+        Route::get('life-stages', [TaxonomyController::class, 'lifeStages'])->name('life-stages.index');
+        Route::get('age-ranges', [TaxonomyController::class, 'ageRanges'])->name('age-ranges.index');
         Route::get('contents', [AdminContentController::class, 'index'])->name('contents.index');
         Route::post('contents', [AdminContentController::class, 'store'])->name('contents.store');
         Route::get('contents/{content}', [AdminContentController::class, 'show'])->name('contents.show');
