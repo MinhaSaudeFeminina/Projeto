@@ -172,21 +172,21 @@
 
 ### Tests for User Story 4
 
-- [ ] T086 [P] [US4] Create editorial workflow backend test for submit, adjustments, and approval in backend/tests/Feature/Admin/EditorialWorkflowTest.php
-- [ ] T087 [P] [US4] Create editorial authorization backend test in backend/tests/Feature/Admin/EditorialAuthorizationTest.php
-- [ ] T088 [P] [US4] Create review queue page test in frontend/src/tests/pages/ReviewQueuePage.test.tsx
-- [ ] T089 [P] [US4] Create editorial transition unit test in backend/tests/Unit/Content/EditorialWorkflowServiceTest.php
+- [X] T086 [P] [US4] Create editorial workflow backend test for submit, adjustments, and approval in backend/tests/Feature/Admin/EditorialWorkflowTest.php
+- [X] T087 [P] [US4] Create editorial authorization backend test in backend/tests/Feature/Admin/EditorialAuthorizationTest.php
+- [X] T088 [P] [US4] Create review queue page test in frontend/src/tests/pages/ReviewQueuePage.test.tsx
+- [X] T089 [P] [US4] Create editorial transition unit test in backend/tests/Unit/Content/EditorialWorkflowServiceTest.php
 
 ### Implementation for User Story 4
 
-- [ ] T090 [US4] Implement editorial workflow service for draft, in-review, approved transitions in backend/app/Services/Content/EditorialWorkflowService.php
-- [ ] T091 [US4] Implement review action request validation in backend/app/Http/Requests/Admin/ReviewContentRequest.php
-- [ ] T092 [US4] Implement editorial action controller for submit-review, request-adjustments, and approve in backend/app/Http/Controllers/Api/V1/Admin/EditorialActionController.php
-- [ ] T093 [US4] Add submit-review, request-adjustments, and approve routes in backend/routes/api.php
-- [ ] T094 [US4] Implement editorial API service in frontend/src/services/api/editorialApi.ts
-- [ ] T095 [US4] Implement review queue page in frontend/src/pages/ReviewQueuePage.tsx
-- [ ] T096 [US4] Implement review action dialog with required adjustment comment in frontend/src/components/content/ReviewActionDialog.tsx
-- [ ] T097 [US4] Add review and approval actions to content detail UI in frontend/src/pages/ContentEditorPage.tsx
+- [X] T090 [US4] Implement editorial workflow service for draft, in-review, approved transitions in backend/app/Services/Content/EditorialWorkflowService.php
+- [X] T091 [US4] Implement review action request validation in backend/app/Http/Requests/Admin/ReviewContentRequest.php
+- [X] T092 [US4] Implement editorial action controller for submit-review, request-adjustments, and approve in backend/app/Http/Controllers/Api/V1/Admin/EditorialActionController.php
+- [X] T093 [US4] Add submit-review, request-adjustments, and approve routes in backend/routes/api.php
+- [X] T094 [US4] Implement editorial API service in frontend/src/services/api/editorialApi.ts
+- [X] T095 [US4] Implement review queue page in frontend/src/pages/ReviewQueuePage.tsx
+- [X] T096 [US4] Implement review action dialog with required adjustment comment in frontend/src/components/content/ReviewActionDialog.tsx
+- [X] T097 [US4] Add review and approval actions to content detail UI in frontend/src/pages/ContentEditorPage.tsx
 
 **Checkpoint**: US4 is independently functional and testable.
 

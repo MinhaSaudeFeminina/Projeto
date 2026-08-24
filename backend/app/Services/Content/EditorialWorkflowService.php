@@ -13,74 +13,119 @@ class EditorialWorkflowService
     public function __construct(
         private readonly AuditRecorder $audit,
         private readonly ContentRevisionRecorder $revisions,
-    ) {
-    }
+    ) {}
 
     public function submit(EducationalContent $content, User $actor): EducationalContent
     {
-        $this->ensureState($content, EducationalContent::DRAFT);
-
-        $content->forceFill([
-            'submitted_by' => $actor->id,
-            'submitted_at' => now(),
-        ]);
-
-        return $this->transition($content, $actor, EducationalContent::IN_REVIEW, 'submitted_for_review');
+        return $this->transition(
+            content: $content,
+            actor: $actor,
+            expectedState: EducationalContent::DRAFT,
+            newState: EducationalContent::IN_REVIEW,
+            action: 'submitted_for_review',
+            attributes: [
+                'submitted_by' => $actor->id,
+                'submitted_at' => now(),
+                'reviewed_by' => null,
+                'reviewed_at' => null,
+                'approved_by' => null,
+                'approved_at' => null,
+            ],
+        );
     }
 
     public function approve(EducationalContent $content, User $actor, ?string $comment = null): EducationalContent
     {
-        $this->ensureState($content, EducationalContent::IN_REVIEW);
-
-        $content->forceFill([
-            'reviewed_by' => $actor->id,
-            'reviewed_at' => now(),
-            'approved_by' => $actor->id,
-            'approved_at' => now(),
-        ]);
-
-        return $this->transition($content, $actor, EducationalContent::APPROVED, 'approved', ['comment' => $comment], $comment);
+        return $this->transition(
+            content: $content,
+            actor: $actor,
+            expectedState: EducationalContent::IN_REVIEW,
+            newState: EducationalContent::APPROVED,
+            action: 'approved',
+            attributes: [
+                'reviewed_by' => $actor->id,
+                'reviewed_at' => now(),
+                'approved_by' => $actor->id,
+                'approved_at' => now(),
+            ],
+            comment: $comment,
+        );
     }
 
-    public function requestAdjustments(EducationalContent $content, User $actor, string $comment, string $outcome = 'adjustments_requested'): EducationalContent
+    public function requestAdjustments(EducationalContent $content, User $actor, string $comment): EducationalContent
     {
-        $this->ensureState($content, EducationalContent::IN_REVIEW);
-
-        $content->forceFill([
-            'reviewed_by' => $actor->id,
-            'reviewed_at' => now(),
-        ]);
-
-        return $this->transition($content, $actor, EducationalContent::DRAFT, $outcome, ['comment' => $comment], $comment);
+        return $this->transition(
+            content: $content,
+            actor: $actor,
+            expectedState: EducationalContent::IN_REVIEW,
+            newState: EducationalContent::DRAFT,
+            action: 'adjustments_requested',
+            attributes: [
+                'reviewed_by' => $actor->id,
+                'reviewed_at' => now(),
+            ],
+            comment: $comment,
+        );
     }
 
     public function publish(EducationalContent $content, User $actor): EducationalContent
     {
-        $this->ensureState($content, EducationalContent::APPROVED);
-        $content->forceFill(['published_by' => $actor->id, 'published_at' => now()]);
-
-        return $this->transition($content, $actor, EducationalContent::PUBLISHED, 'published');
+        return $this->transition(
+            content: $content,
+            actor: $actor,
+            expectedState: EducationalContent::APPROVED,
+            newState: EducationalContent::PUBLISHED,
+            action: 'published',
+            attributes: ['published_by' => $actor->id, 'published_at' => now()],
+        );
     }
 
     public function archive(EducationalContent $content, User $actor): EducationalContent
     {
-        $this->ensureState($content, EducationalContent::PUBLISHED);
-        $content->forceFill(['archived_by' => $actor->id, 'archived_at' => now()]);
-
-        return $this->transition($content, $actor, EducationalContent::ARCHIVED, 'archived');
+        return $this->transition(
+            content: $content,
+            actor: $actor,
+            expectedState: EducationalContent::PUBLISHED,
+            newState: EducationalContent::ARCHIVED,
+            action: 'archived',
+            attributes: ['archived_by' => $actor->id, 'archived_at' => now()],
+        );
     }
 
-    private function transition(EducationalContent $content, User $actor, string $newState, string $action, array $metadata = [], ?string $comment = null): EducationalContent
-    {
-        return DB::transaction(function () use ($content, $actor, $newState, $action, $metadata, $comment): EducationalContent {
-            $previous = $content->status;
-            $content->status = $newState;
-            $content->save();
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function transition(
+        EducationalContent $content,
+        User $actor,
+        string $expectedState,
+        string $newState,
+        string $action,
+        array $attributes = [],
+        ?string $comment = null,
+    ): EducationalContent {
+        return DB::transaction(function () use ($content, $actor, $expectedState, $newState, $action, $attributes, $comment): EducationalContent {
+            $lockedContent = EducationalContent::query()->lockForUpdate()->findOrFail($content->id);
+            $this->ensureState($lockedContent, $expectedState);
 
-            $this->revisions->record($content, $actor, $action);
-            $this->audit->recordEditorialEvent($actor, $action, $content, $previous, $newState, $comment, $metadata);
+            $previousState = $lockedContent->status;
+            $lockedContent->forceFill([
+                ...$attributes,
+                'status' => $newState,
+            ])->save();
 
-            return $content->refresh();
+            $this->revisions->record($lockedContent, $actor, $action);
+            $this->audit->recordEditorialEvent(
+                actor: $actor,
+                action: $action,
+                content: $lockedContent,
+                previousStatus: $previousState,
+                newStatus: $newState,
+                comment: $comment,
+                metadata: $comment === null ? [] : ['has_comment' => true],
+            );
+
+            return $lockedContent->refresh()->load(['category', 'lifeStages', 'ageRanges', 'author:id,name']);
         });
     }
 

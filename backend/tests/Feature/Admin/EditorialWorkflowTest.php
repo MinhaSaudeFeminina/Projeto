@@ -7,34 +7,85 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('content moves through editorial workflow with audit', function () {
-    [$author, $authorToken] = adminWithRoleForEditorial(AdminRole::AUTHOR);
-    [, $reviewerToken] = adminWithRoleForEditorial(AdminRole::REVIEWER);
-    [$admin, $adminToken] = adminWithRoleForEditorial(AdminRole::ADMIN);
-    $category = ContentCategory::create(['name' => 'Ciclo menstrual', 'slug' => 'ciclo-menstrual']);
-
-    $contentId = $this->withToken($authorToken)->postJson('/api/v1/admin/contents', [
+it('moves content through adjustments, resubmission and approval with audit', function (): void {
+    $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
+    $reviewer = adminUserWithCanonicalRole(AdminRole::REVIEWER);
+    $category = ContentCategory::create(['name' => 'Saúde íntima', 'slug' => 'saude-intima']);
+    $content = EducationalContent::create([
         'title' => 'Saúde íntima e menstruação',
-        'summary' => 'Conteúdo com acentuação correta.',
-        'body' => 'Procure atendimento profissional em sinais de alerta.',
+        'slug' => 'saude-intima-e-menstruacao',
+        'summary' => 'Conteúdo educativo com acentuação correta.',
+        'body' => 'Procure atendimento profissional diante de sinais de alerta.',
         'category_id' => $category->id,
-    ])->assertCreated()->json('data.id');
+        'status' => EducationalContent::DRAFT,
+        'author_id' => $author->id,
+    ]);
 
-    $this->withToken($authorToken)->postJson("/api/v1/admin/contents/{$contentId}/actions", ['action' => 'submit'])
-        ->assertOk()->assertJsonPath('data.status', EducationalContent::IN_REVIEW);
-
-    $this->withToken($reviewerToken)->postJson("/api/v1/admin/contents/{$contentId}/actions", ['action' => 'approve'])
-        ->assertOk()->assertJsonPath('data.status', EducationalContent::APPROVED);
-
-    expect($admin->adminRoles()->pluck('name')->all())->toContain(AdminRole::ADMIN);
-
-    $this->withToken($adminToken)->postJson("/api/v1/admin/contents/{$contentId}/publish")
-        ->assertOk()->assertJsonPath('data.status', EducationalContent::PUBLISHED);
-
-    $this->withToken($adminToken)->postJson("/api/v1/admin/contents/{$contentId}/archive")
-        ->assertOk()->assertJsonPath('data.status', EducationalContent::ARCHIVED);
-
-    $this->withToken($adminToken)->getJson("/api/v1/admin/contents/{$contentId}/audit")
+    $this->actingAs($author, 'sanctum')
+        ->postJson("/api/v1/admin/contents/{$content->id}/submit-review")
         ->assertOk()
-        ->assertJsonFragment(['action' => 'published']);
+        ->assertJsonPath('data.status', EducationalContent::IN_REVIEW)
+        ->assertJsonPath('data.submitted_by', $author->id);
+
+    $this->actingAs($reviewer, 'sanctum')
+        ->postJson("/api/v1/admin/contents/{$content->id}/request-adjustments", [
+            'comment' => 'Revisar a acentuação e explicar quando procurar atendimento.',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.status', EducationalContent::DRAFT)
+        ->assertJsonPath('data.reviewed_by', $reviewer->id);
+
+    $this->actingAs($author, 'sanctum')
+        ->postJson("/api/v1/admin/contents/{$content->id}/submit-review")
+        ->assertOk()
+        ->assertJsonPath('data.status', EducationalContent::IN_REVIEW);
+
+    $this->actingAs($reviewer, 'sanctum')
+        ->postJson("/api/v1/admin/contents/{$content->id}/approve", [
+            'comment' => 'Conteúdo revisado e adequado para publicação.',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.status', EducationalContent::APPROVED)
+        ->assertJsonPath('data.approved_by', $reviewer->id);
+
+    $content->refresh();
+
+    expect($content->submitted_at)->not->toBeNull()
+        ->and($content->reviewed_at)->not->toBeNull()
+        ->and($content->approved_at)->not->toBeNull();
+
+    $this->assertDatabaseHas('editorial_audit_events', [
+        'content_id' => $content->id,
+        'action' => 'adjustments_requested',
+        'previous_status' => EducationalContent::IN_REVIEW,
+        'new_status' => EducationalContent::DRAFT,
+        'comment' => 'Revisar a acentuação e explicar quando procurar atendimento.',
+    ]);
+    $this->assertDatabaseHas('editorial_audit_events', [
+        'content_id' => $content->id,
+        'action' => 'approved',
+        'previous_status' => EducationalContent::IN_REVIEW,
+        'new_status' => EducationalContent::APPROVED,
+    ]);
+    $this->assertDatabaseCount('content_revisions', 4);
+});
+
+it('requires an editorial comment when requesting adjustments', function (): void {
+    $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
+    $reviewer = adminUserWithCanonicalRole(AdminRole::REVIEWER);
+    $category = ContentCategory::create(['name' => 'Prevenção', 'slug' => 'prevencao']);
+    $content = EducationalContent::create([
+        'title' => 'Prevenção e cuidado',
+        'slug' => 'prevencao-e-cuidado',
+        'summary' => 'Resumo educativo.',
+        'body' => 'Conteúdo educativo.',
+        'category_id' => $category->id,
+        'status' => EducationalContent::IN_REVIEW,
+        'author_id' => $author->id,
+    ]);
+
+    $this->actingAs($reviewer, 'sanctum')
+        ->postJson("/api/v1/admin/contents/{$content->id}/request-adjustments", ['comment' => ''])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('comment');
 });

@@ -20,8 +20,6 @@ class EditorialActionController extends Controller
 
     public function requestAdjustments(ReviewContentRequest $request, EducationalContent $content, EditorialWorkflowService $workflow): JsonResponse
     {
-        $this->authorize('review', $content);
-
         return response()->json([
             'data' => $workflow->requestAdjustments($content, $request->user(), (string) $request->validated('comment')),
         ]);
@@ -29,8 +27,6 @@ class EditorialActionController extends Controller
 
     public function approve(ReviewContentRequest $request, EducationalContent $content, EditorialWorkflowService $workflow): JsonResponse
     {
-        $this->authorize('review', $content);
-
         return response()->json([
             'data' => $workflow->approve($content, $request->user(), $request->validated('comment')),
         ]);

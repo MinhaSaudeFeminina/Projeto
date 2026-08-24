@@ -6,6 +6,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import DashboardPage from "@/pages/DashboardPage";
 import ContentListPage from "@/pages/ContentListPage";
 import ContentEditorPage from "@/pages/ContentEditorPage";
+import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import LifeStagesPage from "@/pages/LifeStagesPage";
 import SymptomsPage from "@/pages/SymptomsPage";
@@ -47,6 +48,11 @@ const App = () => (
               <Route path="/apoio" element={<SupportPage />} />
               <Route path="/relatorios" element={<ReportsPage />} />
               <Route path="/configuracoes" element={<SettingsPage />} />
+            </Route>
+          </Route>
+          <Route element={<AdminRoutes requiredRoles={["reviewer_professor", "admin"]} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/revisoes" element={<ReviewQueuePage />} />
             </Route>
           </Route>
           <Route element={<AdminRoutes requiredRole="admin" />}>

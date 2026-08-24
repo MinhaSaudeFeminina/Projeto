@@ -32,7 +32,7 @@ const metrics = [
 
 const actions = [
   { label: "Novo conteúdo", to: "/conteudos", icon: FilePenLine },
-  { label: "Fila de revisão", to: "/conteudos", icon: FileCheck2 },
+  { label: "Fila de revisão", to: "/revisoes", icon: FileCheck2 },
   { label: "Usuárias administrativas", to: "/usuarios-painel", icon: Users },
   { label: "Notificações", to: "/notificacoes", icon: Bell },
 ];

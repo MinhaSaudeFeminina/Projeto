@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { hasAdminRole } from '@/state/adminAuthStore';
 import {
-  LayoutDashboard, FileText, FolderOpen, Route, Thermometer,
+  LayoutDashboard, FileText, FileCheck2, FolderOpen, Route, Thermometer,
   Bell, MessageCircleQuestion, Users, Send, Phone,
   BarChart3, UserCog, Settings, ChevronLeft, Heart
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import {
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { label: 'Conteúdos Educativos', icon: FileText, path: '/conteudos' },
+  { label: 'Fila de Revisão', icon: FileCheck2, path: '/revisoes' },
   { label: 'Categorias', icon: FolderOpen, path: '/categorias' },
   { label: 'Trilhas por Fase da Vida', icon: Route, path: '/trilhas' },
   { label: 'Sintomas e Queixas', icon: Thermometer, path: '/sintomas' },
@@ -27,7 +28,11 @@ const menuItems = [
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const visibleItems = menuItems.filter((item) => item.path !== '/usuarios-painel' || hasAdminRole('admin'));
+  const visibleItems = menuItems.filter((item) => {
+    if (item.path === '/usuarios-painel') return hasAdminRole('admin');
+    if (item.path === '/revisoes') return hasAdminRole('reviewer_professor') || hasAdminRole('admin');
+    return true;
+  });
 
   return (
     <aside className={cn(
