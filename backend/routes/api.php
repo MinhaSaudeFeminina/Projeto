@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\ContentRevisionController as AdminContentR
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
+use App\Http\Controllers\Api\V1\Admin\SupportContactController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\Mobile\AuthController as MobileAuthController;
 use App\Http\Controllers\Api\V1\Mobile\ContentController as MobileContentController;
@@ -58,10 +59,10 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');
         Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
-        Route::get('anonymous-questions', [AnonymousQuestionController::class, 'index'])->name('anonymous-questions.index');
-        Route::get('anonymous-questions/{anonymousQuestion}', [AnonymousQuestionController::class, 'show'])->name('anonymous-questions.show');
-        Route::post('anonymous-questions/{anonymousQuestion}/answer', [AnonymousQuestionController::class, 'answer'])->name('anonymous-questions.answer');
-        Route::post('anonymous-questions/{anonymousQuestion}/archive', [AnonymousQuestionController::class, 'archive'])->name('anonymous-questions.archive');
+        Route::get('support-contacts', [SupportContactController::class, 'index'])->name('support-contacts.index');
+        Route::post('support-contacts', [SupportContactController::class, 'store'])->name('support-contacts.store');
+        Route::patch('support-contacts/{supportContact}', [SupportContactController::class, 'update'])->name('support-contacts.update');
+        Route::delete('support-contacts/{supportContact}', [SupportContactController::class, 'destroy'])->name('support-contacts.destroy');
     });
 });
 

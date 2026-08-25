@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ContentTaxonomySeeder::class,
             AdminRolePermissionSeeder::class,
-            AnonymousQuestionSeeder::class,
+            SupportContactSeeder::class,
         ]);
 
         $admin = User::updateOrCreate(
