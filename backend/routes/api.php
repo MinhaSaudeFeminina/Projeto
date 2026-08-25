@@ -10,6 +10,13 @@ use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardContr
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
+use App\Http\Controllers\Api\V1\Mobile\AuthController as MobileAuthController;
+use App\Http\Controllers\Api\V1\Mobile\ContentController as MobileContentController;
+use App\Http\Controllers\Api\V1\Mobile\EmailVerificationController as MobileEmailVerificationController;
+use App\Http\Controllers\Api\V1\Mobile\LegalDocumentController as MobileLegalDocumentController;
+use App\Http\Controllers\Api\V1\Mobile\MenstrualCycleController as MobileMenstrualCycleController;
+use App\Http\Controllers\Api\V1\Mobile\ProfileController as MobileProfileController;
+use App\Http\Controllers\Api\V1\Mobile\SymptomRecordController as MobileSymptomRecordController;
 /** @noinspection PhpUndefinedClassInspection */
 use Illuminate\Support\Facades\Route;
 
@@ -50,5 +57,31 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');
         Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
+    });
+});
+
+Route::prefix('v1/mobile')->name('api.v1.mobile.')->group(function (): void {
+    Route::prefix('auth')->name('auth.')->group(function (): void {
+        Route::post('register', [MobileAuthController::class, 'register'])->name('register');
+        Route::post('login', [MobileAuthController::class, 'login'])->name('login');
+        Route::post('email/verify', [MobileEmailVerificationController::class, 'verify'])->name('email.verify');
+        Route::post('email/resend', [MobileEmailVerificationController::class, 'resend'])->name('email.resend');
+    });
+
+    Route::get('contents', [MobileContentController::class, 'index'])->name('contents.index');
+    Route::get('contents/{slug}', [MobileContentController::class, 'show'])->name('contents.show');
+    Route::get('legal-documents/current', [MobileLegalDocumentController::class, 'current'])->name('legal-documents.current');
+
+    Route::middleware(['auth:sanctum'])->group(function (): void {
+        Route::get('me', [MobileProfileController::class, 'show'])->name('me.show');
+        Route::patch('me', [MobileProfileController::class, 'update'])->name('me.update');
+        Route::post('legal-acceptances', [MobileLegalDocumentController::class, 'accept'])->name('legal-acceptances.store');
+
+        Route::middleware(['ability:mobile:full'])->group(function (): void {
+            Route::get('cycles', [MobileMenstrualCycleController::class, 'index'])->name('cycles.index');
+            Route::post('cycles', [MobileMenstrualCycleController::class, 'store'])->name('cycles.store');
+            Route::get('symptom-records', [MobileSymptomRecordController::class, 'index'])->name('symptom-records.index');
+            Route::post('symptom-records', [MobileSymptomRecordController::class, 'store'])->name('symptom-records.store');
+        });
     });
 });
