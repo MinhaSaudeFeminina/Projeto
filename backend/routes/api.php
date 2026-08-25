@@ -37,6 +37,8 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::get('admin-users', [AdminUserController::class, 'index'])->name('admin-users.index');
         Route::post('admin-users', [AdminUserController::class, 'store'])->name('admin-users.store');
         Route::patch('admin-users/{adminUser}', [AdminUserController::class, 'update'])->name('admin-users.update');
+        Route::get('app-users', [AppUserController::class, 'index'])->name('app-users.index');
+        Route::patch('app-users/{appUser}', [AppUserController::class, 'update'])->name('app-users.update');
         Route::get('roles', [RolePermissionController::class, 'roles'])->name('roles.index');
         Route::get('permissions', [RolePermissionController::class, 'permissions'])->name('permissions.index');
         Route::get('taxonomies', [TaxonomyController::class, 'index'])->name('taxonomies.index');
