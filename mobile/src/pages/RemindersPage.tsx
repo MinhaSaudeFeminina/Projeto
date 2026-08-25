@@ -1,0 +1,179 @@
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { AppHeader } from '../components/layout/AppHeader';
+import { AppScreen } from '../components/layout/AppScreen';
+import { AppButton } from '../components/ui/AppButton';
+import { AppCard } from '../components/ui/AppCard';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { FeedbackMessage } from '../components/ui/FeedbackMessage';
+import {
+  completeReminder,
+  getReminderFeedbackMessage,
+  getUserReminders,
+  type ReminderViewModel,
+} from '../services/remindersService';
+import { navigateBackOrToday } from '../utils/navigation';
+import type { RootStackScreenProps } from '../utils/navigationTypes';
+import { theme } from '../utils/theme';
+
+type RemindersPageProps = RootStackScreenProps<'Reminders'>;
+
+export function RemindersPage({ navigation }: RemindersPageProps) {
+  const remindersResult = getUserReminders();
+  const [reminders, setReminders] = useState<ReminderViewModel[]>(
+    remindersResult.ok ? remindersResult.data : [],
+  );
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    remindersResult.ok ? null : 'Nao foi possivel carregar os lembretes.',
+  );
+  const handleBack = () => navigateBackOrToday(navigation);
+
+  const toggleComplete = (id: string) => {
+    const result = completeReminder(id);
+
+    if (!result.ok) {
+      setError('Nao foi possivel atualizar o lembrete.');
+      return;
+    }
+
+    setError(null);
+    setFeedback(getReminderFeedbackMessage());
+    setReminders((current) =>
+      current.map((reminder) =>
+        reminder.id === id ? result.data : reminder,
+      ),
+    );
+  };
+
+  return (
+    <AppScreen>
+      <AppHeader
+        onBack={handleBack}
+        rightAction={
+          <AppButton
+            accessibilityLabel="Adicionar lembrete"
+            title="+"
+            variant="secondary"
+          />
+        }
+        title="Lembretes"
+      />
+
+      {error && <ErrorMessage compact message={error} />}
+      {feedback && (
+        <FeedbackMessage
+          message={feedback}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
+
+      <View style={styles.list}>
+        {reminders.map((reminder) => (
+          <AppCard key={reminder.id} style={reminder.completed && styles.done}>
+            <View style={styles.reminderRow}>
+              <Pressable
+                accessibilityLabel={
+                  reminder.completed
+                    ? 'Marcar lembrete como pendente'
+                    : 'Marcar lembrete como concluido'
+                }
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: reminder.completed }}
+                onPress={() => toggleComplete(reminder.id)}
+                style={[
+                  styles.checkbox,
+                  reminder.completed && styles.checkedBox,
+                ]}
+              >
+                {reminder.completed && <Text style={styles.check}>✓</Text>}
+              </Pressable>
+              <View style={styles.reminderCopy}>
+                <Text
+                  style={[
+                    styles.reminderTitle,
+                    reminder.completed && styles.doneText,
+                  ]}
+                >
+                  {reminder.title}
+                </Text>
+                <Text style={styles.date}>{reminder.formattedDate}</Text>
+              </View>
+              <Text style={styles.type}>{reminder.type}</Text>
+            </View>
+          </AppCard>
+        ))}
+      </View>
+
+      {reminders.length === 0 && (
+        <EmptyState
+          message="Quando houver consultas, exames ou vacinas, elas aparecem aqui."
+          title="Nenhum lembrete cadastrado"
+        />
+      )}
+    </AppScreen>
+  );
+}
+
+const styles = StyleSheet.create({
+  check: {
+    color: theme.colors.primaryForeground,
+    fontSize: theme.typography.sizes.md,
+    fontWeight: theme.typography.weights.extraBold,
+    lineHeight: 18,
+  },
+  checkbox: {
+    alignItems: 'center',
+    borderColor: theme.colors.mutedForeground,
+    borderRadius: 12,
+    borderWidth: 2,
+    height: 24,
+    justifyContent: 'center',
+    width: 24,
+  },
+  checkedBox: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  date: {
+    color: theme.colors.mutedForeground,
+    fontSize: theme.typography.sizes.xs,
+    lineHeight: 18,
+  },
+  done: {
+    opacity: 0.58,
+  },
+  doneText: {
+    textDecorationLine: 'line-through',
+  },
+  list: {
+    gap: theme.spacing.md,
+  },
+  reminderCopy: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+  reminderRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  reminderTitle: {
+    color: theme.colors.foreground,
+    fontSize: theme.typography.sizes.md,
+    fontWeight: theme.typography.weights.bold,
+    lineHeight: 22,
+  },
+  type: {
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.radii.sm,
+    color: theme.colors.secondaryForeground,
+    fontSize: theme.typography.sizes.xs,
+    fontWeight: theme.typography.weights.bold,
+    overflow: 'hidden',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+  },
+});

@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\AdminRole;
+use App\Models\User;
+use Database\Seeders\AdminRolePermissionSeeder;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,7 +17,7 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
  // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
@@ -44,4 +50,34 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function adminWithRoleForEditorial(string $roleName): array
+{
+    $role = AdminRole::firstOrCreate(['name' => $roleName], ['permissions' => ['*']]);
+    $user = User::factory()->create([
+        'user_type' => 'admin_user',
+        'is_active' => true,
+        'password' => Hash::make('password'),
+    ]);
+    $user->adminRoles()->attach($role->id);
+
+    $abilities = $roleName === AdminRole::ADMIN ? ['*'] : [$roleName];
+
+    return [$user, $user->createToken('admin-web', $abilities)->plainTextToken];
+}
+
+function adminUserWithCanonicalRole(string $roleKey): User
+{
+    (new AdminRolePermissionSeeder)->run();
+
+    $user = User::factory()->create([
+        'user_type' => 'admin_user',
+        'is_active' => true,
+    ]);
+
+    $role = AdminRole::query()->where('key', $roleKey)->firstOrFail();
+    $user->adminRoles()->attach($role);
+
+    return $user;
 }

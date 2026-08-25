@@ -1,0 +1,99 @@
+import { apiRequest } from "@/services/api/client";
+import { getAdminToken } from "@/state/adminAuthStore";
+
+export type ContentTaxonomyRecord = {
+  id: number;
+  name?: string;
+  label?: string;
+};
+
+export type AdminContent = {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  status: "draft" | "in_review" | "approved" | "published" | "archived";
+  category_id: number;
+  category: ContentTaxonomyRecord;
+  life_stages: ContentTaxonomyRecord[];
+  age_ranges: ContentTaxonomyRecord[];
+  author?: { id: number; name: string };
+  author_id: number;
+  submitted_by: number | null;
+  submitted_at: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  approved_by: number | null;
+  approved_at: string | null;
+  published_by: number | null;
+  published_at: string | null;
+  archived_by: number | null;
+  archived_at: string | null;
+  updated_at: string;
+};
+
+export type ContentPayload = {
+  title: string;
+  summary: string;
+  body: string;
+  category_id: number;
+  life_stage_ids: number[];
+  age_range_ids: number[];
+};
+
+type ContentResponse = { data: AdminContent };
+type ContentListResponse = { data: AdminContent[] };
+
+export type ContentListFilters = {
+  q?: string;
+  status?: string;
+  categoryId?: number;
+  lifeStageId?: number;
+  ageRangeId?: number;
+  authorId?: number;
+};
+
+function authOptions() {
+  return { token: getAdminToken() };
+}
+
+export async function listAdminContents(filters: ContentListFilters = {}): Promise<AdminContent[]> {
+  const params = new URLSearchParams();
+
+  if (filters.q) params.set("q", filters.q);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.categoryId) params.set("category_id", String(filters.categoryId));
+  if (filters.lifeStageId) params.set("life_stage_id", String(filters.lifeStageId));
+  if (filters.ageRangeId) params.set("age_range_id", String(filters.ageRangeId));
+  if (filters.authorId) params.set("author_id", String(filters.authorId));
+
+  const suffix = params.size ? `?${params.toString()}` : "";
+  const response = await apiRequest<ContentListResponse>(`/admin/contents${suffix}`, {}, authOptions());
+
+  return response.data;
+}
+
+export async function getAdminContent(id: number): Promise<AdminContent> {
+  const response = await apiRequest<ContentResponse>(`/admin/contents/${id}`, {}, authOptions());
+
+  return response.data;
+}
+
+export async function createDraftContent(input: ContentPayload): Promise<AdminContent> {
+  const response = await apiRequest<ContentResponse>("/admin/contents", {
+    method: "POST",
+    body: JSON.stringify(input),
+  }, authOptions());
+
+  return response.data;
+}
+
+export async function updateDraftContent(id: number, input: ContentPayload): Promise<AdminContent> {
+  const response = await apiRequest<ContentResponse>(`/admin/contents/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  }, authOptions());
+
+  return response.data;
+}
