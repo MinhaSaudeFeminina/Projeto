@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\AnonymousQuestionController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
 use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
@@ -57,6 +58,10 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');
         Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
+        Route::get('anonymous-questions', [AnonymousQuestionController::class, 'index'])->name('anonymous-questions.index');
+        Route::get('anonymous-questions/{anonymousQuestion}', [AnonymousQuestionController::class, 'show'])->name('anonymous-questions.show');
+        Route::post('anonymous-questions/{anonymousQuestion}/answer', [AnonymousQuestionController::class, 'answer'])->name('anonymous-questions.answer');
+        Route::post('anonymous-questions/{anonymousQuestion}/archive', [AnonymousQuestionController::class, 'archive'])->name('anonymous-questions.archive');
     });
 });
 
