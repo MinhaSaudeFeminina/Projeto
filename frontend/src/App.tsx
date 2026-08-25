@@ -40,7 +40,6 @@ const App = () => (
               <Route path="/conteudos/novo" element={<ContentEditorPage />} />
               <Route path="/conteudos/:id" element={<ContentEditorPage />} />
               <Route path="/conteudos/:id/auditoria" element={<ContentAuditPage />} />
-              <Route path="/categorias" element={<CategoriesPage />} />
               <Route path="/trilhas" element={<LifeStagesPage />} />
               <Route path="/sintomas" element={<SymptomsPage />} />
               <Route path="/lembretes" element={<RemindersPage />} />
@@ -62,6 +61,7 @@ const App = () => (
               <Route path="/usuarios-painel" element={<AdminUserListPage />} />
               <Route path="/usuarios-painel/nova" element={<AdminUserFormPage />} />
               <Route path="/usuarios-painel/:id" element={<AdminUserFormPage />} />
+              <Route path="/categorias" element={<CategoriesPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
