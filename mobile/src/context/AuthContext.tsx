@@ -8,10 +8,11 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { LoginCredentials } from '../api/authApi';
+import type { LoginCredentials, RegisterPayload } from '../api/authApi';
 import {
   clearSession,
   login as loginWithBackend,
+  register as registerWithBackend,
   restoreSession,
   type AuthSession,
 } from '../services/authService';
@@ -22,6 +23,7 @@ type AuthContextValue = {
   loading: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<boolean>;
+  register: (payload: RegisterPayload) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 };
@@ -74,6 +76,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
+  const register = useCallback(async (payload: RegisterPayload) => {
+    setLoading(true);
+    setError(null);
+
+    const result = await registerWithBackend(payload);
+
+    setLoading(false);
+
+    if (!result.ok) {
+      setError(result.error.message);
+      return false;
+    }
+
+    setSession(result.data);
+    return true;
+  }, []);
+
   const logout = useCallback(async () => {
     setLoading(true);
     await clearSession();
@@ -90,9 +109,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       login,
       logout,
+      register,
       session,
     }),
-    [error, initializing, loading, login, logout, session],
+    [error, initializing, loading, login, logout, register, session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

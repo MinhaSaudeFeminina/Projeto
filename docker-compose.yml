@@ -53,9 +53,12 @@ services:
 
   mobile:
     build: ./mobile
+    # Run as the host user so files written into the bind mount (.expo cache)
+    # stay editable outside the container.
+    user: "${UID:-1000}:${GID:-1000}"
     environment:
       # Read by the browser, so it points at the published backend port.
-      EXPO_PUBLIC_API_URL: http://localhost:8000
+      EXPO_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1/mobile
     ports:
       - "8081:8081"
     volumes:

@@ -17,7 +17,17 @@ export type LoginCredentials = {
   password: string;
 };
 
-export type LoginResponse = {
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  /** ISO `YYYY-MM-DD`; the backend derives age range and life stage from it. */
+  birth_date: string;
+  life_stage_id?: number | null;
+  accepted_terms: boolean;
+};
+
+export type AuthResponse = {
   token: string;
   access_state: MobileAccessState;
   user: MobileUser;
@@ -25,9 +35,18 @@ export type LoginResponse = {
 
 export function loginMobileUser(
   credentials: LoginCredentials,
-): Promise<ApiResult<LoginResponse>> {
-  return requestJson<LoginResponse>('/auth/login', {
+): Promise<ApiResult<AuthResponse>> {
+  return requestJson<AuthResponse>('/auth/login', {
     body: credentials,
+    method: 'POST',
+  });
+}
+
+export function registerMobileUser(
+  payload: RegisterPayload,
+): Promise<ApiResult<AuthResponse>> {
+  return requestJson<AuthResponse>('/auth/register', {
+    body: payload,
     method: 'POST',
   });
 }
