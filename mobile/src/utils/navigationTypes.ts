@@ -13,6 +13,7 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
+  Login: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   ContentDetail: { id: string };
   AnonymousQuestion: undefined;

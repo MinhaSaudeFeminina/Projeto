@@ -21,12 +21,16 @@ import {
   QuickActionsSheet,
   type QuickActionRoute,
 } from './src/components/layout/QuickActionsSheet';
+import { SafeAreaScreen } from './src/components/layout/SafeAreaScreen';
+import { LoadingState } from './src/components/ui/LoadingState';
+import { AuthProvider, useAuthContext } from './src/context/AuthContext';
 import { AppProvider } from './src/context/AppContext';
 import { AnonymousQuestionPage } from './src/pages/AnonymousQuestionPage';
 import { ContentDetailPage } from './src/pages/ContentDetailPage';
 import { ContentsPage } from './src/pages/ContentsPage';
 import { CyclePage } from './src/pages/CyclePage';
 import { LifeStagesPage } from './src/pages/LifeStagesPage';
+import { LoginPage } from './src/pages/LoginPage';
 import { NotFoundPage } from './src/pages/NotFoundPage';
 import { ProfilePage } from './src/pages/ProfilePage';
 import { RemindersPage } from './src/pages/RemindersPage';
@@ -222,16 +226,40 @@ export default function App() {
   }
 
   return (
-    <AppProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <Stack.Navigator
-          initialRouteName="MainTabs"
-          screenOptions={{
-            contentStyle: { backgroundColor: theme.colors.background },
-            headerShown: false,
-          }}
-        >
+    <AuthProvider>
+      <AppProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
+          <RootNavigator />
+        </NavigationContainer>
+      </AppProvider>
+    </AuthProvider>
+  );
+}
+
+function RootNavigator() {
+  const { initializing, session } = useAuthContext();
+
+  if (initializing) {
+    return (
+      <SafeAreaScreen>
+        <LoadingState
+          message="Estamos preparando sua sessao."
+          title="Entrando"
+        />
+      </SafeAreaScreen>
+    );
+  }
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        contentStyle: { backgroundColor: theme.colors.background },
+        headerShown: false,
+      }}
+    >
+      {session ? (
+        <>
           <Stack.Screen component={MainTabs} name="MainTabs" />
           <Stack.Screen component={ContentDetailPage} name="ContentDetail" />
           <Stack.Screen
@@ -243,9 +271,11 @@ export default function App() {
           <Stack.Screen component={SupportPage} name="Support" />
           <Stack.Screen component={LifeStagesPage} name="LifeStages" />
           <Stack.Screen component={NotFoundPage} name="NotFound" />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </AppProvider>
+        </>
+      ) : (
+        <Stack.Screen component={LoginPage} name="Login" />
+      )}
+    </Stack.Navigator>
   );
 }
 
