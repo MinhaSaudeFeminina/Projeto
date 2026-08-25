@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AdminRole;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -19,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ContentTaxonomySeeder::class,
             AdminRolePermissionSeeder::class,
+            SupportContactSeeder::class,
         ]);
 
         $admin = User::updateOrCreate(
@@ -32,7 +34,7 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        $role = \App\Models\AdminRole::where('key', \App\Models\AdminRole::ADMIN)->first();
+        $role = AdminRole::where('key', AdminRole::ADMIN)->first();
 
         if ($role) {
             $admin->adminRoles()->syncWithoutDetaching([$role->id]);
