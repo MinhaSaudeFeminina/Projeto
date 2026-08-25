@@ -130,6 +130,47 @@ paths:
         '403':
           description: Perfil sem permissão
 
+  /app-users:
+    get:
+      summary: Lista usuárias cadastradas pelo app
+      tags: [App Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuárias mobile para administração web
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppUser'
+        '403':
+          description: Perfil sem permissão
+  /app-users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza perfil e status de usuária do app
+      tags: [App Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppUserWrite'
+      responses:
+        '200':
+          description: Usuária mobile atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUser'
+        '403':
+          description: Perfil sem permissão
+
   /roles:
     get:
       summary: Lista perfis administrativos
@@ -245,6 +286,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContentCategory'
+    delete:
+      summary: Exclui categoria de conteúdo
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Categoria excluída
+        '403':
+          description: Perfil sem permissão
   /life-stages:
     get:
       summary: Lista fases da vida
@@ -275,6 +326,78 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AgeRange'
+
+  /support-contacts:
+    get:
+      summary: Lista contatos de apoio
+      tags: [Support Contacts]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Contatos de apoio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupportContact'
+    post:
+      summary: Cria contato de apoio
+      tags: [Support Contacts]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportContactWrite'
+      responses:
+        '201':
+          description: Contato de apoio criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SupportContact'
+  /support-contacts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza contato de apoio
+      tags: [Support Contacts]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportContactWrite'
+      responses:
+        '200':
+          description: Contato de apoio atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SupportContact'
+    delete:
+      summary: Exclui contato de apoio
+      tags: [Support Contacts]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Contato de apoio excluído
 
   /contents:
     get:
@@ -625,6 +748,64 @@ components:
           type: string
           format: password
           description: Obrigatório na criação; opcional na edição.
+    AppUser:
+      type: object
+      required: [id, name, email, is_active, notifications_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Maria Saúde"
+        email:
+          type: string
+          format: email
+        age:
+          type: integer
+          nullable: true
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        life_stage_id:
+          type: integer
+          nullable: true
+        life_stage:
+          type: string
+          nullable: true
+          example: "Fase adulta"
+        is_active:
+          type: boolean
+        notifications_active:
+          type: boolean
+        last_access_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+    AppUserWrite:
+      type: object
+      required: [name, email, notifications_active, is_active]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        life_stage_id:
+          type: integer
+          nullable: true
+        notifications_active:
+          type: boolean
+        is_active:
+          type: boolean
     EditorialStatus:
       type: string
       enum: [draft, in_review, approved, published, archived]
@@ -775,6 +956,59 @@ components:
           nullable: true
         sort_order:
           type: integer
+    SupportContact:
+      type: object
+      required: [id, name, description, type, cta_label, sort_order, is_highlighted, is_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Central de Atendimento à Mulher"
+        description:
+          type: string
+        type:
+          type: string
+          example: "emergencia"
+        phone:
+          type: string
+          nullable: true
+        link:
+          type: string
+          nullable: true
+        cta_label:
+          type: string
+          example: "Ligar agora"
+        sort_order:
+          type: integer
+        is_highlighted:
+          type: boolean
+        is_active:
+          type: boolean
+    SupportContactWrite:
+      type: object
+      required: [name, description, type, cta_label, sort_order, is_highlighted, is_active]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        link:
+          type: string
+          nullable: true
+        cta_label:
+          type: string
+        sort_order:
+          type: integer
+        is_highlighted:
+          type: boolean
+        is_active:
+          type: boolean
     EditorialAuditEvent:
       type: object
       required: [id, actor_id, action, occurred_at]

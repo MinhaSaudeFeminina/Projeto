@@ -4,6 +4,7 @@ use App\Models\AgeRange;
 use App\Models\LegalDocument;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
@@ -53,4 +54,19 @@ test('mobile login returns full access after email verification and current lega
         'email' => 'maria@example.com',
         'password' => 'password',
     ])->assertOk()->assertJsonPath('access_state', 'full');
+});
+
+test('inactive mobile user cannot login', function () {
+    User::factory()->create([
+        'email' => 'bloqueada@example.com',
+        'password' => Hash::make('password'),
+        'user_type' => 'mobile_user',
+        'is_active' => false,
+    ]);
+
+    $this->postJson('/api/v1/mobile/auth/login', [
+        'email' => 'bloqueada@example.com',
+        'password' => 'password',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('email');
 });
