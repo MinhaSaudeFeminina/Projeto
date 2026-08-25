@@ -239,6 +239,21 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/EditorialStatus'
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filtra pela categoria editorial
+        - name: life_stage_id
+          in: query
+          schema:
+            type: integer
+          description: Filtra pela fase da vida associada
+        - name: age_range_id
+          in: query
+          schema:
+            type: integer
+          description: Filtra pela faixa etária associada
         - name: author_id
           in: query
           schema:

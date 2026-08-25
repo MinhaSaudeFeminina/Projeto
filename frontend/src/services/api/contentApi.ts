@@ -45,15 +45,28 @@ export type ContentPayload = {
 type ContentResponse = { data: AdminContent };
 type ContentListResponse = { data: AdminContent[] };
 
+export type ContentListFilters = {
+  q?: string;
+  status?: string;
+  categoryId?: number;
+  lifeStageId?: number;
+  ageRangeId?: number;
+  authorId?: number;
+};
+
 function authOptions() {
   return { token: getAdminToken() };
 }
 
-export async function listAdminContents(filters: { q?: string; status?: string } = {}): Promise<AdminContent[]> {
+export async function listAdminContents(filters: ContentListFilters = {}): Promise<AdminContent[]> {
   const params = new URLSearchParams();
 
   if (filters.q) params.set("q", filters.q);
   if (filters.status) params.set("status", filters.status);
+  if (filters.categoryId) params.set("category_id", String(filters.categoryId));
+  if (filters.lifeStageId) params.set("life_stage_id", String(filters.lifeStageId));
+  if (filters.ageRangeId) params.set("age_range_id", String(filters.ageRangeId));
+  if (filters.authorId) params.set("author_id", String(filters.authorId));
 
   const suffix = params.size ? `?${params.toString()}` : "";
   const response = await apiRequest<ContentListResponse>(`/admin/contents${suffix}`, {}, authOptions());

@@ -281,21 +281,21 @@
 
 ### Tests for User Story 8
 
-- [ ] T131 [P] [US8] Create accent-tolerant admin search backend test in backend/tests/Feature/Admin/AccentTolerantAdminSearchTest.php
-- [ ] T132 [P] [US8] Create search normalizer unit test in backend/tests/Unit/Search/AccentInsensitiveSearchNormalizerTest.php
-- [ ] T133 [P] [US8] Create content search performance smoke test in backend/tests/Feature/Performance/ContentSearchPerformanceTest.php
-- [ ] T134 [P] [US8] Create frontend content search test in frontend/src/tests/pages/ContentSearch.test.tsx
+- [X] T131 [P] [US8] Create accent-tolerant admin search backend test in backend/tests/Feature/Admin/AccentTolerantAdminSearchTest.php
+- [X] T132 [P] [US8] Create search normalizer unit test in backend/tests/Unit/Search/AccentInsensitiveSearchNormalizerTest.php
+- [X] T133 [P] [US8] Create content search performance smoke test in backend/tests/Feature/Performance/ContentSearchPerformanceTest.php
+- [X] T134 [P] [US8] Create frontend content search test in frontend/src/tests/pages/ContentSearch.test.tsx
 
 ### Implementation for User Story 8
 
-- [ ] T135 [US8] Implement accent-insensitive search normalizer in backend/app/Services/Search/AccentInsensitiveSearchNormalizer.php
-- [ ] T136 [US8] Implement content search query service in backend/app/Services/Content/AdminContentSearchQuery.php
-- [ ] T137 [US8] Add normalized search index update handling in backend/app/Services/Content/ContentTextPreparationService.php
-- [ ] T138 [US8] Apply q, status, category, life stage, age range, and author filters in backend/app/Http/Controllers/Api/V1/Admin/ContentController.php
-- [ ] T139 [US8] Implement content search and filter API parameters in frontend/src/services/api/contentApi.ts
-- [ ] T140 [US8] Implement content search input in frontend/src/components/content/ContentSearchInput.tsx
-- [ ] T141 [US8] Implement content filter controls in frontend/src/components/content/ContentFilters.tsx
-- [ ] T142 [US8] Wire search and filters into content list page in frontend/src/pages/ContentListPage.tsx
+- [X] T135 [US8] Implement accent-insensitive search normalizer in backend/app/Services/Search/AccentInsensitiveSearchNormalizer.php
+- [X] T136 [US8] Implement content search query service in backend/app/Services/Content/AdminContentSearchQuery.php
+- [X] T137 [US8] Add normalized search index update handling in backend/app/Services/Content/ContentTextPreparationService.php
+- [X] T138 [US8] Apply q, status, category, life stage, age range, and author filters in backend/app/Http/Controllers/Api/V1/Admin/ContentController.php
+- [X] T139 [US8] Implement content search and filter API parameters in frontend/src/services/api/contentApi.ts
+- [X] T140 [US8] Implement content search input in frontend/src/components/content/ContentSearchInput.tsx
+- [X] T141 [US8] Implement content filter controls in frontend/src/components/content/ContentFilters.tsx
+- [X] T142 [US8] Wire search and filters into content list page in frontend/src/pages/ContentListPage.tsx
 
 **Checkpoint**: US8 is independently functional and testable.
 

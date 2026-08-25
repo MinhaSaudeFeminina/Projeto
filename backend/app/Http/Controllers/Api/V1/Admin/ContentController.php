@@ -7,28 +7,37 @@ use App\Http\Requests\Admin\StoreContentRequest;
 use App\Http\Requests\Admin\UpdateContentRequest;
 use App\Models\EducationalContent;
 use App\Services\Audit\AuditRecorder;
-use App\Services\Content\AccentInsensitiveSearchNormalizer;
+use App\Services\Content\AdminContentSearchQuery;
 use App\Services\Content\ContentRevisionRecorder;
 use App\Services\Content\ContentTextPreparationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ContentController extends Controller
 {
-    public function index(Request $request, AccentInsensitiveSearchNormalizer $normalizer): JsonResponse
+    public function index(Request $request, AdminContentSearchQuery $search): JsonResponse
     {
         $this->authorize('viewAny', EducationalContent::class);
 
-        $contents = EducationalContent::query()
-            ->with(['category', 'lifeStages', 'ageRanges', 'author:id,name'])
-            ->when($request->filled('q'), function ($query) use ($request, $normalizer): void {
-                $query->where('search_text_normalized', 'like', '%'.$normalizer->normalize($request->string('q')->toString()).'%');
-            })
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
-            ->when($request->filled('author_id'), fn ($query) => $query->where('author_id', $request->integer('author_id')))
-            ->latest('updated_at')
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in([
+                EducationalContent::DRAFT,
+                EducationalContent::IN_REVIEW,
+                EducationalContent::APPROVED,
+                EducationalContent::PUBLISHED,
+                EducationalContent::ARCHIVED,
+            ])],
+            'category_id' => ['nullable', 'integer', 'exists:content_categories,id'],
+            'life_stage_id' => ['nullable', 'integer', 'exists:life_stages,id'],
+            'age_range_id' => ['nullable', 'integer', 'exists:age_ranges,id'],
+            'author_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $contents = $search->query($filters)
             ->paginate(20);
 
         return response()->json([
@@ -61,7 +70,7 @@ class ContentController extends Controller
             $content->lifeStages()->sync($lifeStageIds);
             $content->ageRanges()->sync($ageRangeIds);
             $content->load(['category', 'lifeStages', 'ageRanges', 'author:id,name']);
-            $content->update(['search_text_normalized' => $textPreparation->searchableText($content)]);
+            $textPreparation->refreshSearchIndex($content);
 
             $revisions->record($content, $request->user(), 'Conteúdo criado');
             $audit->recordEditorialEvent(
@@ -113,7 +122,7 @@ class ContentController extends Controller
 
             $content->unsetRelation('lifeStages')->unsetRelation('ageRanges')->unsetRelation('category');
             $content->load(['category', 'lifeStages', 'ageRanges', 'author:id,name']);
-            $content->update(['search_text_normalized' => $textPreparation->searchableText($content)]);
+            $textPreparation->refreshSearchIndex($content);
 
             $revisions->record($content, $request->user(), 'Conteúdo editado');
             $audit->recordEditorialEvent(

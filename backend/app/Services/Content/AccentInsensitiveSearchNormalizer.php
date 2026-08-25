@@ -2,18 +2,9 @@
 
 namespace App\Services\Content;
 
-use Illuminate\Support\Str;
+use App\Services\Search\AccentInsensitiveSearchNormalizer as SearchNormalizer;
 
-class AccentInsensitiveSearchNormalizer
-{
-    public function normalize(string $value): string
-    {
-        return Str::of($value)
-            ->ascii('pt')
-            ->lower()
-            ->replaceMatches('/[^a-z0-9\s]/', ' ')
-            ->replaceMatches('/\s+/', ' ')
-            ->trim()
-            ->toString();
-    }
-}
+/**
+ * @deprecated Use App\Services\Search\AccentInsensitiveSearchNormalizer.
+ */
+class AccentInsensitiveSearchNormalizer extends SearchNormalizer {}

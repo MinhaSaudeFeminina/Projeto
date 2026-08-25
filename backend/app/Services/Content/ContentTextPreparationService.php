@@ -3,6 +3,7 @@
 namespace App\Services\Content;
 
 use App\Models\EducationalContent;
+use App\Services\Search\AccentInsensitiveSearchNormalizer;
 use Illuminate\Support\Str;
 
 class ContentTextPreparationService
@@ -38,5 +39,12 @@ class ContentTextPreparationService
             $content->lifeStages->pluck('name')->implode(' '),
             $content->ageRanges->pluck('label')->implode(' '),
         ])));
+    }
+
+    public function refreshSearchIndex(EducationalContent $content): void
+    {
+        $content->forceFill([
+            'search_text_normalized' => $this->searchableText($content),
+        ])->saveQuietly();
     }
 }

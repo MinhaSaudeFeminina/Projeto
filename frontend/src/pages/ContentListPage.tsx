@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Archive, FileClock, FilePenLine, Plus, Search, Send } from "lucide-react";
+import { ContentFilters, type ContentFilterValues } from "@/components/content/ContentFilters";
+import { ContentSearchInput } from "@/components/content/ContentSearchInput";
 import { EditorialStatusBadge } from "@/components/content/EditorialStatusBadge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -12,14 +13,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { listAdminContents, type AdminContent } from "@/services/api/contentApi";
+import { listAdminContents, type AdminContent, type ContentListFilters } from "@/services/api/contentApi";
 import { archiveContent, publishContent } from "@/services/api/editorialApi";
+import { listTaxonomies, type ContentTaxonomies } from "@/services/api/taxonomyApi";
 import { getAdminUser, hasAdminRole } from "@/state/adminAuthStore";
+
+const emptyFilters: ContentFilterValues = {
+  status: "",
+  categoryId: "",
+  lifeStageId: "",
+  ageRangeId: "",
+  authorId: "",
+};
+
+const emptyTaxonomies: ContentTaxonomies = {
+  categories: [],
+  life_stages: [],
+  age_ranges: [],
+};
+
+function optionalId(value: string): number | undefined {
+  const parsed = Number(value);
+  return value !== "" && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
 
 export default function ContentListPage() {
   const [contents, setContents] = useState<AdminContent[]>([]);
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("");
+  const [filters, setFilters] = useState<ContentFilterValues>(emptyFilters);
+  const [taxonomies, setTaxonomies] = useState<ContentTaxonomies>(emptyTaxonomies);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
@@ -27,12 +49,12 @@ export default function ContentListPage() {
   const isAdmin = hasAdminRole("admin");
   const isReviewer = hasAdminRole("reviewer_professor");
 
-  async function loadContents(filters: { q?: string; status?: string } = {}) {
+  async function loadContents(searchFilters: ContentListFilters = {}) {
     setIsLoading(true);
     setError(null);
 
     try {
-      setContents(await listAdminContents(filters));
+      setContents(await listAdminContents(searchFilters));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Não foi possível carregar os conteúdos.");
     } finally {
@@ -42,11 +64,19 @@ export default function ContentListPage() {
 
   useEffect(() => {
     void loadContents();
+    listTaxonomies().then(setTaxonomies).catch(() => undefined);
   }, []);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void loadContents({ q: query, status });
+    void loadContents({
+      q: query || undefined,
+      status: filters.status || undefined,
+      categoryId: optionalId(filters.categoryId),
+      lifeStageId: optionalId(filters.lifeStageId),
+      ageRangeId: optionalId(filters.ageRangeId),
+      authorId: optionalId(filters.authorId),
+    });
   }
 
   async function handleEditorialAction(content: AdminContent, action: "publish" | "archive") {
@@ -79,19 +109,12 @@ export default function ContentListPage() {
         <Button asChild><Link to="/conteudos/novo"><Plus className="mr-2 h-4 w-4" />Novo conteúdo</Link></Button>
       </section>
 
-      <form className="flex flex-col gap-3 rounded border bg-card p-4 sm:flex-row" onSubmit={handleSearch}>
-        <label className="sr-only" htmlFor="content-search">Buscar conteúdo</label>
-        <Input id="content-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por título ou texto" />
-        <label className="sr-only" htmlFor="content-status">Estado editorial</label>
-        <select id="content-status" className="h-10 rounded-md border bg-background px-3 text-sm" value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">Todos os estados</option>
-          <option value="draft">Rascunho</option>
-          <option value="in_review">Em revisão</option>
-          <option value="approved">Aprovado</option>
-          <option value="published">Publicado</option>
-          <option value="archived">Arquivado</option>
-        </select>
-        <Button type="submit"><Search className="mr-2 h-4 w-4" />Buscar</Button>
+      <form className="grid gap-3 rounded border bg-card p-4 sm:grid-cols-2 lg:grid-cols-6" onSubmit={handleSearch}>
+        <ContentSearchInput value={query} onChange={setQuery} />
+        <ContentFilters values={filters} taxonomies={taxonomies} onChange={setFilters} />
+        <Button type="submit" className="self-end lg:col-start-6">
+          <Search className="mr-2 h-4 w-4" />Buscar
+        </Button>
       </form>
 
       {error ? <p role="alert" className="rounded border border-destructive/30 p-3 text-destructive">{error}</p> : null}
