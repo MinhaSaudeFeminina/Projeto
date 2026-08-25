@@ -8,12 +8,14 @@ import { AppCard } from '../components/ui/AppCard';
 import { AppToggle } from '../components/ui/AppToggle';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { useAppContext } from '../context/AppContext';
+import { useAuthContext } from '../context/AuthContext';
 import { formatShortDate } from '../utils/date';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
 
 export function ProfilePage() {
   const navigation = useNavigation<RootStackNavigation>();
+  const { logout } = useAuthContext();
   const {
     error,
     profile,
@@ -94,6 +96,13 @@ export function ProfilePage() {
           onPress={() => navigation.navigate('LifeStages')}
         />
       </View>
+
+      <AppButton
+        fullWidth
+        onPress={logout}
+        title="Sair"
+        variant="ghost"
+      />
     </AppScreen>
   );
 }
