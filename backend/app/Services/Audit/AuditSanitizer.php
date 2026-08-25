@@ -20,6 +20,7 @@ class AuditSanitizer
     private const LARGE_TEXT_KEYS = [
         'body',
         'content',
+        'notes',
         'payload',
         'html',
     ];

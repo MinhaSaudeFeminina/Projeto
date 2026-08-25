@@ -108,7 +108,7 @@
 ## Scenario 11: Future Mobile Boundary
 
 1. Review the OpenAPI contract.
-2. Confirm all active endpoints are under `/api/v1/admin`.
+2. Confirm all endpoints introduced by this increment are under `/api/v1/admin`.
 3. Confirm there are no active app mobile auth, cycle, symptom, reminder, push, consultation question or consultation summary endpoints.
 4. Confirm published content has enough state and metadata for future consumption, without implementing consumption now.
 
@@ -128,3 +128,47 @@ Confirm the increment does not expose or require:
 - UBS/public service integration.
 - PDF export.
 - Monetization.
+
+## Automated Validation Map
+
+The quickstart scenarios are backed by the following repeatable checks:
+
+| Scenarios | Automated evidence |
+|---|---|
+| 1–2, 7 | Admin authentication, inactive access, route guard, user management and authorization feature/UI tests |
+| 3–4 | Taxonomy, UTF-8 persistence, content draft, association, revision and editor tests |
+| 5–6 | Editorial workflow, review queue, publication, archive, audit and history tests |
+| 8–9 | Panel notification, recipient resolution, mail rendering/failure and accent tests |
+| 10 | Accent-insensitive normalizer, API search and portal search/rendering tests |
+| 11 and exclusions | OpenAPI route coverage and no-mobile increment route tests |
+
+Run the complete suites from each application directory:
+
+```powershell
+# backend/
+php artisan test --configuration phpunit.xml
+
+# frontend/
+npm test
+npm run lint
+npm run build
+```
+
+The final execution record for this phase is kept in the completion section
+below so the checked scenarios remain tied to a concrete validation run.
+
+## Completion Record — 2026-08-24
+
+All 11 scenarios and the out-of-scope boundary were executed through the
+automated equivalents mapped above:
+
+- Backend: **58 tests passed, 328 assertions** with `php artisan test`.
+- Admin web: **20 tests passed in 14 files** with `npm test`.
+- Static analysis: `npm run lint` completed with no errors (seven Fast Refresh warnings in shared UI components).
+- Production bundle: `npm run build` completed successfully (bundle-size advisory only).
+- Contract and boundary: active admin route coverage and absence of current-increment mobile routes passed in the backend suite.
+
+This record validates the repeatable API and UI behavior of the quickstart. A
+separate exploratory browser walkthrough may still be used for visual acceptance
+in a PostgreSQL-backed staging environment, but it is not required to reproduce
+the functional checks above.

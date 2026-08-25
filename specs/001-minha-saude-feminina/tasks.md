@@ -305,16 +305,16 @@
 
 **Purpose**: Validate quality gates, documentation, accessibility, UTF-8, contracts, and MVP boundaries across all selected stories.
 
-- [ ] T143 [P] Validate OpenAPI admin route coverage in backend/tests/Feature/Contracts/OpenApiAdminRouteCoverageTest.php
-- [ ] T144 [P] Add admin accessibility regression checks in frontend/src/tests/accessibility/AdminAccessibility.test.tsx
-- [ ] T145 [P] Add backend log and error minimization regression test in backend/tests/Feature/Foundation/SensitiveLogMinimizationTest.php
-- [ ] T146 [P] Add frontend global PT-BR accent rendering test in frontend/src/tests/i18n/GlobalAccentRendering.test.tsx
-- [ ] T147 Review backend documentation for admin-only MVP boundaries in backend/README.md
-- [ ] T148 Review frontend documentation for admin roles, editorial workflow, and PT-BR copy in frontend/README.md
-- [ ] T149 Review no-mobile implementation boundary documentation in specs/001-minha-saude-feminina/quickstart.md
-- [ ] T150 Run backend automated test suite using backend/phpunit.xml
-- [ ] T151 Run admin web test suite using frontend/vitest.config.ts
-- [ ] T152 Execute quickstart validation scenarios in specs/001-minha-saude-feminina/quickstart.md
+- [X] T143 [P] Validate OpenAPI admin route coverage in backend/tests/Feature/Contracts/OpenApiAdminRouteCoverageTest.php
+- [X] T144 [P] Add admin accessibility regression checks in frontend/src/tests/accessibility/AdminAccessibility.test.tsx
+- [X] T145 [P] Add backend log and error minimization regression test in backend/tests/Feature/Foundation/SensitiveLogMinimizationTest.php
+- [X] T146 [P] Add frontend global PT-BR accent rendering test in frontend/src/tests/i18n/GlobalAccentRendering.test.tsx
+- [X] T147 Review backend documentation for admin-only MVP boundaries in backend/README.md
+- [X] T148 Review frontend documentation for admin roles, editorial workflow, and PT-BR copy in frontend/README.md
+- [X] T149 Review no-mobile implementation boundary documentation in specs/001-minha-saude-feminina/quickstart.md
+- [X] T150 Run backend automated test suite using backend/phpunit.xml
+- [X] T151 Run admin web test suite using frontend/vitest.config.ts
+- [X] T152 Execute quickstart validation scenarios in specs/001-minha-saude-feminina/quickstart.md
 
 ---
 

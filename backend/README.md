@@ -61,6 +61,11 @@ Este incremento cobre:
 - Notificações administrativas no painel e por e-mail.
 - Busca administrativa tolerante a acentos.
 
+Todas as rotas deste incremento usam o prefixo `/api/v1/admin`. O contrato em
+`specs/001-minha-saude-feminina/contracts/openapi.yaml` é verificado por teste
+contra as rotas Laravel ativas para impedir endpoints administrativos sem
+documentação.
+
 ## Perfis Administrativos
 
 - Acadêmica/autora: cria rascunhos, edita os próprios rascunhos e envia para revisão.
@@ -68,6 +73,13 @@ Este incremento cobre:
 - Admin: gerencia usuários administrativos, permissões, conteúdos, publicação e arquivamento.
 
 O backend deve aplicar permissões com middleware e policies. O portal pode ocultar ações, mas não é a fonte final de autorização.
+
+## Fluxo Editorial
+
+O ciclo suportado é `Rascunho → Em revisão → Aprovado → Publicado → Arquivado`.
+Acadêmicas/autoras trabalham nos próprios rascunhos, revisores/professores
+aprovam ou solicitam ajustes e Admins publicam ou arquivam. Cada transição gera
+auditoria append-only e os snapshots de revisão preservam o histórico.
 
 ## Auditoria e Logs
 
@@ -107,3 +119,19 @@ E-mails administrativos devem:
 - Exportação PDF.
 - Monetização, anúncios ou pagamentos.
 - Diagnóstico automatizado, prescrição ou orientação de dosagem.
+
+Não devem ser adicionadas rotas ativas de autenticação de usuárias finais,
+ciclo, sintomas, lembretes, push ou consumo mobile de conteúdo. O estado e os
+metadados de conteúdos publicados apenas preparam uma integração futura.
+
+## Verificação
+
+Execute a suíte definida em `phpunit.xml`:
+
+```powershell
+php artisan test --configuration phpunit.xml
+```
+
+Os testes cobrem autorização, fluxo editorial, auditoria, notificações,
+minimização de dados sensíveis, UTF-8, busca tolerante a acentos, contrato
+OpenAPI e a ausência de rotas mobile deste incremento.

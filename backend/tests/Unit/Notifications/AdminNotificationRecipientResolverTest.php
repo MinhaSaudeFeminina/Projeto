@@ -6,7 +6,7 @@ use App\Models\EducationalContent;
 use App\Services\Notifications\AdminNotificationRecipientResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(RefreshDatabase::class);
+uses(Tests\TestCase::class, RefreshDatabase::class);
 
 it('resolve destinatários ativos conforme o evento editorial', function (): void {
     $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);

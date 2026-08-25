@@ -7,7 +7,7 @@ use App\Services\Content\EditorialWorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
-uses(RefreshDatabase::class);
+uses(Tests\TestCase::class, RefreshDatabase::class);
 
 it('rejects an editorial transition from an unexpected state', function (): void {
     $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
