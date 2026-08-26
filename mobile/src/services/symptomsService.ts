@@ -111,7 +111,3 @@ export async function registerSymptoms(
 
   return ok({ guidance, records });
 }
-
-export function getSymptomSuccessMessage(count: number) {
-  return `${count} sintoma(s) registrado(s)!`;
-}
