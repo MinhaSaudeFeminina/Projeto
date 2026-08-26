@@ -5,6 +5,7 @@ import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
+import { AppChip } from '../components/ui/AppChip';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { FeedbackMessage } from '../components/ui/FeedbackMessage';
@@ -15,7 +16,9 @@ import {
   addReminder,
   getReminderFeedbackMessage,
   getUserReminders,
+  reminderRecurrences,
   toggleReminderCompleted,
+  type ReminderRecurrence,
 } from '../services/remindersService';
 import { brDateToIso, maskBrDate } from '../utils/date';
 import { navigateBackOrToday } from '../utils/navigation';
@@ -34,6 +37,7 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
+  const [recurrence, setRecurrence] = useState<ReminderRecurrence>('nenhuma');
   const handleBack = () => navigateBackOrToday(navigation);
   const reminders = data ?? [];
 
@@ -46,7 +50,11 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
     }
 
     setError(null);
-    setFeedback(getReminderFeedbackMessage());
+    setFeedback(
+      getReminderFeedbackMessage(
+        result.data.find((reminder) => reminder.id === id),
+      ),
+    );
     reload();
   };
 
@@ -58,7 +66,12 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
       return;
     }
 
-    const result = await addReminder({ date: isoDate, title, type: 'outro' });
+    const result = await addReminder({
+      date: isoDate,
+      recurrence,
+      title,
+      type: 'outro',
+    });
 
     if (!result.ok) {
       setError(result.error.message);
@@ -103,6 +116,19 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
             placeholder="DD/MM/AAAA"
             value={date}
           />
+          <View style={styles.recurrence}>
+            <Text style={styles.recurrenceLabel}>Repetir</Text>
+            <View style={styles.recurrenceOptions}>
+              {reminderRecurrences.map((option) => (
+                <AppChip
+                  key={option.value}
+                  label={option.label}
+                  onPress={() => setRecurrence(option.value)}
+                  selected={recurrence === option.value}
+                />
+              ))}
+            </View>
+          </View>
           <AppButton fullWidth onPress={handleAdd} title="Salvar lembrete" />
         </AppCard>
       )}
@@ -119,9 +145,11 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
             <View style={styles.reminderRow}>
               <Pressable
                 accessibilityLabel={
-                  reminder.completed
-                    ? 'Marcar lembrete como pendente'
-                    : 'Marcar lembrete como concluido'
+                  reminder.recurring
+                    ? 'Concluir esta ocorrencia do lembrete'
+                    : reminder.completed
+                      ? 'Marcar lembrete como pendente'
+                      : 'Marcar lembrete como concluido'
                 }
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: reminder.completed }}
@@ -142,7 +170,10 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
                 >
                   {reminder.title}
                 </Text>
-                <Text style={styles.date}>{reminder.formattedDate}</Text>
+                <Text style={styles.date}>
+                  {reminder.formattedDate}
+                  {reminder.recurring ? ` - ${reminder.recurrenceLabel}` : ''}
+                </Text>
               </View>
               <Text style={styles.type}>{reminder.type}</Text>
             </View>
@@ -154,7 +185,7 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
 
       {!loading && reminders.length === 0 && (
         <EmptyState
-          message="Adicione consultas, exames ou vacinas. Os lembretes ficam salvos apenas neste dispositivo."
+          message="Adicione consultas, exames ou vacinas, com ou sem repeticao. Os lembretes ficam salvos apenas neste dispositivo."
           title="Nenhum lembrete cadastrado"
         />
       )}
@@ -195,6 +226,19 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: theme.spacing.md,
+  },
+  recurrence: {
+    gap: theme.spacing.sm,
+  },
+  recurrenceLabel: {
+    color: theme.colors.foreground,
+    fontSize: theme.typography.sizes.sm,
+    fontWeight: theme.typography.weights.semibold,
+  },
+  recurrenceOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
   },
   reminderCopy: {
     flex: 1,

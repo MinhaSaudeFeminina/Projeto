@@ -59,8 +59,11 @@ export function TodayPage() {
   const todaySymptoms = (symptoms.data ?? []).filter(
     (record) => record.occurred_on === todayIsoDate,
   );
+  // A repeating reminder always has a next occurrence, so insertion order is not
+  // enough: the card shows the closest dates.
   const upcomingReminders = (reminders.data ?? [])
     .filter((reminder) => !reminder.completed)
+    .sort((left, right) => left.nextDate.localeCompare(right.nextDate))
     .slice(0, 3);
 
   return (
@@ -138,7 +141,8 @@ export function TodayPage() {
                 <View>
                   <Text style={styles.reminderTitle}>{reminder.title}</Text>
                   <Text style={styles.muted}>
-                    {formatShortDate(reminder.date)}
+                    {formatShortDate(reminder.nextDate)}
+                    {reminder.recurring ? ` - ${reminder.recurrenceLabel}` : ''}
                   </Text>
                 </View>
                 <Text style={styles.reminderIcon}>{reminder.type}</Text>
