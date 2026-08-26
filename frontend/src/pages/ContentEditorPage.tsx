@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/content/RichTextEditor";
 import {
   createDraftContent,
   getAdminContent,
@@ -138,7 +139,7 @@ export default function ContentEditorPage() {
       <form className="space-y-5 rounded border bg-card p-5" onSubmit={handleSubmit}>
         <div className="grid gap-2"><Label htmlFor="title">Título</Label><Input id="title" disabled={!isEditable} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required /></div>
         <div className="grid gap-2"><Label htmlFor="summary">Resumo</Label><Textarea id="summary" disabled={!isEditable} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} required /></div>
-        <div className="grid gap-2"><Label htmlFor="body">Conteúdo educativo</Label><Textarea id="body" disabled={!isEditable} rows={12} value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} required /></div>
+        <div className="grid gap-2"><Label id="body-label" htmlFor="body">Conteúdo educativo</Label><RichTextEditor key={editingId ?? "novo"} id="body" labelledBy="body-label" disabled={!isEditable} value={form.body} onChange={(body) => setForm({ ...form, body })} /></div>
         <div className="grid gap-2"><Label htmlFor="category">Categoria</Label><select id="category" disabled={!isEditable} className="h-10 rounded-md border bg-background px-3" value={form.category_id || ""} onChange={(event) => setForm({ ...form, category_id: Number(event.target.value) })} required><option value="" disabled>Selecione uma categoria</option>{taxonomies.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></div>
 
         <fieldset disabled={!isEditable} className="space-y-2"><legend className="font-medium">Fases da vida</legend><div className="grid gap-2 sm:grid-cols-2">{taxonomies.life_stages.map((stage) => <label key={stage.id} className="flex items-center gap-2 rounded border p-3"><input type="checkbox" checked={form.life_stage_ids.includes(stage.id)} onChange={() => toggleId("life_stage_ids", stage.id)} />{stage.name}</label>)}</div></fieldset>
