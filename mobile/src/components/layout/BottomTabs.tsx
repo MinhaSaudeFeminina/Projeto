@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
   },
   label: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
   },
   pressed: {
     opacity: 0.82,

@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
   },
   dismissText: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
   message: {
     color: theme.colors.foreground,
@@ -80,23 +80,23 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
 });
 
 const variantStyles = StyleSheet.create({
   info: {
-    backgroundColor: theme.colors.secondary,
-    borderColor: theme.colors.lilas,
+    backgroundColor: theme.colors.infoLight,
+    borderColor: theme.colors.info,
   },
   success: {
-    backgroundColor: theme.colors.fertileLight,
-    borderColor: theme.colors.fertile,
+    backgroundColor: theme.colors.successLight,
+    borderColor: theme.colors.success,
   },
   warning: {
-    backgroundColor: theme.colors.ovulationLight,
-    borderColor: theme.colors.ovulation,
+    backgroundColor: theme.colors.warningLight,
+    borderColor: theme.colors.warning,
   },
 });

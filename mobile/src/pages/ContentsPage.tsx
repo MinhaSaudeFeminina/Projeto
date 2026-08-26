@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
 import { AppTextInput } from '../components/ui/AppTextInput';
@@ -46,7 +47,7 @@ export function ContentsPage() {
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero style={styles.hero}>
         <AppHeader
           subtitle="Informacao segura para sua saude e bem-estar"
           title="Conteudos"
@@ -57,7 +58,7 @@ export function ContentsPage() {
           placeholder="Buscar conteudo..."
           value={search}
         />
-      </View>
+      </ScreenHero>
 
       <ScrollView
         contentContainerStyle={styles.categories}
@@ -149,8 +150,8 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 22,
   },
   categories: {
@@ -163,14 +164,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   hero: {
-    backgroundColor: theme.colors.lilasLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
     gap: theme.spacing.lg,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
   },
   inlineChip: {
     marginTop: theme.spacing.xs,

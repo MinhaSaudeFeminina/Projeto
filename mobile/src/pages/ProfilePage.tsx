@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
@@ -46,12 +47,12 @@ export function ProfilePage() {
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero style={styles.hero}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{profile.name.charAt(0)}</Text>
         </View>
         <AppHeader subtitle={profile.email} title={profile.name} />
-      </View>
+      </ScreenHero>
 
       {error && <ErrorMessage compact message={error} />}
 
@@ -177,18 +178,12 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: theme.colors.primaryForeground,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.extraBold,
   },
   hero: {
     alignItems: 'center',
-    backgroundColor: theme.colors.lilasLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
     gap: theme.spacing.md,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.xl,
   },
   infoLabel: {
     color: theme.colors.mutedForeground,
@@ -202,8 +197,8 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
   },
   links: {
     gap: theme.spacing.sm,
@@ -213,15 +208,15 @@ const styles = StyleSheet.create({
   },
   quickIcon: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
     width: 24,
   },
   quickLabel: {
     color: theme.colors.foreground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
   quickLink: {
     alignItems: 'center',
@@ -253,8 +248,8 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
   stats: {
     flexDirection: 'row',

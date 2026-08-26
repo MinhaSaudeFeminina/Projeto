@@ -1,12 +1,14 @@
 import 'react-native-gesture-handler';
 
 import {
-  Nunito_400Regular,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-  Nunito_800ExtraBold,
-} from '@expo-google-fonts/nunito';
+  BarlowCondensed_400Regular,
+  BarlowCondensed_400Regular_Italic,
+  BarlowCondensed_500Medium,
+  BarlowCondensed_600SemiBold,
+  BarlowCondensed_700Bold,
+  BarlowCondensed_800ExtraBold,
+} from '@expo-google-fonts/barlow-condensed';
+import { LeckerliOne_400Regular } from '@expo-google-fonts/leckerli-one';
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -59,7 +61,10 @@ const defaultTextProps = Text as typeof Text & {
 
 defaultTextProps.defaultProps = defaultTextProps.defaultProps ?? {};
 defaultTextProps.defaultProps.style = [
-  { fontFamily: theme.typography.fontFamily },
+  {
+    fontFamily: theme.typography.fonts.regular,
+    letterSpacing: theme.typography.letterSpacing,
+  },
   defaultTextProps.defaultProps.style,
 ];
 
@@ -90,15 +95,15 @@ function MainTabs() {
         tabBarInactiveTintColor: theme.colors.tabInactive,
         tabBarStyle: {
           backgroundColor: theme.colors.card,
-          borderTopColor: theme.colors.rosaLight,
+          borderTopColor: theme.colors.border,
           height: 64,
           paddingBottom: 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: theme.typography.fontFamily,
+          fontFamily: theme.typography.fonts.bold,
           fontSize: 12,
-          fontWeight: theme.typography.weights.bold,
+          letterSpacing: theme.typography.letterSpacing,
         },
         tabBarIcon: ({ color, size }) => (
           <Ionicons color={color} name={tabIcons[route.name]} size={size} />
@@ -219,11 +224,13 @@ function MainTabBar({ descriptors, navigation, state }: BottomTabBarProps) {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Nunito_400Regular,
-    Nunito_500Medium,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
-    Nunito_800ExtraBold,
+    BarlowCondensed_400Regular,
+    BarlowCondensed_400Regular_Italic,
+    BarlowCondensed_500Medium,
+    BarlowCondensed_600SemiBold,
+    BarlowCondensed_700Bold,
+    BarlowCondensed_800ExtraBold,
+    LeckerliOne_400Regular,
   });
 
   if (!fontsLoaded) {
@@ -306,12 +313,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: -28,
     width: 56,
-    ...theme.shadows.card,
+    ...theme.shadows.raised,
   },
   tabBar: {
     alignItems: 'center',
     backgroundColor: theme.colors.card,
-    borderTopColor: theme.colors.rosaLight,
+    borderTopColor: theme.colors.border,
     borderTopWidth: 1,
     flexDirection: 'row',
     height: 72,
@@ -328,8 +335,8 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     color: theme.colors.tabInactive,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: 12,
-    fontWeight: theme.typography.weights.bold,
   },
   tabSlotWithAction: {
     alignItems: 'center',

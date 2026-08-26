@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
   },
   intensityLabel: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.semibold,
     textTransform: 'uppercase',
   },
   intensityOptions: {

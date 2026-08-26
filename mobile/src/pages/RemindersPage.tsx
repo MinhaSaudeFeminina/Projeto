@@ -165,8 +165,8 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
 const styles = StyleSheet.create({
   check: {
     color: theme.colors.primaryForeground,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.extraBold,
     lineHeight: 18,
   },
   checkbox: {
@@ -207,16 +207,16 @@ const styles = StyleSheet.create({
   },
   reminderTitle: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 22,
   },
   type: {
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.radii.sm,
     color: theme.colors.secondaryForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
     overflow: 'hidden',
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,

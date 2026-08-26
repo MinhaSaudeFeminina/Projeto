@@ -1,6 +1,6 @@
 import type { AppChipTone } from '../components/ui/AppChip';
 
-const tones: AppChipTone[] = ['rosa', 'lilas', 'roxo', 'magenta', 'fertile'];
+const tones: AppChipTone[] = ['primary', 'rose', 'peach', 'success', 'default'];
 
 /**
  * Categories are user-managed on the backend and carry no colour, so the tone

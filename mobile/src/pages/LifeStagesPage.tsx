@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
   stageTitle: {
     color: theme.colors.foreground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 22,
   },
   titleRow: {

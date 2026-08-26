@@ -127,7 +127,7 @@ function openLink(href: string | null) {
 
 const styles = StyleSheet.create({
   bold: {
-    fontWeight: theme.typography.weights.bold,
+    fontFamily: theme.typography.fonts.bold,
   },
   container: {
     gap: theme.spacing.md,
@@ -136,25 +136,25 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   heading2: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
     lineHeight: 26,
     marginTop: theme.spacing.md,
   },
   heading3: {
     color: theme.colors.secondaryForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 23,
     marginTop: theme.spacing.sm,
   },
   italic: {
-    fontStyle: 'italic',
+    fontFamily: theme.typography.fonts.italic,
   },
   link: {
     color: theme.colors.primary,
-    fontWeight: theme.typography.weights.semibold,
+    fontFamily: theme.typography.fonts.semibold,
     textDecorationLine: 'underline',
   },
   listItem: {
@@ -169,8 +169,8 @@ const styles = StyleSheet.create({
   },
   marker: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 24,
     minWidth: 18,
   },
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   quote: {
-    backgroundColor: theme.colors.lilasLight,
+    backgroundColor: theme.colors.roseLight,
     borderBottomRightRadius: theme.radii.md,
     borderTopRightRadius: theme.radii.md,
     flexDirection: 'row',
@@ -193,14 +193,14 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
   },
   quoteBar: {
-    backgroundColor: theme.colors.lilas,
+    backgroundColor: theme.colors.rose,
     width: 4,
   },
   quoteText: {
     color: theme.colors.secondaryForeground,
     flex: 1,
+    fontFamily: theme.typography.fonts.italic,
     fontSize: theme.typography.sizes.sm,
-    fontStyle: 'italic',
     lineHeight: 24,
   },
   strike: {

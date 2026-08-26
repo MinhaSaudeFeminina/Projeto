@@ -5,13 +5,13 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthField } from '../components/auth/AuthField';
 import { AuthScreenLayout } from '../components/auth/AuthScreenLayout';
-import { authColors } from '../components/auth/authTheme';
 import { PasswordField } from '../components/auth/PasswordField';
 import { AppButton } from '../components/ui/AppButton';
 import { FeedbackMessage } from '../components/ui/FeedbackMessage';
 import { useAuthContext } from '../context/AuthContext';
 import { brDateToIso, maskBrDate } from '../utils/date';
 import type { RootStackNavigation } from '../utils/navigationTypes';
+import { theme } from '../utils/theme';
 
 const minimumPasswordLength = 8;
 
@@ -172,7 +172,7 @@ export function RegisterPage() {
           <View style={[styles.checkbox, acceptedTerms && styles.checkboxOn]}>
             {acceptedTerms ? (
               <Ionicons
-                color={authColors.primaryForeground}
+                color={theme.colors.primaryForeground}
                 name="checkmark"
                 size={16}
               />
@@ -191,7 +191,7 @@ export function RegisterPage() {
         fullWidth
         icon={
           <Ionicons
-            color={authColors.primaryForeground}
+            color={theme.colors.primaryForeground}
             name="person-add-outline"
             size={20}
           />
@@ -210,7 +210,7 @@ export function RegisterPage() {
 const styles = StyleSheet.create({
   checkbox: {
     alignItems: 'center',
-    borderColor: authColors.rose,
+    borderColor: theme.colors.rose,
     borderRadius: 7,
     borderWidth: 2,
     height: 24,
@@ -218,29 +218,25 @@ const styles = StyleSheet.create({
     width: 24,
   },
   checkboxOn: {
-    backgroundColor: authColors.primary,
-    borderColor: authColors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   fields: {
     gap: 18,
   },
   submitButton: {
-    backgroundColor: authColors.primary,
-    borderRadius: 14,
-    elevation: 3,
-    shadowColor: authColors.primaryDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radii.md,
+    ...theme.shadows.raised,
   },
   submitLabel: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: theme.typography.fonts.extraBold,
+    fontSize: theme.typography.sizes.md,
   },
   switchLink: {
-    color: authColors.primary,
-    fontSize: 14,
-    fontWeight: '800',
+    color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
+    fontSize: theme.typography.sizes.sm,
   },
   switchRow: {
     alignItems: 'center',
@@ -249,13 +245,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   switchText: {
-    color: authColors.muted,
-    fontSize: 14,
+    color: theme.colors.mutedForeground,
+    fontSize: theme.typography.sizes.sm,
   },
   termsError: {
-    color: authColors.primary,
-    fontSize: 12,
-    fontWeight: '600',
+    color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.semibold,
+    fontSize: theme.typography.sizes.xs,
   },
   termsRow: {
     alignItems: 'center',
@@ -263,9 +259,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   termsText: {
-    color: authColors.text,
+    color: theme.colors.foreground,
     flex: 1,
-    fontSize: 14,
+    fontSize: theme.typography.sizes.sm,
     lineHeight: 20,
   },
 });

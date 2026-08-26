@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
   },
   icon: {
-    color: theme.colors.roxo,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.extraBold,
     lineHeight: 20,
   },
   text: {

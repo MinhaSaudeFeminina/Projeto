@@ -147,10 +147,10 @@ export function CyclePage() {
         </View>
 
         <View style={styles.legend}>
-          <Legend color={theme.colors.rosaLight} label="Menstruacao" />
-          <Legend color={theme.colors.fertileLight} label="Periodo fertil" />
-          <Legend color={theme.colors.ovulationLight} label="Ovulacao" />
-          <Legend color={theme.colors.lilas} label="Sintoma" />
+          <Legend color={theme.colors.secondaryStrong} label="Menstruacao" />
+          <Legend color={theme.colors.successLight} label="Periodo fertil" />
+          <Legend color={theme.colors.warningLight} label="Ovulacao" />
+          <Legend color={theme.colors.rose} label="Sintoma" />
         </View>
       </AppCard>
 
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.sm,
   },
   fertileDay: {
-    backgroundColor: theme.colors.fertileLight,
+    backgroundColor: theme.colors.successLight,
   },
   infoCard: {
     flexBasis: '48%',
@@ -288,8 +288,8 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
   legend: {
     borderColor: theme.colors.border,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.xs,
   },
   markedDayText: {
-    fontWeight: theme.typography.weights.bold,
+    fontFamily: theme.typography.fonts.bold,
   },
   monthNav: {
     alignItems: 'center',
@@ -323,9 +323,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   monthTitle: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.extraBold,
   },
   navButton: {
     alignItems: 'center',
@@ -337,26 +337,26 @@ const styles = StyleSheet.create({
   },
   navText: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.bold,
   },
   noneDay: {
     backgroundColor: 'transparent',
   },
   ovulationDay: {
-    backgroundColor: theme.colors.ovulationLight,
+    backgroundColor: theme.colors.warningLight,
   },
   periodDay: {
-    backgroundColor: theme.colors.rosaLight,
+    backgroundColor: theme.colors.secondaryStrong,
   },
   predictedPeriodDay: {
-    backgroundColor: theme.colors.rosaLight,
+    backgroundColor: theme.colors.secondaryStrong,
   },
   symptomDay: {
-    backgroundColor: theme.colors.lilasLight,
+    backgroundColor: theme.colors.roseLight,
   },
   symptomDot: {
-    backgroundColor: theme.colors.lilas,
+    backgroundColor: theme.colors.rose,
     borderRadius: 3,
     bottom: 3,
     height: 6,
@@ -369,8 +369,8 @@ const styles = StyleSheet.create({
   },
   weekday: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
     width: `${100 / 7 - 1}%`,
   },

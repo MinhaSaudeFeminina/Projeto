@@ -9,6 +9,7 @@ import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { LoadingState } from '../components/ui/LoadingState';
 import { MedicalDisclaimer } from '../components/ui/MedicalDisclaimer';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppHeader } from '../components/layout/AppHeader';
 import { useAppContext } from '../context/AppContext';
 import { useApiResource } from '../hooks/useApiResource';
@@ -30,9 +31,9 @@ const phaseLabels = {
 } as const;
 
 const phaseTones = {
-  folicular: 'lilas',
-  lutea: 'roxo',
-  menstrual: 'rosa',
+  folicular: 'peach',
+  lutea: 'rose',
+  menstrual: 'primary',
   ovulatoria: 'warning',
 } as const;
 
@@ -65,7 +66,7 @@ export function TodayPage() {
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero>
         <AppHeader
           subtitle={profile ? `${greeting}, ${profile.name}` : greeting}
           title="Hoje"
@@ -103,7 +104,7 @@ export function TodayPage() {
             </View>
           )}
         </AppCard>
-      </View>
+      </ScreenHero>
 
       {cycle.error && <ErrorMessage compact message={cycle.error} />}
 
@@ -185,18 +186,9 @@ const styles = StyleSheet.create({
   },
   days: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.extraBold,
     textAlign: 'right',
-  },
-  hero: {
-    backgroundColor: theme.colors.rosaLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
   },
   list: {
     gap: theme.spacing.sm,
@@ -219,19 +211,19 @@ const styles = StyleSheet.create({
   },
   reminderIcon: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
   },
   reminderTitle: {
     color: theme.colors.secondaryForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
   },
   screen: {
     paddingTop: 0,
   },
   tip: {
-    backgroundColor: theme.colors.lilasLight,
+    backgroundColor: theme.colors.peachLight,
     borderRadius: theme.radii.lg,
     gap: theme.spacing.sm,
     padding: theme.spacing.lg,
@@ -242,8 +234,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   tipTitle: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
 });
