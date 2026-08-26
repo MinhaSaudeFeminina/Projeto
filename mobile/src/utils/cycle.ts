@@ -1,4 +1,4 @@
-import type { PeriodRange, SymptomEntry, UserProfile } from '../data/mockData';
+import type { CycleRecord } from '../api/cycleApi';
 
 import { addDays, daysBetween, parseIsoDate, toIsoDate } from './date';
 
@@ -12,26 +12,83 @@ export type CalendarDayStatus =
   | 'symptom'
   | 'none';
 
-export function getCycleDay(user: UserProfile, referenceDate = new Date()) {
-  const lastPeriodDate = parseIsoDate(user.lastPeriodDate);
+export type Regularity = 'Regular' | 'Irregular' | 'Sem dados';
 
-  if (!lastPeriodDate || user.cycleAverageDays <= 0) {
-    return 1;
+/**
+ * Everything the app shows about the cycle is derived from the periods the
+ * user recorded. Fields stay `null` while there is not enough history, so the
+ * screens can say "no data yet" instead of inventing an average.
+ */
+export type CycleStats = {
+  cyclesRecorded: number;
+  averageCycleDays: number | null;
+  averagePeriodDays: number | null;
+  lastPeriodStart: string | null;
+  regularity: Regularity;
+};
+
+/** Two consecutive starts less than this far apart are the same period. */
+const minimumCycleDays = 10;
+/** Spread between the shortest and longest cycle still considered regular. */
+const regularSpreadDays = 4;
+
+export function summarizeCycles(cycles: CycleRecord[]): CycleStats {
+  const sorted = [...cycles].sort((left, right) =>
+    left.start_date.localeCompare(right.start_date),
+  );
+
+  const cycleLengths: number[] = [];
+
+  for (let index = 1; index < sorted.length; index += 1) {
+    const length = daysBetween(
+      sorted[index - 1].start_date,
+      sorted[index].start_date,
+    );
+
+    if (length >= minimumCycleDays) {
+      cycleLengths.push(length);
+    }
   }
 
-  const elapsedDays = daysBetween(lastPeriodDate, referenceDate);
-  const cycleOffset = ((elapsedDays % user.cycleAverageDays) + user.cycleAverageDays) %
-    user.cycleAverageDays;
+  const periodLengths = sorted
+    .filter((cycle) => cycle.end_date)
+    .map((cycle) => daysBetween(cycle.start_date, cycle.end_date as string) + 1)
+    .filter((length) => length > 0);
 
-  return cycleOffset + 1;
+  return {
+    cyclesRecorded: sorted.length,
+    averageCycleDays: average(cycleLengths),
+    averagePeriodDays: average(periodLengths),
+    lastPeriodStart: sorted.at(-1)?.start_date ?? null,
+    regularity: rateRegularity(cycleLengths),
+  };
+}
+
+export function getCycleDay(stats: CycleStats, referenceDate = new Date()) {
+  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
+    return null;
+  }
+
+  const elapsedDays = daysBetween(stats.lastPeriodStart, referenceDate);
+
+  if (elapsedDays < 0) {
+    return null;
+  }
+
+  return (elapsedDays % stats.averageCycleDays) + 1;
 }
 
 export function getDaysUntilNextPeriod(
-  user: UserProfile,
+  stats: CycleStats,
   referenceDate = new Date(),
 ) {
-  const cycleDay = getCycleDay(user, referenceDate);
-  return user.cycleAverageDays - cycleDay + 1;
+  const cycleDay = getCycleDay(stats, referenceDate);
+
+  if (cycleDay === null || !stats.averageCycleDays) {
+    return null;
+  }
+
+  return stats.averageCycleDays - cycleDay + 1;
 }
 
 export function getCyclePhase(cycleDay: number): CyclePhase {
@@ -50,89 +107,108 @@ export function getCyclePhase(cycleDay: number): CyclePhase {
   return 'lutea';
 }
 
-export function isDateInPeriod(date: string, period: PeriodRange) {
-  const currentDate = parseIsoDate(date);
-  const startDate = parseIsoDate(period.startDate);
-  const endDate = parseIsoDate(period.endDate);
+export function getOvulationDate(stats: CycleStats) {
+  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
+    return null;
+  }
 
-  if (!currentDate || !startDate || !endDate) {
+  return addDays(stats.lastPeriodStart, stats.averageCycleDays - 14);
+}
+
+export function getPredictedPeriodDates(stats: CycleStats) {
+  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
+    return [];
+  }
+
+  const firstDate = addDays(stats.lastPeriodStart, stats.averageCycleDays);
+
+  if (!firstDate) {
+    return [];
+  }
+
+  const length = stats.averagePeriodDays ?? 5;
+
+  return Array.from({ length }, (_, offset) => addDays(firstDate, offset))
+    .filter((date): date is Date => date !== null)
+    .map(toIsoDate);
+}
+
+export function getFertileWindowDates(stats: CycleStats) {
+  const ovulationDate = getOvulationDate(stats);
+
+  if (!ovulationDate) {
+    return [];
+  }
+
+  return Array.from({ length: 7 }, (_, index) =>
+    addDays(ovulationDate, index - 5),
+  )
+    .filter((date): date is Date => date !== null)
+    .map(toIsoDate);
+}
+
+export function isDateInCycle(date: string, cycle: CycleRecord) {
+  const currentDate = parseIsoDate(date);
+  const startDate = parseIsoDate(cycle.start_date);
+
+  if (!currentDate || !startDate) {
     return false;
   }
 
-  return currentDate >= startDate && currentDate <= endDate;
-}
+  const endDate = cycle.end_date ? parseIsoDate(cycle.end_date) : startDate;
 
-export function getPredictedPeriodDates(user: UserProfile) {
-  const dates: string[] = [];
-  const firstDate = addDays(user.lastPeriodDate, user.cycleAverageDays);
-
-  if (!firstDate) {
-    return dates;
-  }
-
-  for (let index = 0; index < user.periodAverageDays; index += 1) {
-    const date = addDays(firstDate, index);
-
-    if (date) {
-      dates.push(toIsoDate(date));
-    }
-  }
-
-  return dates;
-}
-
-export function getFertileWindowDates(user: UserProfile) {
-  const dates: string[] = [];
-  const ovulationDate = getOvulationDate(user);
-
-  if (!ovulationDate) {
-    return dates;
-  }
-
-  for (let offset = -5; offset <= 1; offset += 1) {
-    const date = addDays(ovulationDate, offset);
-
-    if (date) {
-      dates.push(toIsoDate(date));
-    }
-  }
-
-  return dates;
-}
-
-export function getOvulationDate(user: UserProfile) {
-  return addDays(user.lastPeriodDate, user.cycleAverageDays - 14);
+  return Boolean(endDate) && currentDate >= startDate && currentDate <= endDate!;
 }
 
 export function getCalendarDayStatus(params: {
   date: string;
-  periods: PeriodRange[];
-  symptoms: SymptomEntry[];
-  user: UserProfile;
+  cycles: CycleRecord[];
+  symptomDates: string[];
+  stats: CycleStats;
 }): CalendarDayStatus {
-  const { date, periods, symptoms, user } = params;
+  const { date, cycles, symptomDates, stats } = params;
 
-  if (periods.some((period) => isDateInPeriod(date, period))) {
+  if (cycles.some((cycle) => isDateInCycle(date, cycle))) {
     return 'period';
   }
 
-  const ovulationDate = getOvulationDate(user);
+  const ovulationDate = getOvulationDate(stats);
 
   if (ovulationDate && date === toIsoDate(ovulationDate)) {
     return 'ovulation';
   }
 
-  if (getFertileWindowDates(user).includes(date)) {
+  if (getFertileWindowDates(stats).includes(date)) {
     return 'fertile';
   }
 
-  if (getPredictedPeriodDates(user).includes(date)) {
+  if (getPredictedPeriodDates(stats).includes(date)) {
     return 'predictedPeriod';
   }
 
-  if (symptoms.some((symptom) => symptom.date === date)) {
+  if (symptomDates.includes(date)) {
     return 'symptom';
   }
 
   return 'none';
+}
+
+function average(values: number[]) {
+  if (values.length === 0) {
+    return null;
+  }
+
+  const total = values.reduce((sum, value) => sum + value, 0);
+
+  return Math.round(total / values.length);
+}
+
+function rateRegularity(cycleLengths: number[]): Regularity {
+  if (cycleLengths.length < 2) {
+    return 'Sem dados';
+  }
+
+  const spread = Math.max(...cycleLengths) - Math.min(...cycleLengths);
+
+  return spread <= regularSpreadDays ? 'Regular' : 'Irregular';
 }

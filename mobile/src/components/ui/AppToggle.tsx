@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.semibold,
   },
 });

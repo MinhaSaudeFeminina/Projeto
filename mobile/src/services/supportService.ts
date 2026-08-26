@@ -1,6 +1,4 @@
-import { listEmergencyContacts } from '../api/supportApi';
-import type { ApiResult } from '../api/types';
-import type { EmergencyContact } from '../data/mockData';
+import { emergencyContacts, type EmergencyContact } from '../data/staticContent';
 
 export type SupportInfo = {
   title: string;
@@ -8,24 +6,11 @@ export type SupportInfo = {
   contacts: EmergencyContact[];
 };
 
-export function getEmergencyContacts(): ApiResult<EmergencyContact[]> {
-  return listEmergencyContacts();
-}
-
-export function getSupportInfo(): ApiResult<SupportInfo> {
-  const result = listEmergencyContacts();
-
-  if (!result.ok) {
-    return result;
-  }
-
+export function getSupportInfo(): SupportInfo {
   return {
-    ok: true,
-    data: {
-      title: 'Voce nao esta sozinha',
-      description:
-        'Em situacoes de urgencia, violencia ou sofrimento emocional, procure apoio imediatamente pelos canais disponiveis.',
-      contacts: result.data,
-    },
+    contacts: emergencyContacts,
+    description:
+      'Em situacoes de urgencia, violencia ou sofrimento emocional, procure apoio imediatamente pelos canais disponiveis.',
+    title: 'Voce nao esta sozinha',
   };
 }

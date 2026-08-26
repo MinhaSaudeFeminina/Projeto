@@ -28,15 +28,15 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
     textTransform: 'uppercase',
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.extraBold,
     textAlign: 'center',
   },
   description: {

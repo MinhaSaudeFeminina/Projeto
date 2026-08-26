@@ -12,7 +12,7 @@ class SymptomRecord extends Model
     protected function casts(): array
     {
         return [
-            'occurred_on' => 'date',
+            'occurred_on' => 'date:Y-m-d',
             'alert_shown' => 'boolean',
         ];
     }

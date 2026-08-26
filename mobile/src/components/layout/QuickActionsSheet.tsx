@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 
-import { quickActions } from '../../data/mockData';
+import { quickActions } from '../../data/staticContent';
 import { theme } from '../../utils/theme';
 
 export type QuickActionRoute =
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
   actionLabel: {
     color: theme.colors.secondaryForeground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 19,
   },
   backdrop: {
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
   },
   closeText: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
   grid: {
     flexDirection: 'row',
@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
 });

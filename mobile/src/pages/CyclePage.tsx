@@ -5,16 +5,20 @@ import { useNavigation } from '@react-navigation/native';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { FeedbackMessage } from '../components/ui/FeedbackMessage';
+import { LoadingState } from '../components/ui/LoadingState';
 import { MedicalDisclaimer } from '../components/ui/MedicalDisclaimer';
 import { AppScreen } from '../components/layout/AppScreen';
 import { AppHeader } from '../components/layout/AppHeader';
+import { useApiResource } from '../hooks/useApiResource';
 import {
+  buildMonthCalendar,
   getCycleSummary,
-  getMonthCalendarDays,
+  registerPeriodStart,
   type CalendarDay,
 } from '../services/cycleService';
-import { getUserSymptoms } from '../services/symptomsService';
-import { formatShortDate } from '../utils/date';
+import { getUserSymptomRecords } from '../services/symptomsService';
+import { formatShortDate, toIsoDate } from '../utils/date';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
 
@@ -36,27 +40,56 @@ const MONTHS = [
 
 export function CyclePage() {
   const navigation = useNavigation<RootStackNavigation>();
-  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 2, 1));
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const summaryResult = getCycleSummary();
-  const calendarResult = getMonthCalendarDays(currentDate);
-  const symptomsResult = getUserSymptoms();
+  const cycle = useApiResource(getCycleSummary, []);
+  const symptoms = useApiResource(getUserSymptomRecords, []);
 
   const firstWeekday = useMemo(
     () => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay(),
     [currentDate],
   );
 
-  if (!summaryResult.ok || !calendarResult.ok || !symptomsResult.ok) {
+  const symptomDates = useMemo(
+    () => (symptoms.data ?? []).map((record) => record.occurred_on),
+    [symptoms.data],
+  );
+
+  const calendarDays = useMemo(
+    () =>
+      cycle.data
+        ? buildMonthCalendar(cycle.data, symptomDates, currentDate)
+        : [],
+    [cycle.data, symptomDates, currentDate],
+  );
+
+  const handleRegisterPeriod = async () => {
+    setSaving(true);
+    const result = await registerPeriodStart({ start_date: toIsoDate(new Date()) });
+    setSaving(false);
+
+    if (!result.ok) {
+      setFeedback(result.error.message);
+      return;
+    }
+
+    setFeedback('Menstruacao registrada!');
+    cycle.reload();
+  };
+
+  if (cycle.loading) {
     return (
       <AppScreen>
-        <ErrorMessage message="Nao foi possivel carregar o calendario menstrual." />
+        <AppHeader title="Ciclo Menstrual" />
+        <LoadingState message="Carregando seu calendario." />
       </AppScreen>
     );
   }
 
-  const summary = summaryResult.data;
-  const calendarDays = calendarResult.data;
+  const summary = cycle.data;
+  const stats = summary?.stats;
 
   function changeMonth(offset: number) {
     setCurrentDate(
@@ -67,6 +100,8 @@ export function CyclePage() {
   return (
     <AppScreen>
       <AppHeader title="Ciclo Menstrual" />
+
+      {cycle.error && <ErrorMessage compact message={cycle.error} />}
 
       <View style={styles.monthNav}>
         <Pressable
@@ -103,41 +138,71 @@ export function CyclePage() {
             <View key={`empty-${index}`} style={styles.dayCell} />
           ))}
           {calendarDays.map((day) => (
-            <CalendarCell day={day} key={day.date} />
+            <CalendarCell
+              day={day}
+              hasSymptom={symptomDates.includes(day.date)}
+              key={day.date}
+            />
           ))}
         </View>
 
         <View style={styles.legend}>
-          <Legend color={theme.colors.rosaLight} label="Menstruacao" />
-          <Legend color={theme.colors.fertileLight} label="Periodo fertil" />
-          <Legend color={theme.colors.ovulationLight} label="Ovulacao" />
-          <Legend color={theme.colors.lilas} label="Sintoma" />
+          <Legend color={theme.colors.secondaryStrong} label="Menstruacao" />
+          <Legend color={theme.colors.successLight} label="Periodo fertil" />
+          <Legend color={theme.colors.warningLight} label="Ovulacao" />
+          <Legend color={theme.colors.rose} label="Sintoma" />
         </View>
       </AppCard>
 
       <View style={styles.infoGrid}>
         <InfoCard
           label="Proxima menstruacao"
-          value={`${summary.daysUntilNextPeriod} dias`}
+          value={
+            summary?.daysUntilNextPeriod !== null &&
+            summary?.daysUntilNextPeriod !== undefined
+              ? `${summary.daysUntilNextPeriod} dias`
+              : '--'
+          }
         />
         <InfoCard
           label="Duracao media"
-          value={`${summary.user.cycleAverageDays} dias`}
+          value={stats?.averageCycleDays ? `${stats.averageCycleDays} dias` : '--'}
         />
         <InfoCard
           label="Ultima menstruacao"
-          value={formatShortDate(summary.user.lastPeriodDate)}
+          value={
+            stats?.lastPeriodStart ? formatShortDate(stats.lastPeriodStart) : '--'
+          }
         />
         <InfoCard
           label="Sintomas registrados"
-          value={`${symptomsResult.data.length}`}
+          value={`${(symptoms.data ?? []).length}`}
         />
       </View>
 
       <AppButton
         fullWidth
+        loading={saving}
+        onPress={handleRegisterPeriod}
+        size="lg"
+        title="Registrar menstruacao hoje"
+      />
+
+      {/* Ciclo is a tab with nowhere to go back to, so the result is shown
+          next to the button instead of at the top of a long screen. */}
+      {feedback && (
+        <FeedbackMessage
+          message={feedback}
+          onDismiss={() => setFeedback(null)}
+          variant={feedback === 'Menstruacao registrada!' ? 'success' : 'warning'}
+        />
+      )}
+
+      <AppButton
+        fullWidth
         onPress={() => navigation.navigate('Symptoms')}
         title="Registrar sintomas"
+        variant="secondary"
       />
 
       <MedicalDisclaimer compact />
@@ -145,17 +210,25 @@ export function CyclePage() {
   );
 }
 
-function CalendarCell({ day }: { day: CalendarDay }) {
+function CalendarCell({
+  day,
+  hasSymptom,
+}: {
+  day: CalendarDay;
+  hasSymptom: boolean;
+}) {
   const date = new Date(`${day.date}T00:00:00`);
   const dayNumber = date.getDate();
   const statusStyle = calendarStatusStyles[day.status] ?? styles.noneDay;
 
   return (
     <View style={[styles.dayCell, statusStyle]}>
-      <Text style={[styles.dayText, day.status !== 'none' && styles.markedDayText]}>
+      <Text
+        style={[styles.dayText, day.status !== 'none' && styles.markedDayText]}
+      >
         {dayNumber}
       </Text>
-      {day.symptoms.length > 0 && <View style={styles.symptomDot} />}
+      {hasSymptom && <View style={styles.symptomDot} />}
     </View>
   );
 }
@@ -197,7 +270,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.sm,
   },
   fertileDay: {
-    backgroundColor: theme.colors.fertileLight,
+    backgroundColor: theme.colors.successLight,
   },
   infoCard: {
     flexBasis: '48%',
@@ -215,8 +288,8 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
   legend: {
     borderColor: theme.colors.border,
@@ -242,7 +315,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.xs,
   },
   markedDayText: {
-    fontWeight: theme.typography.weights.bold,
+    fontFamily: theme.typography.fonts.bold,
   },
   monthNav: {
     alignItems: 'center',
@@ -250,9 +323,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   monthTitle: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.extraBold,
   },
   navButton: {
     alignItems: 'center',
@@ -264,26 +337,26 @@ const styles = StyleSheet.create({
   },
   navText: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.bold,
   },
   noneDay: {
     backgroundColor: 'transparent',
   },
   ovulationDay: {
-    backgroundColor: theme.colors.ovulationLight,
+    backgroundColor: theme.colors.warningLight,
   },
   periodDay: {
-    backgroundColor: theme.colors.rosaLight,
+    backgroundColor: theme.colors.secondaryStrong,
   },
   predictedPeriodDay: {
-    backgroundColor: theme.colors.rosaLight,
+    backgroundColor: theme.colors.secondaryStrong,
   },
   symptomDay: {
-    backgroundColor: theme.colors.lilasLight,
+    backgroundColor: theme.colors.roseLight,
   },
   symptomDot: {
-    backgroundColor: theme.colors.lilas,
+    backgroundColor: theme.colors.rose,
     borderRadius: 3,
     bottom: 3,
     height: 6,
@@ -296,8 +369,8 @@ const styles = StyleSheet.create({
   },
   weekday: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
     width: `${100 / 7 - 1}%`,
   },

@@ -1,13 +1,6 @@
+import { createCycle, listCycles, type CycleRecord, type NewCycle } from '../api/cycleApi';
 import { ok, type ApiResult } from '../api/types';
-import {
-  healthTips,
-  mockPeriods,
-  mockSymptoms,
-  mockUser,
-  type PeriodRange,
-  type SymptomEntry,
-  type UserProfile,
-} from '../data/mockData';
+import { healthTips } from '../data/staticContent';
 import {
   getCalendarDayStatus,
   getCycleDay,
@@ -16,16 +9,22 @@ import {
   getFertileWindowDates,
   getOvulationDate,
   getPredictedPeriodDates,
+  summarizeCycles,
   type CalendarDayStatus,
   type CyclePhase,
+  type CycleStats,
 } from '../utils/cycle';
 import { formatLongDate, toIsoDate } from '../utils/date';
 
+export type { CycleRecord, CycleStats };
+
 export type CycleSummary = {
-  user: UserProfile;
-  cycleDay: number;
-  phase: CyclePhase;
-  daysUntilNextPeriod: number;
+  stats: CycleStats;
+  cycles: CycleRecord[];
+  /** `null` until there is enough history to predict anything. */
+  cycleDay: number | null;
+  phase: CyclePhase | null;
+  daysUntilNextPeriod: number | null;
   nextPeriodDates: string[];
   fertileWindowDates: string[];
   ovulationDate: string | null;
@@ -36,53 +35,68 @@ export type CalendarDay = {
   date: string;
   label: string;
   status: CalendarDayStatus;
-  symptoms: SymptomEntry[];
 };
 
-export function getCycleSummary(referenceDate = new Date()): ApiResult<CycleSummary> {
-  const cycleDay = getCycleDay(mockUser, referenceDate);
-  const ovulationDate = getOvulationDate(mockUser);
-  const tipIndex = referenceDate.getDate() % healthTips.length;
+export async function getCycleSummary(
+  referenceDate = new Date(),
+): Promise<ApiResult<CycleSummary>> {
+  const result = await listCycles();
 
-  return ok({
-    user: mockUser,
-    cycleDay,
-    phase: getCyclePhase(cycleDay),
-    daysUntilNextPeriod: getDaysUntilNextPeriod(mockUser, referenceDate),
-    nextPeriodDates: getPredictedPeriodDates(mockUser),
-    fertileWindowDates: getFertileWindowDates(mockUser),
-    ovulationDate: ovulationDate ? toIsoDate(ovulationDate) : null,
-    healthTip: healthTips[tipIndex],
-  });
+  if (!result.ok) {
+    return result;
+  }
+
+  return ok(buildSummary(result.data, referenceDate));
 }
 
-export function getPeriods(): ApiResult<PeriodRange[]> {
-  return ok(mockPeriods);
+export function registerPeriodStart(
+  cycle: NewCycle,
+): Promise<ApiResult<CycleRecord>> {
+  return createCycle(cycle);
 }
 
-export function getMonthCalendarDays(
+export function buildMonthCalendar(
+  summary: CycleSummary,
+  symptomDates: string[],
   monthDate = new Date(),
-): ApiResult<CalendarDay[]> {
+): CalendarDay[] {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  const days = Array.from({ length: daysInMonth }, (_, index) => {
+  return Array.from({ length: daysInMonth }, (_, index) => {
     const date = toIsoDate(new Date(year, month, index + 1));
-    const symptoms = mockSymptoms.filter((symptom) => symptom.date === date);
 
     return {
       date,
       label: formatLongDate(date),
       status: getCalendarDayStatus({
+        cycles: summary.cycles,
         date,
-        periods: mockPeriods,
-        symptoms: mockSymptoms,
-        user: mockUser,
+        stats: summary.stats,
+        symptomDates,
       }),
-      symptoms,
     };
   });
+}
 
-  return ok(days);
+function buildSummary(
+  cycles: CycleRecord[],
+  referenceDate: Date,
+): CycleSummary {
+  const stats = summarizeCycles(cycles);
+  const cycleDay = getCycleDay(stats, referenceDate);
+  const ovulationDate = getOvulationDate(stats);
+
+  return {
+    cycleDay,
+    cycles,
+    daysUntilNextPeriod: getDaysUntilNextPeriod(stats, referenceDate),
+    fertileWindowDates: getFertileWindowDates(stats),
+    healthTip: healthTips[referenceDate.getDate() % healthTips.length],
+    nextPeriodDates: getPredictedPeriodDates(stats),
+    ovulationDate: ovulationDate ? toIsoDate(ovulationDate) : null,
+    phase: cycleDay === null ? null : getCyclePhase(cycleDay),
+    stats,
+  };
 }

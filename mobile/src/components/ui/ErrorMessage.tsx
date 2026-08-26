@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: theme.colors.destructive,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
 });
