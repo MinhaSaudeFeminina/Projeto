@@ -399,6 +399,110 @@ paths:
         '204':
           description: Contato de apoio excluído
 
+  /reminders:
+    get:
+      summary: Lista lembretes e campanhas
+      tags: [Reminders]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Busca por título, tolerante a acentos
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReminderType'
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lembretes e campanhas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Reminder'
+    post:
+      summary: Cria lembrete ou campanha
+      tags: [Reminders]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderWrite'
+      responses:
+        '201':
+          description: Lembrete criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Reminder'
+  /reminders/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza lembrete ou campanha
+      tags: [Reminders]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderWrite'
+      responses:
+        '200':
+          description: Lembrete atualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Reminder'
+    delete:
+      summary: Exclui lembrete ou campanha
+      tags: [Reminders]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Lembrete excluído
+  /reminders/{id}/duplicate:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Duplica lembrete como cópia inativa
+      tags: [Reminders]
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Cópia criada, sempre inativa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Reminder'
+
   /contents:
     get:
       summary: Lista e busca conteúdos administrativos
@@ -1032,6 +1136,80 @@ components:
           nullable: true
         sort_order:
           type: integer
+    ReminderType:
+      type: string
+      enum: [exame_preventivo, mamografia, vacina_hpv, consulta, medicamento, menstruacao, autoexame, campanha]
+    ReminderPriority:
+      type: string
+      enum: [baixa, media, alta, urgente]
+    Reminder:
+      type: object
+      required: [id, title, type, priority, audience, periodicity, start_date, short_message, expanded_message, is_active]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "Exame preventivo (Papanicolau)"
+        description:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/ReminderType'
+        priority:
+          $ref: '#/components/schemas/ReminderPriority'
+        audience:
+          type: string
+          example: "Mulheres 25-64 anos"
+        periodicity:
+          type: string
+          example: "Anual"
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        short_message:
+          type: string
+          maxLength: 160
+          example: "Está na hora do seu preventivo!"
+        expanded_message:
+          type: string
+        is_active:
+          type: boolean
+    ReminderWrite:
+      type: object
+      required: [title, type, priority, audience, periodicity, start_date, short_message, expanded_message, is_active]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/ReminderType'
+        priority:
+          $ref: '#/components/schemas/ReminderPriority'
+        audience:
+          type: string
+        periodicity:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        short_message:
+          type: string
+          maxLength: 160
+        expanded_message:
+          type: string
+        is_active:
+          type: boolean
     SupportContact:
       type: object
       required: [id, name, description, type, cta_label, sort_order, is_highlighted, is_active]
