@@ -70,3 +70,35 @@ export function isSameIsoDate(leftDate: string | Date, rightDate: string | Date)
 
   return left === right;
 }
+
+export function maskBrDate(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+
+  return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)]
+    .filter((part) => part.length > 0)
+    .join('/');
+}
+
+export function brDateToIso(value: string) {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, day, month, year] = match;
+  const isoDate = `${year}-${month}-${day}`;
+  const parsedDate = parseIsoDate(isoDate);
+
+  // `new Date('2024-02-31')` rolls over to March instead of failing, so the
+  // parsed parts have to match what was typed.
+  if (
+    !parsedDate ||
+    parsedDate.getMonth() + 1 !== Number(month) ||
+    parsedDate.getDate() !== Number(day)
+  ) {
+    return null;
+  }
+
+  return isoDate;
+}

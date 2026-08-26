@@ -1,79 +1,69 @@
-import {
-  mockSymptoms,
-  mockSymptomTypes,
-  mockUser,
-  type SymptomEntry,
-  type SymptomIntensity,
-  type SymptomType,
-} from '../data/mockData';
+import { requestJson } from './client';
+import { withFullAccessMessage, type ApiResult } from './types';
 
-import { fail, ok, type ApiResult } from './types';
-
-let symptomEntries: SymptomEntry[] = mockSymptoms.map((symptom) => ({
-  ...symptom,
-}));
-
-export type SaveSymptomEntryInput = {
-  type: string;
-  intensity: SymptomIntensity;
-  notes?: string;
-  date: string;
-  userId?: string;
+export type Symptom = {
+  id: number;
+  name: string;
+  description: string | null;
+  is_alert_candidate: boolean;
 };
 
-export function listSymptomTypes(): ApiResult<SymptomType[]> {
-  return ok(mockSymptomTypes as SymptomType[]);
+export type SymptomRecord = {
+  id: number;
+  symptom_id: number | null;
+  custom_symptom: string | null;
+  /** Backend scale, 1 to 10. */
+  intensity: number;
+  occurred_on: string;
+  notes: string | null;
+  alert_shown: boolean;
+  symptom?: Symptom | null;
+};
+
+export type NewSymptomRecord = {
+  symptom_id?: number | null;
+  custom_symptom?: string | null;
+  intensity: number;
+  occurred_on: string;
+  notes?: string | null;
+};
+
+export type SymptomRecordCreated = {
+  record: SymptomRecord;
+  /** Present when the record trips a health alert. */
+  guidance: string | null;
+};
+
+export async function listSymptomCatalog(): Promise<ApiResult<Symptom[]>> {
+  const result = await requestJson<{ data: Symptom[] }>('/symptoms', {
+    token: null,
+  });
+
+  return result.ok ? { ok: true, data: result.data.data } : result;
 }
 
-export function listSymptomEntries(userId = mockUser.id): ApiResult<SymptomEntry[]> {
-  return ok(symptomEntries.filter((entry) => entry.userId === userId));
-}
-
-export function saveSymptomEntries(
-  entries: SaveSymptomEntryInput[],
-): ApiResult<SymptomEntry[]> {
-  if (entries.length === 0) {
-    return fail(
-      'EMPTY_SYMPTOM_ENTRIES',
-      'Selecione pelo menos um sintoma.',
-    );
-  }
-
-  const validTypeIds = new Set(mockSymptomTypes.map((type) => type.id));
-  const validIntensities: SymptomIntensity[] = ['leve', 'moderado', 'intenso'];
-
-  const hasInvalidEntry = entries.some(
-    (entry) =>
-      !validTypeIds.has(entry.type) ||
-      !validIntensities.includes(entry.intensity) ||
-      Number.isNaN(new Date(`${entry.date}T00:00:00`).getTime()),
+export async function listSymptomRecords(): Promise<ApiResult<SymptomRecord[]>> {
+  const result = await requestJson<{ data: SymptomRecord[] }>(
+    '/symptom-records',
   );
 
-  if (hasInvalidEntry) {
-    return fail(
-      'INVALID_SYMPTOM_ENTRY',
-      'Registro de sintoma invalido.',
-    );
-  }
-
-  const savedEntries = entries.map((entry, index) => ({
-    id: `${Date.now()}-${index}`,
-    userId: entry.userId ?? mockUser.id,
-    type: entry.type,
-    intensity: entry.intensity,
-    notes: entry.notes ?? '',
-    date: entry.date,
-  }));
-
-  symptomEntries = [...symptomEntries, ...savedEntries];
-
-  return ok(savedEntries);
+  return result.ok
+    ? { ok: true, data: result.data.data }
+    : withFullAccessMessage(result);
 }
 
-export function resetSymptomEntries(): ApiResult<SymptomEntry[]> {
-  symptomEntries = mockSymptoms.map((symptom) => ({
-    ...symptom,
-  }));
+export async function createSymptomRecord(
+  record: NewSymptomRecord,
+): Promise<ApiResult<SymptomRecordCreated>> {
+  const result = await requestJson<{
+    data: SymptomRecord;
+    guidance: string | null;
+  }>('/symptom-records', {
+    body: record,
+    method: 'POST',
+  });
 
-  return ok(symptomEntries);
+  return result.ok
+    ? { ok: true, data: { record: result.data.data, guidance: result.data.guidance } }
+    : withFullAccessMessage(result);
 }

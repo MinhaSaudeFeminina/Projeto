@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 
-import { quickActions } from '../../data/mockData';
+import { quickActions } from '../../data/staticContent';
 import { theme } from '../../utils/theme';
 
 export type QuickActionRoute =

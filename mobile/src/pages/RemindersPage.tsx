@@ -8,12 +8,16 @@ import { AppCard } from '../components/ui/AppCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { FeedbackMessage } from '../components/ui/FeedbackMessage';
+import { AppTextInput } from '../components/ui/AppTextInput';
+import { LoadingState } from '../components/ui/LoadingState';
+import { useApiResource } from '../hooks/useApiResource';
 import {
-  completeReminder,
+  addReminder,
   getReminderFeedbackMessage,
   getUserReminders,
-  type ReminderViewModel,
+  toggleReminderCompleted,
 } from '../services/remindersService';
+import { brDateToIso, maskBrDate } from '../utils/date';
 import { navigateBackOrToday } from '../utils/navigation';
 import type { RootStackScreenProps } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
@@ -21,31 +25,52 @@ import { theme } from '../utils/theme';
 type RemindersPageProps = RootStackScreenProps<'Reminders'>;
 
 export function RemindersPage({ navigation }: RemindersPageProps) {
-  const remindersResult = getUserReminders();
-  const [reminders, setReminders] = useState<ReminderViewModel[]>(
-    remindersResult.ok ? remindersResult.data : [],
+  const { data, error: loadError, loading, reload } = useApiResource(
+    getUserReminders,
+    [],
   );
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(
-    remindersResult.ok ? null : 'Nao foi possivel carregar os lembretes.',
-  );
+  const [error, setError] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState('');
   const handleBack = () => navigateBackOrToday(navigation);
+  const reminders = data ?? [];
 
-  const toggleComplete = (id: string) => {
-    const result = completeReminder(id);
+  const toggleComplete = async (id: string) => {
+    const result = await toggleReminderCompleted(id);
 
     if (!result.ok) {
-      setError('Nao foi possivel atualizar o lembrete.');
+      setError(result.error.message);
       return;
     }
 
     setError(null);
     setFeedback(getReminderFeedbackMessage());
-    setReminders((current) =>
-      current.map((reminder) =>
-        reminder.id === id ? result.data : reminder,
-      ),
-    );
+    reload();
+  };
+
+  const handleAdd = async () => {
+    const isoDate = brDateToIso(date);
+
+    if (!isoDate) {
+      setError('Informe uma data no formato DD/MM/AAAA.');
+      return;
+    }
+
+    const result = await addReminder({ date: isoDate, title, type: 'outro' });
+
+    if (!result.ok) {
+      setError(result.error.message);
+      return;
+    }
+
+    setError(null);
+    setFeedback('Lembrete adicionado!');
+    setTitle('');
+    setDate('');
+    setFormOpen(false);
+    reload();
   };
 
   return (
@@ -55,14 +80,37 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
         rightAction={
           <AppButton
             accessibilityLabel="Adicionar lembrete"
-            title="+"
+            onPress={() => setFormOpen((current) => !current)}
+            title={formOpen ? '-' : '+'}
             variant="secondary"
           />
         }
         title="Lembretes"
       />
 
-      {error && <ErrorMessage compact message={error} />}
+      {(error ?? loadError) && (
+        <ErrorMessage compact message={error ?? loadError!} />
+      )}
+
+      {formOpen && (
+        <AppCard title="Novo lembrete">
+          <AppTextInput
+            label="Titulo"
+            onChangeText={setTitle}
+            placeholder="Consulta ginecologica"
+            value={title}
+          />
+          <AppTextInput
+            inputMode="numeric"
+            label="Data"
+            maxLength={10}
+            onChangeText={(value) => setDate(maskBrDate(value))}
+            placeholder="DD/MM/AAAA"
+            value={date}
+          />
+          <AppButton fullWidth onPress={handleAdd} title="Salvar lembrete" />
+        </AppCard>
+      )}
       {feedback && (
         <FeedbackMessage
           message={feedback}
@@ -107,9 +155,11 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
         ))}
       </View>
 
-      {reminders.length === 0 && (
+      {loading && <LoadingState message="Carregando seus lembretes." />}
+
+      {!loading && reminders.length === 0 && (
         <EmptyState
-          message="Quando houver consultas, exames ou vacinas, elas aparecem aqui."
+          message="Adicione consultas, exames ou vacinas. Os lembretes ficam salvos apenas neste dispositivo."
           title="Nenhum lembrete cadastrado"
         />
       )}

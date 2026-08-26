@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
 use App\Http\Controllers\Api\V1\Admin\SupportContactController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\Mobile\AuthController as MobileAuthController;
+use App\Http\Controllers\Api\V1\Mobile\CatalogController as MobileCatalogController;
 use App\Http\Controllers\Api\V1\Mobile\ContentController as MobileContentController;
 use App\Http\Controllers\Api\V1\Mobile\EmailVerificationController as MobileEmailVerificationController;
 use App\Http\Controllers\Api\V1\Mobile\LegalDocumentController as MobileLegalDocumentController;
@@ -81,6 +82,8 @@ Route::prefix('v1/mobile')->name('api.v1.mobile.')->group(function (): void {
         Route::post('email/resend', [MobileEmailVerificationController::class, 'resend'])->name('email.resend');
     });
 
+    Route::get('categories', [MobileCatalogController::class, 'categories'])->name('categories.index');
+    Route::get('symptoms', [MobileCatalogController::class, 'symptoms'])->name('symptoms.index');
     Route::get('contents', [MobileContentController::class, 'index'])->name('contents.index');
     Route::get('contents/{slug}', [MobileContentController::class, 'show'])->name('contents.show');
     Route::get('legal-documents/current', [MobileLegalDocumentController::class, 'current'])->name('legal-documents.current');

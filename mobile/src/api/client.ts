@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 
+import { getAuthToken } from './authToken';
 import { fail, ok, type ApiResult } from './types';
 
 const defaultApiBaseUrl = Platform.select({
@@ -14,6 +15,8 @@ export const mobileApiBaseUrl =
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   body?: Record<string, unknown>;
+  query?: Record<string, string | number | undefined>;
+  /** Defaults to the signed-in user's token; pass `null` to send none. */
   token?: string | null;
 };
 
@@ -26,7 +29,8 @@ export async function requestJson<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<ApiResult<T>> {
-  const url = `${mobileApiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  const token = 'token' in options ? options.token : getAuthToken();
+  const url = `${mobileApiBaseUrl}${path.startsWith('/') ? path : `/${path}`}${buildQueryString(options.query)}`;
 
   try {
     const response = await fetch(url, {
@@ -34,7 +38,7 @@ export async function requestJson<T>(
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
@@ -66,6 +70,26 @@ export async function requestJson<T>(
       'Nao foi possivel conectar ao servidor. Verifique a internet e tente novamente.',
     );
   }
+}
+
+function buildQueryString(query: RequestOptions['query']) {
+  if (!query) {
+    return '';
+  }
+
+  const entries = Object.entries(query).filter(
+    ([, value]) => value !== undefined && value !== '',
+  );
+
+  if (entries.length === 0) {
+    return '';
+  }
+
+  const search = entries
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join('&');
+
+  return `?${search}`;
 }
 
 function isObject(value: unknown): value is LaravelErrorPayload {

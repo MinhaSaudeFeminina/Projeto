@@ -12,8 +12,10 @@ class MenstrualCycle extends Model
     protected function casts(): array
     {
         return [
-            'start_date' => 'date',
-            'end_date' => 'date',
+            // Serialized as plain dates: the API contract is a calendar day,
+            // not a moment in time, and clients compare them as strings.
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date:Y-m-d',
         ];
     }
 

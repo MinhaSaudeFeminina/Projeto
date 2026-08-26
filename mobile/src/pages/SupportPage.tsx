@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
 import { AppCard } from '../components/ui/AppCard';
-import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { getSupportInfo } from '../services/supportService';
 import { navigateBackOrToday } from '../utils/navigation';
 import type { RootStackScreenProps } from '../utils/navigationTypes';
@@ -12,19 +11,8 @@ import { theme } from '../utils/theme';
 type SupportPageProps = RootStackScreenProps<'Support'>;
 
 export function SupportPage({ navigation }: SupportPageProps) {
-  const supportResult = getSupportInfo();
+  const supportInfo = getSupportInfo();
   const handleBack = () => navigateBackOrToday(navigation);
-
-  if (!supportResult.ok) {
-    return (
-      <AppScreen>
-        <AppHeader onBack={handleBack} title="Apoio" />
-        <ErrorMessage message="Nao foi possivel carregar os canais de apoio." />
-      </AppScreen>
-    );
-  }
-
-  const supportInfo = supportResult.data;
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>

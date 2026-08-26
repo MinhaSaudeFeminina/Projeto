@@ -21,6 +21,10 @@ class DatabaseSeeder extends Seeder
             ContentTaxonomySeeder::class,
             AdminRolePermissionSeeder::class,
             SupportContactSeeder::class,
+            LegalDocumentSeeder::class,
+            SymptomCatalogSeeder::class,
+            PublishedContentSeeder::class,
+            MobileUserSeeder::class,
         ]);
 
         $admin = User::updateOrCreate(
