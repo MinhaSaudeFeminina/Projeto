@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Download, FileText, Loader2, MessageCircleQuestion, Thermometer } from "lucide-react";
+import { CheckCircle2, Download, FileText, Loader2, Thermometer } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { MetricCard } from "@/components/MetricCard";
 import { Button } from "@/components/ui/button";
@@ -32,11 +32,9 @@ const COPY = {
   exportSuccess: "Relat\u00f3rio CSV gerado com sucesso!",
   contentsCreated: "Conte\u00fados criados no per\u00edodo",
   contentsPublished: "Conte\u00fados publicados no per\u00edodo",
-  questionsReceived: "Perguntas recebidas no per\u00edodo",
   symptomsCreated: "Sintomas cadastrados no per\u00edodo",
   contentsByStatus: "Conte\u00fados por status",
   contentsByLifeStage: "Conte\u00fados por fase da vida",
-  questionsByStatus: "Perguntas por status",
   symptomsByCategory: "Itens do cat\u00e1logo por categoria",
   quantity: "Quantidade",
 };
@@ -131,10 +129,9 @@ export default function ReportsPage() {
 
       {report ? (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <MetricCard title={COPY.contentsCreated} value={report.summary.contents_created} icon={FileText} />
             <MetricCard title={COPY.contentsPublished} value={report.summary.contents_published} icon={CheckCircle2} />
-            <MetricCard title={COPY.questionsReceived} value={report.summary.questions_received} icon={MessageCircleQuestion} />
             <MetricCard title={COPY.symptomsCreated} value={report.summary.symptoms_created} icon={Thermometer} />
           </div>
 
@@ -159,7 +156,6 @@ export default function ReportsPage() {
               </CardContent>
             </Card>
 
-            <ReportBarCard title={COPY.questionsByStatus} items={report.question_statuses} color="hsl(280, 60%, 55%)" horizontal />
             <ReportBarCard title={COPY.symptomsByCategory} items={report.symptom_categories} color="hsl(155, 60%, 45%)" />
           </div>
         </>

@@ -23,7 +23,6 @@ class AdminRolePermissionSeeder extends Seeder
             'taxonomy.manage' => 'Gerenciar taxonomias',
             'audit.view' => 'Ver auditoria',
             'notifications.view' => 'Ver notificações',
-            'anonymous_questions.manage' => 'Gerenciar perguntas anônimas',
             'symptoms.manage' => 'Gerenciar sintomas e queixas',
         ])->map(fn (string $name, string $key) => Permission::updateOrCreate(
             ['key' => $key],
@@ -39,7 +38,7 @@ class AdminRolePermissionSeeder extends Seeder
             AdminRole::REVIEWER => [
                 'name' => 'Revisor/professor',
                 'description' => 'Revisa, aprova ou solicita ajustes.',
-                'permissions' => ['content.review', 'content.approve', 'audit.view', 'notifications.view', 'anonymous_questions.manage'],
+                'permissions' => ['content.review', 'content.approve', 'audit.view', 'notifications.view'],
             ],
             AdminRole::ADMIN => [
                 'name' => 'Admin',

@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, FileText, FolderOpen, Route, Thermometer,
-  Bell, MessageCircleQuestion, Users, Send, Phone,
-  BarChart3, UserCog, Settings, ChevronLeft, Heart
+  Bell, Users, Send, Phone,
+  BarChart3, UserCog, ChevronLeft, Heart
 } from 'lucide-react';
 
 const menuItems = [
@@ -14,13 +14,11 @@ const menuItems = [
   { label: 'Trilhas por Fase da Vida', icon: Route, path: '/trilhas' },
   { label: 'Sintomas e Queixas', icon: Thermometer, path: '/sintomas' },
   { label: 'Lembretes e Campanhas', icon: Bell, path: '/lembretes' },
-  { label: 'Perguntas Anônimas', icon: MessageCircleQuestion, path: '/perguntas' },
   { label: 'Usuárias / Perfis', icon: Users, path: '/usuarias' },
   { label: 'Notificações', icon: Send, path: '/notificacoes' },
   { label: 'Apoio e Contatos', icon: Phone, path: '/apoio' },
   { label: 'Relatórios', icon: BarChart3, path: '/relatorios' },
   { label: 'Usuários do Painel', icon: UserCog, path: '/usuarios-painel' },
-  { label: 'Configurações', icon: Settings, path: '/configuracoes' },
 ];
 
 export function AppSidebar() {

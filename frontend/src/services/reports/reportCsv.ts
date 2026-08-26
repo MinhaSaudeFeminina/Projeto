@@ -1,9 +1,8 @@
 import type { AdminReport } from "@/services/api/reportApi";
 
-const sections: Array<[string, keyof Pick<AdminReport, "content_statuses" | "life_stages" | "question_statuses" | "symptom_categories">]> = [
+const sections: Array<[string, keyof Pick<AdminReport, "content_statuses" | "life_stages" | "symptom_categories">]> = [
   ["Conte\u00fados por status", "content_statuses"],
   ["Conte\u00fados por fase da vida", "life_stages"],
-  ["Perguntas por status", "question_statuses"],
   ["Itens do cat\u00e1logo por categoria", "symptom_categories"],
 ];
 
@@ -19,7 +18,6 @@ export function reportToCsv(report: AdminReport): string {
     ["Indicador", "Valor"],
     ["Conte\u00fados criados no per\u00edodo", report.summary.contents_created],
     ["Conte\u00fados publicados no per\u00edodo", report.summary.contents_published],
-    ["Perguntas recebidas no per\u00edodo", report.summary.questions_received],
     ["Sintomas cadastrados no per\u00edodo", report.summary.symptoms_created],
   ];
 
