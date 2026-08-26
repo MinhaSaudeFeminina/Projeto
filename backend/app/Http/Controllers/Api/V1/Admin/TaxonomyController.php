@@ -10,8 +10,8 @@ use App\Models\AgeRange;
 use App\Models\ContentCategory;
 use App\Models\EducationalContent;
 use App\Models\LifeStage;
-use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 class TaxonomyController extends Controller
@@ -75,13 +75,6 @@ class TaxonomyController extends Controller
         $category->delete();
 
         return response()->noContent();
-    }
-
-    public function lifeStages(): JsonResponse
-    {
-        $this->authorize('viewAny', EducationalContent::class);
-
-        return response()->json(['data' => $this->activeLifeStages()]);
     }
 
     public function ageRanges(): JsonResponse

@@ -65,12 +65,7 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
       return;
     }
 
-    setError(null);
-    setFeedback('Lembrete adicionado!');
-    setTitle('');
-    setDate('');
-    setFormOpen(false);
-    reload();
+    handleBack();
   };
 
   return (

@@ -304,6 +304,12 @@ paths:
       tags: [Taxonomies]
       security:
         - bearerAuth: []
+      parameters:
+        - name: include_inactive
+          in: query
+          schema:
+            type: boolean
+          description: Inclui fases em rascunho, usadas na tela de trilhas
       responses:
         '200':
           description: Fases da vida
@@ -313,6 +319,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LifeStage'
+  /life-stages/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza a trilha de uma fase da vida
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifeStageWrite'
+      responses:
+        '200':
+          description: Trilha atualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
   /age-ranges:
     get:
       summary: Lista faixas etárias
@@ -1106,12 +1136,13 @@ components:
           type: boolean
     LifeStage:
       type: object
-      required: [id, key, name]
+      required: [id, key, name, warning_signals, reminder_suggestions]
       properties:
         id:
           type: integer
         key:
           type: string
+          description: Identificador estável da fase; não é editável
           example: "climaterio_menopausa"
         name:
           type: string
@@ -1119,8 +1150,53 @@ components:
         description:
           type: string
           nullable: true
+        ubs_orientation:
+          type: string
+          nullable: true
+          example: "A UBS pode acompanhar essa transição."
+        warning_signals:
+          type: array
+          items:
+            type: string
+          example: ["Sangramento após a menopausa"]
+        reminder_suggestions:
+          type: array
+          items:
+            type: string
+          example: ["Mamografia bienal"]
         sort_order:
           type: integer
+        is_active:
+          type: boolean
+          description: Fase publicada; em rascunho quando falso
+        contents_count:
+          type: integer
+          description: Conteúdos vinculados à fase
+    LifeStageWrite:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        ubs_orientation:
+          type: string
+          nullable: true
+        warning_signals:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+        reminder_suggestions:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+        sort_order:
+          type: integer
+        is_active:
+          type: boolean
     AgeRange:
       type: object
       required: [id, label]

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
-use App\Http\Controllers\Api\V1\Admin\AppUserController;
 use App\Http\Controllers\Api\V1\Admin\AnonymousQuestionController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentControlle
 use App\Http\Controllers\Api\V1\Admin\ContentRevisionController as AdminContentRevisionController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
+use App\Http\Controllers\Api\V1\Admin\LifeStageController;
 use App\Http\Controllers\Api\V1\Admin\ReminderController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
 use App\Http\Controllers\Api\V1\Admin\SupportContactController;
@@ -49,7 +49,8 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::post('categories', [TaxonomyController::class, 'storeCategory'])->name('categories.store');
         Route::patch('categories/{category}', [TaxonomyController::class, 'updateCategory'])->name('categories.update');
         Route::delete('categories/{category}', [TaxonomyController::class, 'destroyCategory'])->name('categories.destroy');
-        Route::get('life-stages', [TaxonomyController::class, 'lifeStages'])->name('life-stages.index');
+        Route::get('life-stages', [LifeStageController::class, 'index'])->name('life-stages.index');
+        Route::patch('life-stages/{lifeStage}', [LifeStageController::class, 'update'])->name('life-stages.update');
         Route::get('age-ranges', [TaxonomyController::class, 'ageRanges'])->name('age-ranges.index');
         Route::get('contents', [AdminContentController::class, 'index'])->name('contents.index');
         Route::post('contents', [AdminContentController::class, 'store'])->name('contents.store');
