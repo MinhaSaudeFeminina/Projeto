@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AppUserController;
 use App\Http\Controllers\Api\V1\Admin\AnonymousQuestionController;
-use App\Http\Controllers\Api\V1\Admin\AppUserController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
 use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
