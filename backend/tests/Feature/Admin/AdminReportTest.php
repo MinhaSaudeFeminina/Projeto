@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\AdminRole;
-use App\Models\AnonymousQuestion;
 use App\Models\ContentCategory;
 use App\Models\EducationalContent;
 use App\Models\LifeStage;
@@ -33,8 +32,6 @@ test('admin report returns database aggregates for the selected period', functio
     ]);
     $content->lifeStages()->attach($lifeStage);
 
-    AnonymousQuestion::factory()->create(['status' => AnonymousQuestion::NEW]);
-    AnonymousQuestion::factory()->create(['status' => AnonymousQuestion::ANSWERED]);
     Symptom::create(['name' => "C\u{00F3}lica", 'category' => "Menstrua\u{00E7}\u{00E3}o"]);
 
     $this->withToken($token)->getJson('/api/v1/admin/reports?period=30d')
@@ -42,13 +39,10 @@ test('admin report returns database aggregates for the selected period', functio
         ->assertJsonPath('data.period.key', '30d')
         ->assertJsonPath('data.summary.contents_created', 1)
         ->assertJsonPath('data.summary.contents_published', 1)
-        ->assertJsonPath('data.summary.questions_received', 2)
         ->assertJsonPath('data.summary.symptoms_created', 1)
         ->assertJsonPath('data.content_statuses.3.value', 1)
         ->assertJsonPath('data.life_stages.0.label', 'Fase adulta')
         ->assertJsonPath('data.life_stages.0.value', 1)
-        ->assertJsonPath('data.question_statuses.0.value', 1)
-        ->assertJsonPath('data.question_statuses.2.value', 1)
         ->assertJsonPath('data.symptom_categories.0.label', "Menstrua\u{00E7}\u{00E3}o");
 });
 

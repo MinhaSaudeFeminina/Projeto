@@ -15,12 +15,10 @@ const report: AdminReport = {
   summary: {
     contents_created: 4,
     contents_published: 2,
-    questions_received: 7,
     symptoms_created: 3,
   },
   content_statuses: [{ key: "published", label: "Publicado", value: 2 }],
   life_stages: [{ key: "adulta", label: "Fase adulta", value: 4 }],
-  question_statuses: [{ key: "nova", label: "Nova", value: 7 }],
   symptom_categories: [{ key: "Geral", label: "Geral", value: 3 }],
 };
 
@@ -43,9 +41,7 @@ test("loads and renders the administrative report from the API", async () => {
   expect(screen.getByText("Per\u00edodo do relat\u00f3rio: 27/07/2026 a 25/08/2026")).toBeInTheDocument();
   expect(screen.getByText("Conte\u00fados criados no per\u00edodo")).toBeInTheDocument();
   expect(screen.getAllByText("4")).toHaveLength(2);
-  expect(screen.getByText("Perguntas recebidas no per\u00edodo")).toBeInTheDocument();
-  expect(screen.getAllByText("7")).toHaveLength(2);
-  expect(screen.getAllByRole("table")).toHaveLength(4);
+  expect(screen.getAllByRole("table")).toHaveLength(3);
   expect(getAdminReport).toHaveBeenCalledWith("30d");
   expect(screen.queryByText("Total usu\u00e1rias")).not.toBeInTheDocument();
 });

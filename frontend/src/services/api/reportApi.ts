@@ -14,12 +14,10 @@ export type AdminReport = {
   summary: {
     contents_created: number;
     contents_published: number;
-    questions_received: number;
     symptoms_created: number;
   };
   content_statuses: ReportDataPoint[];
   life_stages: ReportDataPoint[];
-  question_statuses: ReportDataPoint[];
   symptom_categories: ReportDataPoint[];
 };
 

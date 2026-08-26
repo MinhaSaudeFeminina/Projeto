@@ -94,7 +94,7 @@ paths:
                 properties:
                   data:
                     type: object
-                    required: [period, summary, content_statuses, life_stages, question_statuses, symptom_categories]
+                    required: [period, summary, content_statuses, life_stages, symptom_categories]
                     properties:
                       period:
                         type: object
@@ -107,15 +107,11 @@ paths:
                         properties:
                           contents_created: { type: integer, minimum: 0 }
                           contents_published: { type: integer, minimum: 0 }
-                          questions_received: { type: integer, minimum: 0 }
                           symptoms_created: { type: integer, minimum: 0 }
                       content_statuses:
                         type: array
                         items: { $ref: '#/components/schemas/ReportDataPoint' }
                       life_stages:
-                        type: array
-                        items: { $ref: '#/components/schemas/ReportDataPoint' }
-                      question_statuses:
                         type: array
                         items: { $ref: '#/components/schemas/ReportDataPoint' }
                       symptom_categories:
@@ -646,82 +642,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/ContentRevision'
 
-  /anonymous-questions:
-    get:
-      summary: Lista e filtra perguntas anônimas recebidas
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      parameters:
-        - { name: q, in: query, schema: { type: string } }
-        - { name: status, in: query, schema: { $ref: '#/components/schemas/AnonymousQuestionStatus' } }
-        - { name: priority, in: query, schema: { $ref: '#/components/schemas/AnonymousQuestionPriority' } }
-      responses:
-        '200':
-          description: Lista paginada de perguntas anônimas
-        '403':
-          description: Perfil sem permissão
-  /anonymous-questions/{id}:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    get:
-      summary: Exibe uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Pergunta anônima encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/AnonymousQuestion'
-        '403':
-          description: Perfil sem permissão
-  /anonymous-questions/{id}/answer:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    post:
-      summary: Salva a resposta orientativa de uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [answer]
-              properties:
-                answer: { type: string, maxLength: 5000 }
-                internal_notes: { type: string, nullable: true, maxLength: 5000 }
-      responses:
-        '200':
-          description: Resposta salva
-        '403':
-          description: Perfil sem permissão
-        '409':
-          description: Pergunta já arquivada
-        '422':
-          description: Dados inválidos
-  /anonymous-questions/{id}/archive:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    post:
-      summary: Arquiva uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Pergunta arquivada
-        '403':
-          description: Perfil sem permissão
-
   /notifications:
     get:
       summary: Lista notificações administrativas
@@ -1114,29 +1034,3 @@ components:
         created_at:
           type: string
           format: date-time
-    AnonymousQuestionStatus:
-      type: string
-      enum: [nova, em_analise, respondida, arquivada]
-    AnonymousQuestionPriority:
-      type: string
-      enum: [baixa, media, alta, urgente]
-    AnonymousQuestion:
-      type: object
-      required: [id, question, category, status, priority, is_sensitive, created_at, updated_at]
-      properties:
-        id: { type: integer }
-        question: { type: string }
-        category: { type: string }
-        status:
-          $ref: '#/components/schemas/AnonymousQuestionStatus'
-        priority:
-          $ref: '#/components/schemas/AnonymousQuestionPriority'
-        answer: { type: string, nullable: true }
-        internal_notes: { type: string, nullable: true }
-        is_sensitive: { type: boolean }
-        answered_by: { type: integer, nullable: true }
-        answered_at: { type: string, format: date-time, nullable: true }
-        archived_by: { type: integer, nullable: true }
-        archived_at: { type: string, format: date-time, nullable: true }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }

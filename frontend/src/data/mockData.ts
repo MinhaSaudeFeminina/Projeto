@@ -1,4 +1,4 @@
-import type { AdminUser, ContentCategory, Content, LifeStage, Symptom, Reminder, AnonymousQuestion, AppUser, Notification, SupportContact } from '@/types';
+import type { AdminUser, ContentCategory, Content, LifeStage, Symptom, Reminder, AppUser, Notification, SupportContact } from '@/types';
 
 export const adminUsers: AdminUser[] = [
   { id: '1', name: 'Ana Silva', email: 'ana@saude.gov.br', role: 'admin', isActive: true, lastLogin: '2026-03-19T10:00:00', createdAt: '2025-01-01', avatar: '' },
@@ -67,16 +67,6 @@ export const reminders: Reminder[] = [
   { id: '3', title: 'Vacina HPV', description: 'Lembrete de vacinação contra HPV.', type: 'vacina_hpv', audience: 'Meninas 9-14 anos', lifeStage: 'Adolescência', periodicity: 'Dose única', startDate: '2026-03-01', endDate: '2026-12-31', shortMessage: 'A vacina HPV protege contra o câncer!', expandedMessage: 'A vacina HPV está disponível gratuitamente no SUS para meninas de 9 a 14 anos.', isActive: true, priority: 'media', channel: 'app' },
   { id: '4', title: 'Outubro Rosa', description: 'Campanha de conscientização sobre o câncer de mama.', type: 'campanha', audience: 'Todas as usuárias', lifeStage: 'Todas', periodicity: 'Anual', startDate: '2026-10-01', endDate: '2026-10-31', shortMessage: 'Outubro Rosa: cuide-se!', expandedMessage: 'Outubro é o mês de conscientização sobre o câncer de mama. Faça seus exames!', isActive: true, priority: 'alta', channel: 'app' },
   { id: '5', title: 'Autoexame das mamas', description: 'Lembrete mensal para autoobservação das mamas.', type: 'autoexame', audience: 'Todas as usuárias', lifeStage: 'Todas', periodicity: 'Mensal', startDate: '2026-01-01', shortMessage: 'Hora do autoexame!', expandedMessage: 'Observe suas mamas regularmente. Conheça o que é normal para você.', isActive: true, priority: 'media', channel: 'app' },
-];
-
-export const anonymousQuestions: AnonymousQuestion[] = [
-  { id: '1', question: 'Meu corrimento mudou de cor, isso é normal?', category: 'Saúde íntima', createdAt: '2026-03-18T14:30:00', status: 'nova', priority: 'media', isSensitive: false },
-  { id: '2', question: 'Estou com cólicas muito fortes e a menstruação não desce. O que pode ser?', category: 'Menstruação', createdAt: '2026-03-18T10:15:00', status: 'em_analise', priority: 'alta', assignedTo: '2', isSensitive: false },
-  { id: '3', question: 'Posso tomar anticoncepcional por conta própria?', category: 'Contracepção', createdAt: '2026-03-17T16:00:00', status: 'respondida', priority: 'media', answer: 'Não é recomendado iniciar ou trocar anticoncepcionais sem orientação médica. Cada método tem indicações e contraindicações específicas. Procure a UBS para uma consulta ginecológica e receber orientação adequada ao seu caso.', assignedTo: '2', isSensitive: false },
-  { id: '4', question: 'Tenho 14 anos e ainda não menstruei. É normal?', category: 'Menstruação', createdAt: '2026-03-17T09:20:00', status: 'respondida', priority: 'baixa', answer: 'A primeira menstruação (menarca) pode ocorrer entre 9 e 16 anos. Se aos 16 anos ainda não tiver menstruado, é importante procurar a UBS para avaliação.', assignedTo: '2', isSensitive: false },
-  { id: '5', question: 'Meu parceiro me agride e não sei o que fazer...', category: 'Violência contra a mulher', createdAt: '2026-03-16T22:45:00', status: 'em_analise', priority: 'urgente', assignedTo: '1', isSensitive: true, internalNotes: 'Caso sensível. Encaminhar informações de apoio e contatos de emergência.' },
-  { id: '6', question: 'É verdade que DIU dói para colocar?', category: 'Contracepção', createdAt: '2026-03-16T11:30:00', status: 'nova', priority: 'baixa', isSensitive: false },
-  { id: '7', question: 'Estou com manchas escuras na pele do rosto depois que comecei a tomar pílula. O que pode ser?', category: 'Contracepção', createdAt: '2026-03-15T14:00:00', status: 'nova', priority: 'media', isSensitive: false },
 ];
 
 export const appUsers: AppUser[] = [

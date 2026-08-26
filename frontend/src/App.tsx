@@ -12,12 +12,10 @@ import CategoriesPage from "@/pages/CategoriesPage";
 import LifeStagesPage from "@/pages/LifeStagesPage";
 import SymptomsPage from "@/pages/SymptomsPage";
 import RemindersPage from "@/pages/RemindersPage";
-import QuestionsPage from "@/pages/QuestionsPage";
 import AppUsersPage from "@/pages/AppUsersPage";
 import AdminNotificationsPage from "@/pages/AdminNotificationsPage";
 import SupportPage from "@/pages/SupportPage";
 import ReportsPage from "@/pages/ReportsPage";
-import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminUserFormPage from "@/pages/AdminUserFormPage";
@@ -43,12 +41,10 @@ const App = () => (
               <Route path="/trilhas" element={<LifeStagesPage />} />
               <Route path="/sintomas" element={<SymptomsPage />} />
               <Route path="/lembretes" element={<RemindersPage />} />
-              <Route path="/perguntas" element={<QuestionsPage />} />
               <Route path="/usuarias" element={<AppUsersPage />} />
               <Route path="/notificacoes" element={<AdminNotificationsPage />} />
               <Route path="/apoio" element={<SupportPage />} />
               <Route path="/relatorios" element={<ReportsPage />} />
-              <Route path="/configuracoes" element={<SettingsPage />} />
             </Route>
           </Route>
           <Route element={<AdminRoutes requiredRoles={["reviewer_professor", "admin"]} />}>

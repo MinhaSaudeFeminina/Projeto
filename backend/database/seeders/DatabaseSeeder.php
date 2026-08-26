@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ContentTaxonomySeeder::class,
             AdminRolePermissionSeeder::class,
-            AnonymousQuestionSeeder::class,
             SymptomCatalogSeeder::class,
         ]);
 

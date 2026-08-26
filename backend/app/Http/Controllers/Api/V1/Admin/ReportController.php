@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AnonymousQuestion;
 use App\Models\EducationalContent;
 use App\Models\LifeStage;
 use App\Models\Symptom;
@@ -33,7 +32,6 @@ class ReportController extends Controller
         $start = now()->subDays(self::PERIOD_DAYS[$period] - 1)->startOfDay();
 
         $contentsInPeriod = EducationalContent::query()->where('created_at', '>=', $start);
-        $questionsInPeriod = AnonymousQuestion::query()->where('created_at', '>=', $start);
         $symptomsInPeriod = Symptom::query()->where('created_at', '>=', $start);
 
         return response()->json([
@@ -48,12 +46,10 @@ class ReportController extends Controller
                     'contents_published' => EducationalContent::query()
                         ->where('published_at', '>=', $start)
                         ->count(),
-                    'questions_received' => (clone $questionsInPeriod)->count(),
                     'symptoms_created' => (clone $symptomsInPeriod)->count(),
                 ],
                 'content_statuses' => $this->contentStatuses($contentsInPeriod),
                 'life_stages' => $this->lifeStages($start),
-                'question_statuses' => $this->questionStatuses($questionsInPeriod),
                 'symptom_categories' => $this->symptomCategories($symptomsInPeriod),
             ],
         ]);
@@ -91,25 +87,6 @@ class ReportController extends Controller
                 'label' => $lifeStage->name,
                 'value' => (int) $lifeStage->contents_count,
             ]);
-    }
-
-    private function questionStatuses(Builder $query): Collection
-    {
-        $counts = (clone $query)
-            ->selectRaw('status, COUNT(*) as aggregate')
-            ->groupBy('status')
-            ->pluck('aggregate', 'status');
-
-        return collect([
-            AnonymousQuestion::NEW => 'Nova',
-            AnonymousQuestion::IN_REVIEW => "Em an\u{00E1}lise",
-            AnonymousQuestion::ANSWERED => 'Respondida',
-            AnonymousQuestion::ARCHIVED => 'Arquivada',
-        ])->map(fn (string $label, string $key) => [
-            'key' => $key,
-            'label' => $label,
-            'value' => (int) ($counts[$key] ?? 0),
-        ])->values();
     }
 
     private function symptomCategories(Builder $query): Collection
