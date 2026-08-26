@@ -84,3 +84,40 @@ it('rejects a body that becomes empty after sanitization', function (): void {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('body');
 });
+
+it('keeps html markup out of the search index', function (): void {
+    $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
+    $category = ContentCategory::create(['name' => 'Saúde íntima', 'slug' => 'saude-intima']);
+
+    $response = $this->actingAs($author, 'sanctum')->postJson('/api/v1/admin/contents', [
+        'title' => 'Sinais de alerta',
+        'summary' => 'Orientações educativas.',
+        'body' => '<h2>Alerta</h2><p><a href="https://exemplo.test/pagina">Procure a <strong>UBS</strong></a></p>',
+        'category_id' => $category->id,
+    ])->assertCreated();
+
+    $indexed = EducationalContent::findOrFail($response->json('data.id'))->search_text_normalized;
+
+    // Tag and attribute names would otherwise make every article match them.
+    expect($indexed)
+        ->not->toContain('h2')
+        ->not->toContain('strong')
+        ->not->toContain('href')
+        ->not->toContain('exemplo test')
+        ->toContain('procure a ubs');
+});
+
+it('does not glue words from adjacent blocks in the search index', function (): void {
+    $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
+    $category = ContentCategory::create(['name' => 'Saúde íntima', 'slug' => 'saude-intima']);
+
+    $response = $this->actingAs($author, 'sanctum')->postJson('/api/v1/admin/contents', [
+        'title' => 'Cuidados',
+        'summary' => 'Orientações educativas.',
+        'body' => '<p>primeiro</p><p>segundo</p>',
+        'category_id' => $category->id,
+    ])->assertCreated();
+
+    expect(EducationalContent::findOrFail($response->json('data.id'))->search_text_normalized)
+        ->toContain('primeiro segundo');
+});

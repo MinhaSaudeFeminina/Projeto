@@ -9,6 +9,7 @@ import { AppChip } from '../components/ui/AppChip';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { LoadingState } from '../components/ui/LoadingState';
 import { MedicalDisclaimer } from '../components/ui/MedicalDisclaimer';
+import { RichText } from '../components/ui/RichText';
 import { useApiResource } from '../hooks/useApiResource';
 import { getContentBySlugOrFail } from '../services/contentService';
 import { categoryTone } from '../utils/categoryTone';
@@ -76,7 +77,7 @@ export function ContentDetailPage({
       </View>
 
       <AppCard>
-        <Text style={styles.bodyText}>{article.body}</Text>
+        <RichText html={article.body} />
       </AppCard>
 
       {article.published_at ? (
@@ -91,11 +92,6 @@ export function ContentDetailPage({
 }
 
 const styles = StyleSheet.create({
-  bodyText: {
-    color: theme.colors.foreground,
-    fontSize: theme.typography.sizes.sm,
-    lineHeight: 22,
-  },
   hero: {
     backgroundColor: theme.colors.rosaLight,
     borderBottomLeftRadius: theme.radii.xxl,

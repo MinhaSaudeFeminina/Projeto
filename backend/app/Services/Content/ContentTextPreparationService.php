@@ -34,11 +34,27 @@ class ContentTextPreparationService
         return $this->normalizer->normalize(implode(' ', array_filter([
             $content->title,
             $content->summary,
-            $content->body,
+            $this->plainText($content->body),
             $content->category?->name,
             $content->lifeStages->pluck('name')->implode(' '),
             $content->ageRanges->pluck('label')->implode(' '),
         ])));
+    }
+
+    /**
+     * The body is rich text; indexing it raw would make every article match a
+     * search for "strong", "href" or any other tag or attribute name.
+     */
+    private function plainText(?string $html): string
+    {
+        if ($html === null || $html === '') {
+            return '';
+        }
+
+        // Tags become spaces so adjacent blocks do not glue their words together.
+        $text = preg_replace('/<[^>]*>/', ' ', $html) ?? '';
+
+        return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
     public function refreshSearchIndex(EducationalContent $content): void
