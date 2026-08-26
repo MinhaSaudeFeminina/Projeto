@@ -1,10 +1,7 @@
 import { requestJson } from './client';
 import type { ApiResult } from './types';
 
-export type MobileAccessState =
-  | 'full'
-  | 'restricted'
-  | 'email_verification_required';
+export type MobileAccessState = 'full' | 'restricted';
 
 export type MobileUser = {
   id: number;

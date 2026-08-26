@@ -37,7 +37,7 @@ export function fail(
 }
 
 export const fullAccessRequiredMessage =
-  'Confirme seu e-mail para registrar e acompanhar ciclos e sintomas.';
+  'Aceite os termos de uso e a politica de privacidade para registrar ciclos e sintomas.';
 
 /**
  * Cycles and symptom records need a `mobile:full` token; the backend answers a
