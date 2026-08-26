@@ -2,7 +2,7 @@ import { fail, ok, type ApiResult } from '../api/types';
 import {
   chatResponses,
   type AnonymousMessage,
-} from '../data/mockData';
+} from '../data/staticContent';
 import { isBlank, normalizeText } from '../utils/text';
 
 const UBS_GUIDANCE =

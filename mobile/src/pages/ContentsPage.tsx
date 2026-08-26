@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,10 +9,13 @@ import { AppChip } from '../components/ui/AppChip';
 import { AppTextInput } from '../components/ui/AppTextInput';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { LoadingState } from '../components/ui/LoadingState';
+import { useApiResource } from '../hooks/useApiResource';
 import {
   getContentCategories,
   getFilteredContents,
 } from '../services/contentService';
+import { categoryTone } from '../utils/categoryTone';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
 
@@ -21,26 +24,25 @@ export function ContentsPage() {
   const [activeCategory, setActiveCategory] = useState<string | undefined>();
   const [search, setSearch] = useState('');
 
-  const categoriesResult = getContentCategories();
-  const contentsResult = useMemo(
-    () =>
-      getFilteredContents({
-        categoryId: activeCategory,
-        query: search,
-      }),
+  const categories = useApiResource(getContentCategories, []);
+  const contents = useApiResource(
+    () => getFilteredContents({ categorySlug: activeCategory, query: search }),
     [activeCategory, search],
   );
 
-  if (!categoriesResult.ok || !contentsResult.ok) {
+  if (categories.error ?? contents.error) {
     return (
       <AppScreen>
-        <ErrorMessage message="Nao foi possivel carregar os conteudos." />
+        <ErrorMessage
+          message={
+            categories.error ??
+            contents.error ??
+            'Nao foi possivel carregar os conteudos.'
+          }
+        />
       </AppScreen>
     );
   }
-
-  const categories = categoriesResult.data;
-  const contents = contentsResult.data;
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
@@ -68,34 +70,31 @@ export function ContentsPage() {
           selected={!activeCategory}
           tone="primary"
         />
-        {categories.map((category) => (
+        {(categories.data ?? []).map((category) => (
           <AppChip
-            icon={<Text style={styles.categoryIcon}>{category.icon}</Text>}
             key={category.id}
-            label={category.label}
+            label={category.name}
             onPress={() =>
               setActiveCategory((current) =>
-                current === category.id ? undefined : category.id,
+                current === category.slug ? undefined : category.slug,
               )
             }
-            selected={activeCategory === category.id}
-            tone={category.color}
+            selected={activeCategory === category.slug}
+            tone={categoryTone(category.slug)}
           />
         ))}
       </ScrollView>
 
-      <View style={styles.list}>
-        {contents.map((content) => {
-          const category = categories.find(
-            (item) => item.id === content.categoryId,
-          );
-
-          return (
+      {contents.loading ? (
+        <LoadingState message="Buscando conteudos publicados." />
+      ) : (
+        <View style={[styles.list, contents.refreshing && styles.refreshing]}>
+          {(contents.data ?? []).map((content) => (
             <Pressable
               accessibilityRole="button"
               key={content.id}
               onPress={() =>
-                navigation.navigate('ContentDetail', { id: content.id })
+                navigation.navigate('ContentDetail', { slug: content.slug })
               }
               style={({ pressed }) => [
                 styles.cardPressable,
@@ -103,30 +102,30 @@ export function ContentsPage() {
               ]}
             >
               <AppCard contentStyle={styles.contentCard}>
-                <Text style={styles.cardIcon}>{category?.icon}</Text>
                 <View style={styles.cardCopy}>
                   <Text style={styles.cardTitle}>{content.title}</Text>
-                  <Text numberOfLines={2} style={styles.cardSummary}>
-                    {content.summary}
-                  </Text>
-                  {category && (
+                  {content.summary ? (
+                    <Text numberOfLines={2} style={styles.cardSummary}>
+                      {content.summary}
+                    </Text>
+                  ) : null}
+                  {content.category.name ? (
                     <AppChip
-                      label={category.label}
-                      tone={category.color}
                       disabled
+                      label={content.category.name}
                       style={styles.inlineChip}
+                      tone={categoryTone(content.category.slug)}
                     />
-                  )}
+                  ) : null}
                 </View>
               </AppCard>
             </Pressable>
-          );
-        })}
-      </View>
+          ))}
+        </View>
+      )}
 
-      {contents.length === 0 && (
+      {!contents.loading && (contents.data ?? []).length === 0 && (
         <EmptyState
-          icon={<Text style={styles.emptyIcon}>?</Text>}
           message="Tente buscar por outro termo ou categoria."
           title="Nenhum conteudo encontrado"
         />
@@ -139,10 +138,6 @@ const styles = StyleSheet.create({
   cardCopy: {
     flex: 1,
     gap: theme.spacing.xs,
-  },
-  cardIcon: {
-    fontSize: theme.typography.sizes.xl,
-    lineHeight: 28,
   },
   cardPressable: {
     width: '100%',
@@ -162,18 +157,10 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     paddingRight: theme.spacing.lg,
   },
-  categoryIcon: {
-    fontSize: theme.typography.sizes.sm,
-  },
   contentCard: {
     alignItems: 'flex-start',
     flexDirection: 'row',
     gap: theme.spacing.md,
-  },
-  emptyIcon: {
-    color: theme.colors.primary,
-    fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.extraBold,
   },
   hero: {
     backgroundColor: theme.colors.lilasLight,
@@ -193,6 +180,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.82,
+  },
+  refreshing: {
+    opacity: 0.55,
   },
   screen: {
     paddingTop: 0,

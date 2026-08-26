@@ -1,82 +1,113 @@
 import {
-  listSymptomEntries,
-  listSymptomTypes,
-  saveSymptomEntries,
-  type SaveSymptomEntryInput,
+  createSymptomRecord,
+  listSymptomCatalog,
+  listSymptomRecords,
+  type Symptom,
+  type SymptomRecord,
 } from '../api/symptomsApi';
-import { type ApiResult, ok } from '../api/types';
-import type {
-  SymptomEntry,
-  SymptomIntensity,
-  SymptomType,
-} from '../data/mockData';
+import { fail, ok, type ApiResult } from '../api/types';
 import { toIsoDate } from '../utils/date';
 
+export type { Symptom, SymptomRecord };
+
+export type SymptomIntensity = 'leve' | 'moderado' | 'intenso';
+
+export const symptomIntensities: SymptomIntensity[] = [
+  'leve',
+  'moderado',
+  'intenso',
+];
+
+/**
+ * The backend stores intensity on a 1-10 scale; the app offers three levels.
+ * These are the mid-points of each third, so a round trip keeps its label.
+ */
+const intensityScale: Record<SymptomIntensity, number> = {
+  leve: 3,
+  moderado: 6,
+  intenso: 9,
+};
+
 export type PendingSymptomEntry = {
-  type: string;
+  symptomId: number;
   intensity: SymptomIntensity;
   notes: string;
   date: string;
 };
 
-export function getSymptomOptions(): ApiResult<SymptomType[]> {
-  return listSymptomTypes();
+export function getSymptomCatalog(): Promise<ApiResult<Symptom[]>> {
+  return listSymptomCatalog();
 }
 
-export function getUserSymptoms(userId?: string): ApiResult<SymptomEntry[]> {
-  return listSymptomEntries(userId);
+export function getUserSymptomRecords(): Promise<ApiResult<SymptomRecord[]>> {
+  return listSymptomRecords();
+}
+
+export function describeIntensity(value: number): SymptomIntensity {
+  if (value >= 8) {
+    return 'intenso';
+  }
+
+  return value >= 5 ? 'moderado' : 'leve';
 }
 
 export function togglePendingSymptom(
   entries: PendingSymptomEntry[],
-  type: string,
+  symptomId: number,
   date = toIsoDate(new Date()),
 ): PendingSymptomEntry[] {
-  const exists = entries.some((entry) => entry.type === type);
+  const exists = entries.some((entry) => entry.symptomId === symptomId);
 
   if (exists) {
-    return entries.filter((entry) => entry.type !== type);
+    return entries.filter((entry) => entry.symptomId !== symptomId);
   }
 
-  return [
-    ...entries,
-    {
-      type,
-      intensity: 'leve',
-      notes: '',
-      date,
-    },
-  ];
+  return [...entries, { date, intensity: 'leve', notes: '', symptomId }];
 }
 
 export function updatePendingSymptomIntensity(
   entries: PendingSymptomEntry[],
-  type: string,
+  symptomId: number,
   intensity: SymptomIntensity,
 ): PendingSymptomEntry[] {
   return entries.map((entry) =>
-    entry.type === type
-      ? {
-          ...entry,
-          intensity,
-        }
-      : entry,
+    entry.symptomId === symptomId ? { ...entry, intensity } : entry,
   );
 }
 
-export function registerSymptoms(
+export type RegisteredSymptoms = {
+  records: SymptomRecord[];
+  /** Set when at least one record tripped a health alert on the backend. */
+  guidance: string | null;
+};
+
+export async function registerSymptoms(
   entries: PendingSymptomEntry[],
-): ApiResult<SymptomEntry[]> {
-  const payload: SaveSymptomEntryInput[] = entries.map((entry) => ({
-    type: entry.type,
-    intensity: entry.intensity,
-    notes: entry.notes,
-    date: entry.date,
-  }));
+): Promise<ApiResult<RegisteredSymptoms>> {
+  if (entries.length === 0) {
+    return fail('EMPTY_SYMPTOM_ENTRIES', 'Selecione pelo menos um sintoma.');
+  }
 
-  return saveSymptomEntries(payload);
-}
+  // The API takes one record per call, so a partial failure is possible; the
+  // first error is surfaced and the already-saved records are kept.
+  const records: SymptomRecord[] = [];
+  let guidance: string | null = null;
 
-export function getSymptomSuccessMessage(count: number): ApiResult<string> {
-  return ok(`${count} sintoma(s) registrado(s)!`);
+  for (const entry of entries) {
+    const result = await createSymptomRecord({
+      intensity: intensityScale[entry.intensity],
+      notes: entry.notes || null,
+      occurred_on: entry.date,
+      symptom_id: entry.symptomId,
+    });
+
+    if (!result.ok) {
+      return result;
+    }
+
+    records.push(result.data.record);
+    guidance = guidance ?? result.data.guidance;
+  }
+
+  return ok({ guidance, records });
 }

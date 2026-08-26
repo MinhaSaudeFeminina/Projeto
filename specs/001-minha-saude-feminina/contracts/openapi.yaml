@@ -130,6 +130,47 @@ paths:
         '403':
           description: Perfil sem permissão
 
+  /app-users:
+    get:
+      summary: Lista usuárias cadastradas pelo app
+      tags: [App Users]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuárias mobile para administração web
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppUser'
+        '403':
+          description: Perfil sem permissão
+  /app-users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza perfil e status de usuária do app
+      tags: [App Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppUserWrite'
+      responses:
+        '200':
+          description: Usuária mobile atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUser'
+        '403':
+          description: Perfil sem permissão
+
   /roles:
     get:
       summary: Lista perfis administrativos
@@ -246,21 +287,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/ContentCategory'
     delete:
-      summary: Exclui uma categoria de conteúdo sem vínculos
+      summary: Remove categoria de conteúdo
       tags: [Taxonomies]
       security:
         - bearerAuth: []
       responses:
         '204':
-          description: Categoria excluída
-        '409':
-          description: Categoria possui conteúdos vinculados
+          description: Categoria removida
+        '403':
+          description: Apenas administradoras podem remover categorias
+        '422':
+          description: Categoria vinculada a conteúdos existentes
   /life-stages:
     get:
       summary: Lista fases da vida
       tags: [Taxonomies]
       security:
         - bearerAuth: []
+      parameters:
+        - name: include_inactive
+          in: query
+          schema:
+            type: boolean
+          description: Inclui fases em rascunho, usadas na tela de trilhas
       responses:
         '200':
           description: Fases da vida
@@ -270,6 +319,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LifeStage'
+  /life-stages/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    patch:
+      summary: Atualiza a trilha de uma fase da vida
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifeStageWrite'
+      responses:
+        '200':
+          description: Trilha atualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
   /age-ranges:
     get:
       summary: Lista faixas etárias
@@ -795,6 +868,64 @@ components:
           type: string
           format: password
           description: Obrigatório na criação; opcional na edição.
+    AppUser:
+      type: object
+      required: [id, name, email, is_active, notifications_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Maria Saúde"
+        email:
+          type: string
+          format: email
+        age:
+          type: integer
+          nullable: true
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        life_stage_id:
+          type: integer
+          nullable: true
+        life_stage:
+          type: string
+          nullable: true
+          example: "Fase adulta"
+        is_active:
+          type: boolean
+        notifications_active:
+          type: boolean
+        last_access_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+    AppUserWrite:
+      type: object
+      required: [name, email, notifications_active, is_active]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        life_stage_id:
+          type: integer
+          nullable: true
+        notifications_active:
+          type: boolean
+        is_active:
+          type: boolean
     EditorialStatus:
       type: string
       enum: [draft, in_review, approved, published, archived]
@@ -940,12 +1071,13 @@ components:
           type: boolean
     LifeStage:
       type: object
-      required: [id, key, name]
+      required: [id, key, name, warning_signals, reminder_suggestions]
       properties:
         id:
           type: integer
         key:
           type: string
+          description: Identificador estável da fase; não é editável
           example: "climaterio_menopausa"
         name:
           type: string
@@ -953,8 +1085,53 @@ components:
         description:
           type: string
           nullable: true
+        ubs_orientation:
+          type: string
+          nullable: true
+          example: "A UBS pode acompanhar essa transição."
+        warning_signals:
+          type: array
+          items:
+            type: string
+          example: ["Sangramento após a menopausa"]
+        reminder_suggestions:
+          type: array
+          items:
+            type: string
+          example: ["Mamografia bienal"]
         sort_order:
           type: integer
+        is_active:
+          type: boolean
+          description: Fase publicada; em rascunho quando falso
+        contents_count:
+          type: integer
+          description: Conteúdos vinculados à fase
+    LifeStageWrite:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        ubs_orientation:
+          type: string
+          nullable: true
+        warning_signals:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+        reminder_suggestions:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+        sort_order:
+          type: integer
+        is_active:
+          type: boolean
     AgeRange:
       type: object
       required: [id, label]
@@ -972,6 +1149,133 @@ components:
           nullable: true
         sort_order:
           type: integer
+    ReminderType:
+      type: string
+      enum: [exame_preventivo, mamografia, vacina_hpv, consulta, medicamento, menstruacao, autoexame, campanha]
+    ReminderPriority:
+      type: string
+      enum: [baixa, media, alta, urgente]
+    Reminder:
+      type: object
+      required: [id, title, type, priority, audience, periodicity, start_date, short_message, expanded_message, is_active]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "Exame preventivo (Papanicolau)"
+        description:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/ReminderType'
+        priority:
+          $ref: '#/components/schemas/ReminderPriority'
+        audience:
+          type: string
+          example: "Mulheres 25-64 anos"
+        periodicity:
+          type: string
+          example: "Anual"
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        short_message:
+          type: string
+          maxLength: 160
+          example: "Está na hora do seu preventivo!"
+        expanded_message:
+          type: string
+        is_active:
+          type: boolean
+    ReminderWrite:
+      type: object
+      required: [title, type, priority, audience, periodicity, start_date, short_message, expanded_message, is_active]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/ReminderType'
+        priority:
+          $ref: '#/components/schemas/ReminderPriority'
+        audience:
+          type: string
+        periodicity:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        short_message:
+          type: string
+          maxLength: 160
+        expanded_message:
+          type: string
+        is_active:
+          type: boolean
+    SupportContact:
+      type: object
+      required: [id, name, description, type, cta_label, sort_order, is_highlighted, is_active]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Central de Atendimento à Mulher"
+        description:
+          type: string
+        type:
+          type: string
+          example: "emergencia"
+        phone:
+          type: string
+          nullable: true
+        link:
+          type: string
+          nullable: true
+        cta_label:
+          type: string
+          example: "Ligar agora"
+        sort_order:
+          type: integer
+        is_highlighted:
+          type: boolean
+        is_active:
+          type: boolean
+    SupportContactWrite:
+      type: object
+      required: [name, description, type, cta_label, sort_order, is_highlighted, is_active]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        link:
+          type: string
+          nullable: true
+        cta_label:
+          type: string
+        sort_order:
+          type: integer
+        is_highlighted:
+          type: boolean
+        is_active:
+          type: boolean
     EditorialAuditEvent:
       type: object
       required: [id, actor_id, action, occurred_at]

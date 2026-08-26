@@ -31,7 +31,15 @@ test("creates a draft with category, life stage and age range", async () => {
   await screen.findByText("Saúde íntima");
   fireEvent.change(screen.getByLabelText("Título"), { target: { value: "Saúde e prevenção" } });
   fireEvent.change(screen.getByLabelText("Resumo"), { target: { value: "Orientações em português." } });
-  fireEvent.change(screen.getByLabelText("Conteúdo educativo"), { target: { value: "Texto educativo completo." } });
+  // O corpo é um editor rico (contenteditable), sem value setter: escrevemos dentro
+  // do parágrafo do ProseMirror e deixamos o editor converter a mutação em HTML.
+  const bodyEditor = screen.getByLabelText("Conteúdo educativo");
+  const paragraph = bodyEditor.querySelector("p");
+  if (paragraph) {
+    paragraph.textContent = "Texto educativo completo.";
+  }
+  fireEvent.input(bodyEditor);
+  await waitFor(() => expect(bodyEditor).toHaveTextContent("Texto educativo completo."));
   fireEvent.change(screen.getByLabelText("Categoria"), { target: { value: "1" } });
   fireEvent.click(screen.getByLabelText("Vida adulta"));
   fireEvent.click(screen.getByLabelText("20-29"));
@@ -40,7 +48,7 @@ test("creates a draft with category, life stage and age range", async () => {
   await waitFor(() => expect(createDraftContent).toHaveBeenCalledWith({
     title: "Saúde e prevenção",
     summary: "Orientações em português.",
-    body: "Texto educativo completo.",
+    body: "<p>Texto educativo completo.</p>",
     category_id: 1,
     life_stage_ids: [2],
     age_range_ids: [3],

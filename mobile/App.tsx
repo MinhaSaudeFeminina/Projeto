@@ -16,6 +16,10 @@ import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useState, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 import {
   QuickActionsSheet,
@@ -33,6 +37,7 @@ import { LifeStagesPage } from './src/pages/LifeStagesPage';
 import { LoginPage } from './src/pages/LoginPage';
 import { NotFoundPage } from './src/pages/NotFoundPage';
 import { ProfilePage } from './src/pages/ProfilePage';
+import { RegisterPage } from './src/pages/RegisterPage';
 import { RemindersPage } from './src/pages/RemindersPage';
 import { SupportPage } from './src/pages/SupportPage';
 import { SymptomsPage } from './src/pages/SymptomsPage';
@@ -226,14 +231,18 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <AppProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          <RootNavigator />
-        </NavigationContainer>
-      </AppProvider>
-    </AuthProvider>
+    // React Navigation only provides a safe area context to screens inside a
+    // navigator, and RootNavigator renders its loading state above one.
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <AuthProvider>
+        <AppProvider>
+          <NavigationContainer>
+            <StatusBar style="dark" />
+            <RootNavigator />
+          </NavigationContainer>
+        </AppProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -273,7 +282,10 @@ function RootNavigator() {
           <Stack.Screen component={NotFoundPage} name="NotFound" />
         </>
       ) : (
-        <Stack.Screen component={LoginPage} name="Login" />
+        <>
+          <Stack.Screen component={LoginPage} name="Login" />
+          <Stack.Screen component={RegisterPage} name="Register" />
+        </>
       )}
     </Stack.Navigator>
   );
