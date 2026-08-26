@@ -88,7 +88,7 @@ export function ContentsPage() {
       {contents.loading ? (
         <LoadingState message="Buscando conteudos publicados." />
       ) : (
-        <View style={styles.list}>
+        <View style={[styles.list, contents.refreshing && styles.refreshing]}>
           {(contents.data ?? []).map((content) => (
             <Pressable
               accessibilityRole="button"
@@ -180,6 +180,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.82,
+  },
+  refreshing: {
+    opacity: 0.55,
   },
   screen: {
     paddingTop: 0,
