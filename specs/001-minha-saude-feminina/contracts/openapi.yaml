@@ -71,6 +71,61 @@ paths:
                       published: { type: integer, minimum: 0 }
                       archived: { type: integer, minimum: 0 }
 
+  /reports:
+    get:
+      summary: Retorna indicadores administrativos agregados por perÃ­odo
+      tags: [Reports]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 365d]
+            default: 30d
+      responses:
+        '200':
+          description: Indicadores e distribuiÃ§Ãµes administrativas sem dados pessoais de saÃºde
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    required: [period, summary, content_statuses, life_stages, question_statuses, symptom_categories]
+                    properties:
+                      period:
+                        type: object
+                        properties:
+                          key: { type: string, enum: [7d, 30d, 90d, 365d] }
+                          start: { type: string, format: date }
+                          end: { type: string, format: date }
+                      summary:
+                        type: object
+                        properties:
+                          contents_created: { type: integer, minimum: 0 }
+                          contents_published: { type: integer, minimum: 0 }
+                          questions_received: { type: integer, minimum: 0 }
+                          symptoms_created: { type: integer, minimum: 0 }
+                      content_statuses:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+                      life_stages:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+                      question_statuses:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+                      symptom_categories:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+        '401':
+          description: AutenticaÃ§Ã£o obrigatÃ³ria
+        '422':
+          description: PerÃ­odo invÃ¡lido
+
   /admin-users:
     get:
       summary: Lista usuárias administrativas
@@ -781,6 +836,14 @@ components:
       schema:
         type: integer
   schemas:
+    ReportDataPoint:
+      type: object
+      required: [key, label, value]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        value: { type: integer, minimum: 0 }
+
     LoginRequest:
       type: object
       required: [email, password]

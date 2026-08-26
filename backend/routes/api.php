@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\LifeStageController;
 use App\Http\Controllers\Api\V1\Admin\ReminderController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
+use App\Http\Controllers\Api\V1\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\V1\Admin\SymptomController as AdminSymptomController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\Mobile\AuthController as MobileAuthController;
@@ -37,6 +38,7 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
 
     Route::middleware(['auth:sanctum', 'admin.role'])->group(function (): void {
         Route::get('dashboard', [AdminDashboardController::class, 'show'])->name('dashboard');
+        Route::get('reports', [AdminReportController::class, 'show'])->name('reports.show');
         Route::get('admin-users', [AdminUserController::class, 'index'])->name('admin-users.index');
         Route::post('admin-users', [AdminUserController::class, 'store'])->name('admin-users.store');
         Route::patch('admin-users/{adminUser}', [AdminUserController::class, 'update'])->name('admin-users.update');

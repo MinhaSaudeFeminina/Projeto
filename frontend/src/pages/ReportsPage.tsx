@@ -1,152 +1,201 @@
-import { useState } from 'react';
-import { MetricCard } from '@/components/MetricCard';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { FileText, Users, MessageCircleQuestion, Thermometer, Download } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { CheckCircle2, Download, FileText, Loader2, MessageCircleQuestion, Thermometer } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { MetricCard } from "@/components/MetricCard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { getAdminReport, type AdminReport, type ReportDataPoint, type ReportPeriod } from "@/services/api/reportApi";
+import { reportToCsv } from "@/services/reports/reportCsv";
 
-const topContents = [
-  { name: 'Corrimento vaginal', views: 1240 },
-  { name: 'Cólica menstrual', views: 1100 },
-  { name: 'Conheça seu ciclo', views: 980 },
-  { name: 'Prevenção câncer de mama', views: 870 },
-  { name: 'Violência contra a mulher', views: 650 },
+const COLORS = [
+  "hsl(330, 65%, 55%)",
+  "hsl(280, 60%, 55%)",
+  "hsl(210, 80%, 55%)",
+  "hsl(40, 90%, 55%)",
+  "hsl(155, 60%, 45%)",
 ];
 
-const categoryViews = [
-  { name: 'Menstruação', value: 3200 },
-  { name: 'Saúde íntima', value: 2100 },
-  { name: 'Câncer', value: 1500 },
-  { name: 'TPM', value: 1200 },
-  { name: 'Autocuidado', value: 800 },
-];
+const COPY = {
+  title: "Relat\u00f3rios",
+  subtitle: "Indicadores administrativos do per\u00edodo selecionado",
+  periodLabel: "Per\u00edodo do relat\u00f3rio",
+  last7Days: "\u00daltimos 7 dias",
+  last30Days: "\u00daltimos 30 dias",
+  last90Days: "\u00daltimos 90 dias",
+  lastYear: "\u00daltimo ano",
+  loading: "Carregando relat\u00f3rio...",
+  loadError: "N\u00e3o foi poss\u00edvel carregar o relat\u00f3rio.",
+  empty: "Sem dados no per\u00edodo selecionado.",
+  exportSuccess: "Relat\u00f3rio CSV gerado com sucesso!",
+  contentsCreated: "Conte\u00fados criados no per\u00edodo",
+  contentsPublished: "Conte\u00fados publicados no per\u00edodo",
+  questionsReceived: "Perguntas recebidas no per\u00edodo",
+  symptomsCreated: "Sintomas cadastrados no per\u00edodo",
+  contentsByStatus: "Conte\u00fados por status",
+  contentsByLifeStage: "Conte\u00fados por fase da vida",
+  questionsByStatus: "Perguntas por status",
+  symptomsByCategory: "Itens do cat\u00e1logo por categoria",
+  quantity: "Quantidade",
+};
 
-const symptomsData = [
-  { name: 'Cólica', registros: 450 },
-  { name: 'Alteração humor', registros: 380 },
-  { name: 'Corrimento', registros: 320 },
-  { name: 'Dor de cabeça', registros: 290 },
-  { name: 'Ansiedade', registros: 260 },
-];
+function formatDate(value: string): string {
+  return new Date(`${value}T00:00:00`).toLocaleDateString("pt-BR");
+}
 
-const userGrowth = [
-  { month: 'Out', users: 120 },
-  { month: 'Nov', users: 180 },
-  { month: 'Dez', users: 250 },
-  { month: 'Jan', users: 340 },
-  { month: 'Fev', users: 480 },
-  { month: 'Mar', users: 620 },
-];
+function downloadCsv(report: AdminReport): void {
+  const blob = new Blob([reportToCsv(report)], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `relatorio-administrativo-${report.period.start}-${report.period.end}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
-const lifeStageDistribution = [
-  { name: 'Adolescência', value: 15 },
-  { name: 'Fase adulta', value: 45 },
-  { name: 'Gestação', value: 12 },
-  { name: 'Climatério', value: 18 },
-  { name: 'Outras', value: 10 },
-];
+function hasData(items: ReportDataPoint[]): boolean {
+  return items.some((item) => item.value > 0);
+}
 
-const COLORS = ['hsl(330, 65%, 55%)', 'hsl(280, 60%, 55%)', 'hsl(210, 80%, 55%)', 'hsl(40, 90%, 55%)', 'hsl(155, 60%, 45%)'];
+function EmptyChart({ items }: { items: ReportDataPoint[] }) {
+  if (hasData(items)) return null;
+  return <p className="flex h-60 items-center justify-center text-sm text-muted-foreground">{COPY.empty}</p>;
+}
+
+function AccessibleDataTable({ title, items }: { title: string; items: ReportDataPoint[] }) {
+  return (
+    <table className="sr-only">
+      <caption>{title}</caption>
+      <thead><tr><th>Item</th><th>{COPY.quantity}</th></tr></thead>
+      <tbody>
+        {items.map((item) => <tr key={item.key}><td>{item.label}</td><td>{item.value}</td></tr>)}
+      </tbody>
+    </table>
+  );
+}
 
 export default function ReportsPage() {
-  const [period, setPeriod] = useState('30d');
+  const [period, setPeriod] = useState<ReportPeriod>("30d");
   const { toast } = useToast();
+  const reportQuery = useQuery({
+    queryKey: ["admin-report", period],
+    queryFn: () => getAdminReport(period),
+  });
+  const report = reportQuery.data;
 
-  const handleExport = (type: string) => {
-    toast({ title: `Exportação ${type} iniciada!`, description: 'O download será gerado em instantes.' });
-  };
+  function handleExport() {
+    if (!report) return;
+    downloadCsv(report);
+    toast({ title: COPY.exportSuccess });
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Relatórios</h1>
-          <p className="text-muted-foreground">Indicadores e métricas do sistema</p>
+          <h1 className="text-2xl font-bold">{COPY.title}</h1>
+          <p className="text-muted-foreground">{COPY.subtitle}</p>
+          {report ? (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {`${COPY.periodLabel}: ${formatDate(report.period.start)} a ${formatDate(report.period.end)}`}
+            </p>
+          ) : null}
         </div>
         <div className="flex gap-2">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <Select value={period} onValueChange={(value) => setPeriod(value as ReportPeriod)}>
+            <SelectTrigger className="w-40" aria-label={COPY.periodLabel}><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="7d">Últimos 7 dias</SelectItem>
-              <SelectItem value="30d">Últimos 30 dias</SelectItem>
-              <SelectItem value="90d">Últimos 90 dias</SelectItem>
-              <SelectItem value="365d">Último ano</SelectItem>
+              <SelectItem value="7d">{COPY.last7Days}</SelectItem>
+              <SelectItem value="30d">{COPY.last30Days}</SelectItem>
+              <SelectItem value="90d">{COPY.last90Days}</SelectItem>
+              <SelectItem value="365d">{COPY.lastYear}</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => handleExport('CSV')} className="gap-1"><Download className="h-4 w-4" /> CSV</Button>
-          <Button variant="outline" onClick={() => handleExport('PDF')} className="gap-1"><Download className="h-4 w-4" /> PDF</Button>
+          <Button variant="outline" onClick={handleExport} disabled={!report || reportQuery.isFetching} className="gap-1">
+            <Download className="h-4 w-4" /> CSV
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Total conteúdos" value={12} icon={FileText} trend={{ value: '+3', positive: true }} />
-        <MetricCard title="Total usuárias" value={620} icon={Users} trend={{ value: '+29%', positive: true }} />
-        <MetricCard title="Perguntas (mês)" value={18} icon={MessageCircleQuestion} />
-        <MetricCard title="Sintomas registrados" value={1480} icon={Thermometer} trend={{ value: '+15%', positive: true }} />
-      </div>
+      {reportQuery.isLoading ? (
+        <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {COPY.loading}</p>
+      ) : null}
+      {reportQuery.isError ? (
+        <div role="alert" className="flex items-center justify-between rounded border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+          <span>{`${COPY.loadError} ${reportQuery.error instanceof Error ? reportQuery.error.message : ""}`.trim()}</span>
+          <Button variant="outline" size="sm" onClick={() => void reportQuery.refetch()}>Tentar novamente</Button>
+        </div>
+      ) : null}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle className="text-base">Conteúdos mais acessados</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={topContents} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-                <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis type="category" dataKey="name" fontSize={11} tickLine={false} axisLine={false} width={130} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))' }} />
-                <Bar dataKey="views" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {report ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <MetricCard title={COPY.contentsCreated} value={report.summary.contents_created} icon={FileText} />
+            <MetricCard title={COPY.contentsPublished} value={report.summary.contents_published} icon={CheckCircle2} />
+            <MetricCard title={COPY.questionsReceived} value={report.summary.questions_received} icon={MessageCircleQuestion} />
+            <MetricCard title={COPY.symptomsCreated} value={report.summary.symptoms_created} icon={Thermometer} />
+          </div>
 
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle className="text-base">Distribuição por fase da vida</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <PieChart>
-                <Pie data={lifeStageDistribution} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} fontSize={11}>
-                  {lifeStageDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <ReportBarCard title={COPY.contentsByStatus} items={report.content_statuses} color="hsl(var(--primary))" />
 
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle className="text-base">Crescimento de usuárias</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={userGrowth}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))' }} />
-                <Line type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+            <Card className="shadow-sm">
+              <CardHeader><CardTitle className="text-base">{COPY.contentsByLifeStage}</CardTitle></CardHeader>
+              <CardContent>
+                <EmptyChart items={report.life_stages} />
+                <AccessibleDataTable title={COPY.contentsByLifeStage} items={report.life_stages} />
+                {hasData(report.life_stages) ? (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie data={report.life_stages} dataKey="value" nameKey="label" cx="50%" cy="50%" outerRadius={85} label={({ name, value }) => `${name}: ${value}`} fontSize={11}>
+                        {report.life_stages.map((item, index) => <Cell key={item.key} fill={COLORS[index % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : null}
+              </CardContent>
+            </Card>
 
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle className="text-base">Sintomas mais registrados</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={symptomsData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))' }} />
-                <Bar dataKey="registros" fill="hsl(280, 60%, 55%)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+            <ReportBarCard title={COPY.questionsByStatus} items={report.question_statuses} color="hsl(280, 60%, 55%)" horizontal />
+            <ReportBarCard title={COPY.symptomsByCategory} items={report.symptom_categories} color="hsl(155, 60%, 45%)" />
+          </div>
+        </>
+      ) : null}
     </div>
+  );
+}
+
+function ReportBarCard({ title, items, color, horizontal = false }: { title: string; items: ReportDataPoint[]; color: string; horizontal?: boolean }) {
+  return (
+    <Card className="shadow-sm">
+      <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
+      <CardContent>
+        <EmptyChart items={items} />
+        <AccessibleDataTable title={title} items={items} />
+        {hasData(items) ? (
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={items} layout={horizontal ? "vertical" : "horizontal"}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={!horizontal} vertical={horizontal} stroke="hsl(var(--border))" />
+              {horizontal ? (
+                <>
+                  <XAxis type="number" allowDecimals={false} fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis type="category" dataKey="label" width={90} fontSize={11} tickLine={false} axisLine={false} />
+                </>
+              ) : (
+                <>
+                  <XAxis dataKey="label" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} fontSize={12} tickLine={false} axisLine={false} />
+                </>
+              )}
+              <Tooltip />
+              <Bar dataKey="value" name={COPY.quantity} fill={color} radius={horizontal ? [0, 6, 6, 0] : [6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
