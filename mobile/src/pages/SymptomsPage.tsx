@@ -12,7 +12,6 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { useApiResource } from '../hooks/useApiResource';
 import {
   getSymptomCatalog,
-  getSymptomSuccessMessage,
   registerSymptoms,
   symptomIntensities,
   togglePendingSymptom,
@@ -68,13 +67,16 @@ export function SymptomsPage({ navigation }: SymptomsPageProps) {
       return;
     }
 
-    setFeedback({
-      // The backend flags records that may need care; showing its guidance
-      // matters more than the plain confirmation.
-      message: result.data.guidance ?? getSymptomSuccessMessage(selected.length),
-      variant: result.data.guidance ? 'warning' : 'success',
-    });
-    setSelected([]);
+    if (result.data.guidance) {
+      // A health alert has to be read, so the screen stays put to show it.
+      setFeedback({ message: result.data.guidance, variant: 'warning' });
+      setSelected([]);
+      return;
+    }
+
+    // The screen that sent the user here lists the records and reloads on
+    // focus, so it doubles as the confirmation.
+    handleBack();
   };
 
   return (

@@ -102,13 +102,6 @@ export function CyclePage() {
       <AppHeader title="Ciclo Menstrual" />
 
       {cycle.error && <ErrorMessage compact message={cycle.error} />}
-      {feedback && (
-        <FeedbackMessage
-          message={feedback}
-          onDismiss={() => setFeedback(null)}
-          variant={feedback === 'Menstruacao registrada!' ? 'success' : 'warning'}
-        />
-      )}
 
       <View style={styles.monthNav}>
         <Pressable
@@ -194,6 +187,16 @@ export function CyclePage() {
         size="lg"
         title="Registrar menstruacao hoje"
       />
+
+      {/* Ciclo is a tab with nowhere to go back to, so the result is shown
+          next to the button instead of at the top of a long screen. */}
+      {feedback && (
+        <FeedbackMessage
+          message={feedback}
+          onDismiss={() => setFeedback(null)}
+          variant={feedback === 'Menstruacao registrada!' ? 'success' : 'warning'}
+        />
+      )}
 
       <AppButton
         fullWidth
