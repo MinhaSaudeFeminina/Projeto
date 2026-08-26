@@ -103,8 +103,9 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   label: {
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
+    letterSpacing: theme.typography.letterSpacing,
   },
   lg: {
     paddingHorizontal: theme.spacing.xl,

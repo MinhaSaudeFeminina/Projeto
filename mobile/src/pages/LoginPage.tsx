@@ -5,12 +5,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthField } from '../components/auth/AuthField';
 import { AuthScreenLayout } from '../components/auth/AuthScreenLayout';
-import { authColors } from '../components/auth/authTheme';
 import { PasswordField } from '../components/auth/PasswordField';
 import { AppButton } from '../components/ui/AppButton';
 import { FeedbackMessage } from '../components/ui/FeedbackMessage';
 import { useAuthContext } from '../context/AuthContext';
 import type { RootStackNavigation } from '../utils/navigationTypes';
+import { theme } from '../utils/theme';
 
 export function LoginPage() {
   const navigation = useNavigation<RootStackNavigation>();
@@ -105,7 +105,7 @@ export function LoginPage() {
         fullWidth
         icon={
           <Ionicons
-            color={authColors.primaryForeground}
+            color={theme.colors.primaryForeground}
             name="log-in-outline"
             size={20}
           />
@@ -126,22 +126,18 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   submitButton: {
-    backgroundColor: authColors.primary,
-    borderRadius: 14,
-    elevation: 3,
-    shadowColor: authColors.primaryDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radii.md,
+    ...theme.shadows.raised,
   },
   submitLabel: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: theme.typography.fonts.extraBold,
+    fontSize: theme.typography.sizes.md,
   },
   switchLink: {
-    color: authColors.primary,
-    fontSize: 14,
-    fontWeight: '800',
+    color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
+    fontSize: theme.typography.sizes.sm,
   },
   switchRow: {
     alignItems: 'center',
@@ -150,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   switchText: {
-    color: authColors.muted,
-    fontSize: 14,
+    color: theme.colors.mutedForeground,
+    fontSize: theme.typography.sizes.sm,
   },
 });

@@ -53,9 +53,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
   },
 });

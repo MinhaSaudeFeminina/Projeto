@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
@@ -62,7 +63,7 @@ export function ContentDetailPage({
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero style={styles.hero}>
         <AppHeader
           onBack={handleBack}
           subtitle={article.summary ?? undefined}
@@ -74,7 +75,7 @@ export function ContentDetailPage({
             tone={categoryTone(article.category.slug)}
           />
         ) : null}
-      </View>
+      </ScreenHero>
 
       <AppCard>
         <RichText html={article.body} />
@@ -93,14 +94,7 @@ export function ContentDetailPage({
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: theme.colors.rosaLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
     gap: theme.spacing.md,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
   },
   published: {
     color: theme.colors.mutedForeground,
