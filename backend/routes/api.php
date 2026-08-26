@@ -52,7 +52,19 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::patch('categories/{category}', [TaxonomyController::class, 'updateCategory'])->name('categories.update');
         Route::delete('categories/{category}', [TaxonomyController::class, 'destroyCategory'])->name('categories.destroy');
         Route::get('life-stages', [LifeStageController::class, 'index'])->name('life-stages.index');
+        Route::post('life-stages', [LifeStageController::class, 'store'])->name('life-stages.store');
+        Route::get('life-stages/{lifeStage}', [LifeStageController::class, 'show'])->name('life-stages.show');
         Route::patch('life-stages/{lifeStage}', [LifeStageController::class, 'update'])->name('life-stages.update');
+        Route::delete('life-stages/{lifeStage}', [LifeStageController::class, 'destroy'])->name('life-stages.destroy');
+        Route::put('life-stages/{lifeStage}/contents', [LifeStageController::class, 'syncContents'])->name('life-stages.contents');
+        // Publicar e arquivar sao do admin ou do professor/revisor; a policy
+        // repete a regra para quem chamar a acao por outro caminho.
+        Route::post('life-stages/{lifeStage}/publish', [LifeStageController::class, 'publish'])
+            ->middleware('admin.role:admin,reviewer_professor')
+            ->name('life-stages.publish');
+        Route::post('life-stages/{lifeStage}/archive', [LifeStageController::class, 'archive'])
+            ->middleware('admin.role:admin,reviewer_professor')
+            ->name('life-stages.archive');
         Route::get('age-ranges', [TaxonomyController::class, 'ageRanges'])->name('age-ranges.index');
         Route::get('symptoms', [AdminSymptomController::class, 'index'])->name('symptoms.index');
         Route::post('symptoms', [AdminSymptomController::class, 'store'])->name('symptoms.store');
@@ -85,6 +97,7 @@ Route::prefix('v1/mobile')->name('api.v1.mobile.')->group(function (): void {
 
     Route::get('categories', [MobileCatalogController::class, 'categories'])->name('categories.index');
     Route::get('symptoms', [MobileCatalogController::class, 'symptoms'])->name('symptoms.index');
+    Route::get('life-stages', [MobileCatalogController::class, 'lifeStages'])->name('life-stages.index');
     Route::get('contents', [MobileContentController::class, 'index'])->name('contents.index');
     Route::get('contents/{slug}', [MobileContentController::class, 'show'])->name('contents.show');
     Route::get('legal-documents/current', [MobileLegalDocumentController::class, 'current'])->name('legal-documents.current');
