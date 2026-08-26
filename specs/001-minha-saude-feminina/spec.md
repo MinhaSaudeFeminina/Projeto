@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-10
 
-**Updated**: 2026-06-13
+**Updated**: 2026-08-25
 
 **Status**: Draft
 
@@ -16,7 +16,7 @@ Minha Saúde Feminina continua sendo concebido como um ecossistema com aplicativ
 
 O objetivo deste incremento é permitir que usuárias administrativas criem, revisem, aprovem, publiquem e arquivem conteúdos educativos sobre saúde feminina com controle de acesso, rastreabilidade e qualidade textual. O sistema deve operar em Português do Brasil, preservar acentos, cedilha e caracteres especiais, e permitir busca administrativa tolerante a acentos.
 
-O aplicativo mobile, cadastro e login de usuárias finais, registros pessoais de saúde, lembretes mobile, push notifications mobile, perguntas para consulta, resumo visual e funcionalidades específicas do app permanecem fora deste incremento e planejados para fase futura.
+O aplicativo mobile, cadastro e login de usuárias finais, registros pessoais de saúde, lembretes mobile, push notifications mobile, perguntas para consulta, resumo visual e funcionalidades específicas do app permanecem fora deste incremento e planejados para fase futura. O catálogo administrativo de sintomas e queixas é uma exceção explícita: pode ser gerenciado no portal sem expor registros individuais de saúde.
 
 O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do portal, backend ou conteúdo publicado deve diagnosticar doenças, prescrever medicamentos, orientar automedicação, substituir atendimento profissional ou induzir atraso na busca por cuidado.
 
@@ -34,6 +34,12 @@ O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do
 - O app mobile e todas as funcionalidades específicas de usuárias finais foram removidos do escopo deste incremento e permanecem planejados para fase futura.
 - O assistente de IA, integração com UBS ou serviços públicos, exportação PDF e monetização continuam fora do MVP.
 - Apenas autenticação administrativa, usuários administrativos, permissões administrativas, fluxo editorial, auditoria, notificações administrativas, UTF-8 e busca administrativa tolerante a acentos serão planejados e implementados agora.
+
+### Session 2026-08-25
+
+- O backend administrativo passa a incluir o catálogo de sintomas e queixas consumido pela tela web.
+- Perfis administrativos autenticados podem consultar o catálogo; somente Admin pode criar, alterar, desativar ou excluir itens.
+- Registros individuais de sintomas das usuárias continuam fora do portal administrativo e não podem ser expostos por esses endpoints.
 
 ## Technical Decisions for Planning
 
@@ -56,6 +62,7 @@ O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do
 - Enviar notificações administrativas no painel e por e-mail para eventos editoriais relevantes.
 - Garantir conteúdos e interfaces em Português do Brasil, com acentuação correta.
 - Garantir busca administrativa tolerante a acentos sem alterar a grafia exibida.
+- Permitir que Admin gerencie um catálogo auditável de sintomas e queixas, com busca, filtros e textos seguros em saúde.
 - Manter fora do incremento tudo que depende do app mobile ou de usuárias finais.
 
 ## Personas and User Types
@@ -201,6 +208,22 @@ Como usuária administrativa, quero buscar conteúdos no portal mesmo digitando 
 2. **Given** resultados de busca, **When** eles são exibidos, **Then** a grafia original com acentuação correta é preservada.
 3. **Given** busca por termo inexistente, **When** não há resultados, **Then** o portal exibe mensagem clara em Português do Brasil.
 
+---
+
+### User Story 9 - Gerenciar catálogo de sintomas e queixas (Priority: P2)
+
+Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para controlar os itens disponibilizados pelos canais do produto sem acessar registros individuais das usuárias.
+
+**Independent Test**: Pode ser testado criando, buscando, filtrando, alterando, desativando e excluindo um item sem uso; verificando o bloqueio de exclusão de item associado a registros e a auditoria das mutações.
+
+**Acceptance Scenarios**:
+
+1. **Given** uma pessoa administrativa autenticada, **When** consulta o catálogo, **Then** recebe os itens ordenados e pode buscar sem acentos.
+2. **Given** uma pessoa com perfil Admin, **When** cria ou altera um item válido, **Then** os dados são persistidos em UTF-8 e a ação é auditada.
+3. **Given** uma pessoa sem perfil Admin, **When** tenta alterar o catálogo, **Then** o backend bloqueia a ação.
+4. **Given** um item associado a registros, **When** Admin tenta excluí-lo, **Then** o backend preserva o item e orienta desativar sua exibição.
+5. **Given** qualquer consulta administrativa ao catálogo, **When** a resposta é retornada, **Then** nenhum registro individual de saúde é incluído.
+
 ### Edge Cases
 
 - Tentativa de login com usuário administrativo inexistente, senha incorreta, acesso desativado ou perfil ausente deve ser recusada sem vazar informações indevidas.
@@ -271,6 +294,12 @@ Como usuária administrativa, quero buscar conteúdos no portal mesmo digitando 
 - **FR-048**: O sistema MUST NOT incluir monetização, anúncios ou pagamentos neste incremento.
 - **FR-049**: O sistema MUST NOT incluir cadastro, login, perfil ou funcionalidades de usuárias finais neste incremento.
 - **FR-050**: O sistema MUST NOT incluir funcionalidades específicas do app mobile neste incremento.
+- **FR-051**: O sistema MUST permitir que perfis administrativos autenticados consultem o catálogo de sintomas e queixas.
+- **FR-052**: Somente Admin MUST poder criar, editar, desativar ou excluir itens do catálogo de sintomas e queixas.
+- **FR-053**: Criação, edição e exclusão de itens do catálogo MUST gerar auditoria com ator, data, ação e identificador do item.
+- **FR-054**: A busca do catálogo MUST ser tolerante a acentos e preservar a grafia original na resposta.
+- **FR-055**: Itens associados a registros MUST NOT ser excluídos; o sistema MUST permitir desativar sua exibição.
+- **FR-056**: Endpoints administrativos do catálogo MUST NOT retornar registros individuais de sintomas ou outros dados pessoais de saúde.
 
 ### Non-Functional Requirements
 
@@ -350,6 +379,7 @@ Como usuária administrativa, quero buscar conteúdos no portal mesmo digitando 
 - **Evento de auditoria editorial**: Registro de ação relevante sobre conteúdo ou permissão administrativa; identifica responsável, ação, data, hora, estado anterior, estado resultante e metadados necessários.
 - **Histórico de alterações**: Registro de versões ou mudanças de conteúdo suficiente para rastrear evolução editorial.
 - **Notificação administrativa**: Aviso no painel ou por e-mail sobre evento editorial ou ação necessária, direcionado a perfis autorizados.
+- **Sintoma ou queixa**: Item não pessoal do catálogo administrativo, com nome, tipo, categoria, descrições, configuração de coleta, orientação segura, marcador de alerta e ordem de exibição.
 
 ## Success Criteria *(mandatory)*
 
@@ -397,6 +427,7 @@ Como usuária administrativa, quero buscar conteúdos no portal mesmo digitando 
 - Notificações administrativas no painel e por e-mail.
 - Conteúdos e interface em Português do Brasil com acentuação correta, cedilha e caracteres especiais.
 - Busca administrativa tolerante a acentos.
+- Gestão administrativa do catálogo de sintomas e queixas, sem acesso a registros individuais de saúde.
 - Suporte UTF-8 no backend, banco, API, portal web e e-mails.
 - Requisitos de segurança em saúde, controle de acesso, auditoria editorial, qualidade textual e preservação de acentuação.
 
@@ -407,7 +438,7 @@ Como usuária administrativa, quero buscar conteúdos no portal mesmo digitando 
 - Validação de e-mail de usuárias finais.
 - Perfil da usuária comum.
 - Ciclo menstrual.
-- Registro de sintomas.
+- Registro individual de sintomas por usuárias finais e sua visualização no portal administrativo.
 - Lembretes mobile.
 - Push notifications mobile.
 - Perguntas para consulta.

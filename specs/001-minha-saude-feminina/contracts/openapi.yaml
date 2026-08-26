@@ -359,101 +359,21 @@ paths:
                 items:
                   $ref: '#/components/schemas/AgeRange'
 
-  /support-contacts:
+  /symptoms:
     get:
-      summary: Lista contatos de apoio
-      tags: [Support Contacts]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Contatos de apoio
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SupportContact'
-    post:
-      summary: Cria contato de apoio
-      tags: [Support Contacts]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SupportContactWrite'
-      responses:
-        '201':
-          description: Contato de apoio criado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/SupportContact'
-  /support-contacts/{id}:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    patch:
-      summary: Atualiza contato de apoio
-      tags: [Support Contacts]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SupportContactWrite'
-      responses:
-        '200':
-          description: Contato de apoio atualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/SupportContact'
-    delete:
-      summary: Exclui contato de apoio
-      tags: [Support Contacts]
-      security:
-        - bearerAuth: []
-      responses:
-        '204':
-          description: Contato de apoio excluído
-
-  /reminders:
-    get:
-      summary: Lista lembretes e campanhas
-      tags: [Reminders]
+      summary: Lista e busca o catálogo administrativo de sintomas e queixas
+      tags: [Symptoms]
       security:
         - bearerAuth: []
       parameters:
-        - name: q
-          in: query
-          schema:
-            type: string
-          description: Busca por título, tolerante a acentos
-        - name: type
-          in: query
-          schema:
-            $ref: '#/components/schemas/ReminderType'
-        - name: is_active
-          in: query
-          schema:
-            type: boolean
+        - { name: q, in: query, schema: { type: string }, description: Busca tolerante a acentos }
+        - { name: type, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: show_in_app, in: query, schema: { type: boolean } }
+        - { name: generate_ubs_alert, in: query, schema: { type: boolean } }
       responses:
         '200':
-          description: Lembretes e campanhas
+          description: Catálogo de sintomas e queixas
           content:
             application/json:
               schema:
@@ -462,10 +382,10 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Reminder'
+                      $ref: '#/components/schemas/Symptom'
     post:
-      summary: Cria lembrete ou campanha
-      tags: [Reminders]
+      summary: Cria um item no catálogo de sintomas e queixas
+      tags: [Symptoms]
       security:
         - bearerAuth: []
       requestBody:
@@ -473,23 +393,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReminderWrite'
+              $ref: '#/components/schemas/SymptomWrite'
       responses:
         '201':
-          description: Lembrete criado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Reminder'
-  /reminders/{id}:
+          description: Sintoma ou queixa criado
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Dados inválidos
+  /symptoms/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+    get:
+      summary: Exibe um item do catálogo de sintomas e queixas
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sintoma ou queixa encontrado
     patch:
-      summary: Atualiza lembrete ou campanha
-      tags: [Reminders]
+      summary: Atualiza um item do catálogo de sintomas e queixas
+      tags: [Symptoms]
       security:
         - bearerAuth: []
       requestBody:
@@ -497,43 +422,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReminderWrite'
+              $ref: '#/components/schemas/SymptomWrite'
       responses:
         '200':
-          description: Lembrete atualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Reminder'
+          description: Sintoma ou queixa atualizado
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Dados inválidos
     delete:
-      summary: Exclui lembrete ou campanha
-      tags: [Reminders]
+      summary: Exclui um item sem registros associados
+      tags: [Symptoms]
       security:
         - bearerAuth: []
       responses:
         '204':
-          description: Lembrete excluído
-  /reminders/{id}/duplicate:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    post:
-      summary: Duplica lembrete como cópia inativa
-      tags: [Reminders]
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: Cópia criada, sempre inativa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Reminder'
+          description: Sintoma ou queixa excluído
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Item possui registros associados e deve ser desativado
 
   /contents:
     get:
@@ -1021,6 +929,33 @@ components:
     EditorialStatus:
       type: string
       enum: [draft, in_review, approved, published, archived]
+    SymptomWrite:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        type: { type: string, maxLength: 60 }
+        short_description: { type: string, maxLength: 255 }
+        full_description: { type: string, nullable: true, maxLength: 2000 }
+        icon: { type: string, nullable: true, maxLength: 80 }
+        category: { type: string, maxLength: 120 }
+        show_in_app: { type: boolean }
+        ask_intensity: { type: boolean }
+        ask_notes: { type: boolean }
+        generate_ubs_alert: { type: boolean }
+        orientation_text: { type: string, nullable: true, maxLength: 2000 }
+        severity_alert_text: { type: string, nullable: true, maxLength: 2000 }
+        sort_order: { type: integer, minimum: 0, maximum: 9999 }
+    Symptom:
+      allOf:
+        - $ref: '#/components/schemas/SymptomWrite'
+        - type: object
+          required: [id, name, type, category, show_in_app, ask_intensity, ask_notes, generate_ubs_alert, sort_order]
+          properties:
+            id: { type: integer }
+            created_by: { type: integer, nullable: true }
+            updated_by: { type: integer, nullable: true }
+            created_at: { type: string, format: date-time, nullable: true }
+            updated_at: { type: string, format: date-time, nullable: true }
     ContentWrite:
       type: object
       required: [title, body, category_id]
