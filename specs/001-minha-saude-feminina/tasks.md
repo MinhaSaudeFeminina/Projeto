@@ -417,3 +417,30 @@ Task: "T120 [P] [US7] Create admin notifications page test in frontend/src/tests
 - [US1] through [US8] map to the user stories in spec.md.
 - Tests are included because the current feature plan explicitly requires coverage.
 - Keep implementation scoped to backend, PostgreSQL, portal admin, and e-mail admin. Do not implement app mobile or active mobile endpoints in this increment.
+
+---
+
+## Phase 12: Administrative Symptom and Complaint Catalog
+
+**Purpose**: Expand the administrative backend so the web portal can persist and manage the symptom/complaint catalog without exposing individual users' health records.
+
+- [X] T153 [P] Create administrative symptom catalog CRUD, authorization, validation, audit, search, and seeder tests in backend/tests/Feature/Admin/SymptomManagementTest.php
+- [X] T154 Extend the symptom schema for the administrative catalog in backend/database/migrations/2026_08_25_235900_extend_symptoms_for_admin_catalog.php
+- [X] T155 Update the Symptom model and add the administrative SymptomPolicy in backend/app/Models/Symptom.php and backend/app/Policies/SymptomPolicy.php
+- [X] T156 Add administrative symptom requests and API resource in backend/app/Http/Requests/Admin and backend/app/Http/Resources/Admin/SymptomResource.php
+- [X] T157 Implement accent-tolerant catalog query and administrative controller in backend/app/Services/Health/AdminSymptomSearchQuery.php and backend/app/Http/Controllers/Api/V1/Admin/SymptomController.php
+- [X] T158 Add `symptoms.manage` permission, canonical symptom catalog seeder, and administrative routes in backend/database/seeders and backend/routes/api.php
+- [X] T159 Document the symptom catalog endpoints and data model in specs/001-minha-saude-feminina/contracts/openapi.yaml and specs/001-minha-saude-feminina/data-model.md
+- [X] T160 Validate the focused and complete backend suites and review health safety, LGPD, UTF-8, audit, and API contract boundaries
+
+---
+
+## Phase 13: Admin Web Symptom Catalog Integration
+
+**Purpose**: Replace the symptom page mock with the authenticated administrative API and persist all catalog actions from the React portal.
+
+- [X] T161 [P] Create page integration tests for loading, searching, creating, editing, toggling, deleting, and role restrictions in frontend/src/tests/pages/SymptomsPage.test.tsx
+- [X] T162 Implement the typed administrative symptom API client in frontend/src/services/api/symptomApi.ts
+- [X] T163 Refactor frontend/src/pages/SymptomsPage.tsx to use React Query, controlled forms, API search, mutation feedback, and Admin-only actions
+- [X] T164 Update frontend API scope documentation for the non-personal symptom catalog in frontend/src/services/api/README.md
+- [X] T165 Run focused and complete frontend tests, lint, production build, and update quickstart validation evidence

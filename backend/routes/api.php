@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\ContentRevisionController as AdminContentR
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
 use App\Http\Controllers\Api\V1\Admin\RolePermissionController;
+use App\Http\Controllers\Api\V1\Admin\SymptomController as AdminSymptomController;
 use App\Http\Controllers\Api\V1\Admin\TaxonomyController;
 use App\Http\Controllers\Api\V1\Mobile\AuthController as MobileAuthController;
 use App\Http\Controllers\Api\V1\Mobile\ContentController as MobileContentController;
@@ -45,6 +46,11 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::delete('categories/{category}', [TaxonomyController::class, 'destroyCategory'])->name('categories.destroy');
         Route::get('life-stages', [TaxonomyController::class, 'lifeStages'])->name('life-stages.index');
         Route::get('age-ranges', [TaxonomyController::class, 'ageRanges'])->name('age-ranges.index');
+        Route::get('symptoms', [AdminSymptomController::class, 'index'])->name('symptoms.index');
+        Route::post('symptoms', [AdminSymptomController::class, 'store'])->name('symptoms.store');
+        Route::get('symptoms/{symptom}', [AdminSymptomController::class, 'show'])->name('symptoms.show');
+        Route::patch('symptoms/{symptom}', [AdminSymptomController::class, 'update'])->name('symptoms.update');
+        Route::delete('symptoms/{symptom}', [AdminSymptomController::class, 'destroy'])->name('symptoms.destroy');
         Route::get('contents', [AdminContentController::class, 'index'])->name('contents.index');
         Route::post('contents', [AdminContentController::class, 'store'])->name('contents.store');
         Route::get('contents/{content}', [AdminContentController::class, 'show'])->name('contents.show');

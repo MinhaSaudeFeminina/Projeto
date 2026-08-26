@@ -310,6 +310,41 @@ Notificação administrativa no painel e base para envio por e-mail.
 - E-mail não deve carregar conteúdo editorial completo.
 - Notificação deve respeitar perfil e relação com o conteúdo.
 
+### Symptom
+
+Item não pessoal do catálogo administrativo de sintomas e queixas.
+
+**Fields**:
+
+- `id`
+- `name`
+- `type`
+- `short_description`
+- `description` (exposto pela API administrativa como `full_description`)
+- `icon`
+- `category`
+- `show_in_app`
+- `ask_intensity`
+- `ask_notes`
+- `is_alert_candidate` (exposto como `generate_ubs_alert`)
+- `orientation_text`
+- `severity_alert_text`
+- `sort_order`
+- `search_text_normalized`
+- `created_by`
+- `updated_by`
+- `created_at`
+- `updated_at`
+
+**Rules**:
+
+- Perfis administrativos autenticados podem consultar o catálogo.
+- Apenas Admin com `symptoms.manage` pode criar, alterar ou excluir itens.
+- Toda mutação gera evento de auditoria append-only.
+- Item associado a `SymptomRecord` não pode ser excluído; deve ser ocultado com `show_in_app = false`.
+- A busca usa `search_text_normalized`, preservando a grafia UTF-8 nos campos exibidos.
+- A API administrativa nunca inclui registros individuais de sintomas das usuárias.
+
 ## State Transitions
 
 ```text

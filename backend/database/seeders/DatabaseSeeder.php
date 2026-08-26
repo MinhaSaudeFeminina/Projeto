@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ContentTaxonomySeeder::class,
             AdminRolePermissionSeeder::class,
             AnonymousQuestionSeeder::class,
+            SymptomCatalogSeeder::class,
         ]);
 
         $admin = User::updateOrCreate(

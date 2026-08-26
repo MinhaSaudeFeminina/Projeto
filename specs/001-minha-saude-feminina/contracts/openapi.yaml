@@ -286,6 +286,90 @@ paths:
                 items:
                   $ref: '#/components/schemas/AgeRange'
 
+  /symptoms:
+    get:
+      summary: Lista e busca o catálogo administrativo de sintomas e queixas
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: Busca tolerante a acentos }
+        - { name: type, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: show_in_app, in: query, schema: { type: boolean } }
+        - { name: generate_ubs_alert, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Catálogo de sintomas e queixas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Symptom'
+    post:
+      summary: Cria um item no catálogo de sintomas e queixas
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SymptomWrite'
+      responses:
+        '201':
+          description: Sintoma ou queixa criado
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Dados inválidos
+  /symptoms/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      summary: Exibe um item do catálogo de sintomas e queixas
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sintoma ou queixa encontrado
+    patch:
+      summary: Atualiza um item do catálogo de sintomas e queixas
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SymptomWrite'
+      responses:
+        '200':
+          description: Sintoma ou queixa atualizado
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Dados inválidos
+    delete:
+      summary: Exclui um item sem registros associados
+      tags: [Symptoms]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Sintoma ou queixa excluído
+        '403':
+          description: Apenas Admin pode alterar o catálogo
+        '422':
+          description: Item possui registros associados e deve ser desativado
+
   /contents:
     get:
       summary: Lista e busca conteúdos administrativos
@@ -714,6 +798,33 @@ components:
     EditorialStatus:
       type: string
       enum: [draft, in_review, approved, published, archived]
+    SymptomWrite:
+      type: object
+      properties:
+        name: { type: string, maxLength: 120 }
+        type: { type: string, maxLength: 60 }
+        short_description: { type: string, maxLength: 255 }
+        full_description: { type: string, nullable: true, maxLength: 2000 }
+        icon: { type: string, nullable: true, maxLength: 80 }
+        category: { type: string, maxLength: 120 }
+        show_in_app: { type: boolean }
+        ask_intensity: { type: boolean }
+        ask_notes: { type: boolean }
+        generate_ubs_alert: { type: boolean }
+        orientation_text: { type: string, nullable: true, maxLength: 2000 }
+        severity_alert_text: { type: string, nullable: true, maxLength: 2000 }
+        sort_order: { type: integer, minimum: 0, maximum: 9999 }
+    Symptom:
+      allOf:
+        - $ref: '#/components/schemas/SymptomWrite'
+        - type: object
+          required: [id, name, type, category, show_in_app, ask_intensity, ask_notes, generate_ubs_alert, sort_order]
+          properties:
+            id: { type: integer }
+            created_by: { type: integer, nullable: true }
+            updated_by: { type: integer, nullable: true }
+            created_at: { type: string, format: date-time, nullable: true }
+            updated_at: { type: string, format: date-time, nullable: true }
     ContentWrite:
       type: object
       required: [title, body, category_id]

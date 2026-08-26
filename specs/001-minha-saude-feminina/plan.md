@@ -8,7 +8,7 @@
 
 Implementar o incremento atual do Minha Saúde Feminina como um portal administrativo web em React/TypeScript consumindo uma API REST Laravel com PostgreSQL. A entrega cobre autenticação administrativa, gestão de usuários administrativos, perfis e permissões, gestão de conteúdos educativos, categorias, fases da vida, faixas etárias, fluxo editorial, auditoria, histórico de alterações, notificações administrativas por e-mail, busca tolerante a acentos e suporte UTF-8 ponta a ponta.
 
-O app mobile, usuários comuns do futuro app, endpoints mobile, ciclo menstrual, sintomas, lembretes mobile, push mobile, perguntas para consulta e resumo visual permanecem fora deste incremento. A modelagem deve preparar conteúdos publicados para consumo futuro pelo app, mas o consumo mobile não será implementado agora.
+O app mobile, usuários comuns do futuro app, ciclo menstrual, registros individuais de sintomas, lembretes mobile, push mobile, perguntas para consulta e resumo visual permanecem fora deste incremento. Por ampliação aprovada em 2026-08-25, o backend administrativo inclui apenas o catálogo não pessoal de sintomas e queixas, com CRUD, busca, autorização e auditoria; o consumo mobile e a exposição de registros de saúde no portal não serão implementados agora.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ O app mobile, usuários comuns do futuro app, endpoints mobile, ciclo menstrual,
 
 **Primary Dependencies**: Laravel, API REST, autenticação administrativa por sessão/token revogável, PostgreSQL, React, TypeScript, cliente HTTP tipado, Laravel Mail/Notifications ou camada equivalente, PHPUnit/Pest, Vitest e React Testing Library.
 
-**Storage**: PostgreSQL relacional para usuários administrativos, perfis, permissões, conteúdos, categorias, fases da vida, faixas etárias, estados editoriais, auditoria, notificações administrativas e histórico de alterações.
+**Storage**: PostgreSQL relacional para usuários administrativos, perfis, permissões, conteúdos, categorias, fases da vida, faixas etárias, catálogo de sintomas e queixas, estados editoriais, auditoria, notificações administrativas e histórico de alterações.
 
 **Testing**: PHPUnit/Pest no backend; Vitest/Testing Library no portal; testes de contrato da API REST; testes de integração para permissões, fluxo editorial, auditoria, notificações, UTF-8 e busca tolerante a acentos; validação manual pelo quickstart.
 
@@ -145,6 +145,7 @@ Ver detalhes em [data-model.md](./data-model.md). O modelo técnico inclui:
 - `content_revisions` para snapshots e histórico de alterações.
 - `editorial_audit_events` para eventos append-only.
 - `admin_notifications` para notificações no painel e controle de envio por e-mail.
+- `symptoms` para o catálogo administrativo não pessoal, incluindo configuração de exibição, coleta, orientação segura e sinalização de alerta.
 
 ## Main Endpoints
 
@@ -161,6 +162,8 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 - `GET|PATCH /api/v1/admin/categories/{id}`
 - `GET /api/v1/admin/life-stages`
 - `GET /api/v1/admin/age-ranges`
+- `GET|POST /api/v1/admin/symptoms`
+- `GET|PATCH|DELETE /api/v1/admin/symptoms/{id}`
 - `GET|POST /api/v1/admin/contents`
 - `GET|PATCH /api/v1/admin/contents/{id}`
 - `POST /api/v1/admin/contents/{id}/submit-review`
@@ -241,7 +244,7 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 - Sem app mobile.
 - Sem cadastro, login, validação de e-mail ou perfil de usuárias finais.
 - Sem endpoints específicos do app mobile, salvo preparação contratual mínima futura que não implemente consumo.
-- Sem ciclo menstrual, sintomas, lembretes mobile, push mobile, perguntas para consulta ou resumo visual.
+- Sem ciclo menstrual, registro individual de sintomas, lembretes mobile, push mobile, perguntas para consulta ou resumo visual; apenas o catálogo administrativo de sintomas e queixas está incluído.
 - Sem assistente de IA.
 - Sem integração com UBS, prontuário eletrônico ou serviços públicos.
 - Sem exportação PDF.
@@ -261,6 +264,7 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 8. **Notifications**: notificações no painel, e-mails administrativos UTF-8 e tratamento de falhas.
 9. **Accent-tolerant search**: normalização, índices, filtros administrativos e testes de preservação de grafia.
 10. **Quality gates**: testes automatizados, contrato OpenAPI, acessibilidade, quickstart, revisão de logs e verificação de ausência de endpoints mobile.
+11. **Catálogo de sintomas e queixas**: persistência administrativa, busca tolerante a acentos, permissão exclusiva de mutação para Admin, auditoria e catálogo inicial, sem expor registros individuais.
 
 ## Phase 0 Research Summary
 

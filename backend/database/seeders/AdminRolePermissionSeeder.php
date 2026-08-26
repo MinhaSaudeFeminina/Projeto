@@ -24,6 +24,7 @@ class AdminRolePermissionSeeder extends Seeder
             'audit.view' => 'Ver auditoria',
             'notifications.view' => 'Ver notificações',
             'anonymous_questions.manage' => 'Gerenciar perguntas anônimas',
+            'symptoms.manage' => 'Gerenciar sintomas e queixas',
         ])->map(fn (string $name, string $key) => Permission::updateOrCreate(
             ['key' => $key],
             ['name' => $name, 'description' => $name],

@@ -114,6 +114,17 @@
 
 **Expected result**: The increment prepares editorial publication but does not implement mobile consumption.
 
+## Scenario 12: Administrative Symptom and Complaint Catalog
+
+1. Sign in as Admin and create an item named “Dor pélvica”.
+2. Search for `dor pelvica` and confirm the accented name is returned.
+3. Change its display and alert settings and confirm an audit event is recorded.
+4. Sign in as Acadêmica/autora or Revisor/professor and confirm catalog mutation is forbidden.
+5. Associate an item with a symptom record and confirm deletion is blocked with guidance to deactivate it.
+6. Inspect every administrative response and confirm no individual symptom record is exposed.
+
+**Expected result**: The non-personal catalog is persisted, searchable, Admin-managed and audited while individual health records remain outside the portal.
+
 ## Out-of-Scope Validation
 
 Confirm the increment does not expose or require:
@@ -121,7 +132,7 @@ Confirm the increment does not expose or require:
 - App mobile.
 - Cadastro/login de usuárias finais.
 - Ciclo menstrual.
-- Sintomas.
+- Registro individual de sintomas e sua visualização administrativa; somente o catálogo não pessoal está incluído.
 - Lembretes mobile or push mobile.
 - Perguntas or resumo visual para consulta.
 - IA assistant.
@@ -140,7 +151,8 @@ The quickstart scenarios are backed by the following repeatable checks:
 | 5–6 | Editorial workflow, review queue, publication, archive, audit and history tests |
 | 8–9 | Panel notification, recipient resolution, mail rendering/failure and accent tests |
 | 10 | Accent-insensitive normalizer, API search and portal search/rendering tests |
-| 11 and exclusions | OpenAPI route coverage and no-mobile increment route tests |
+| 11 and exclusions | OpenAPI route coverage and channel-boundary tests |
+| 12 | Administrative symptom CRUD, authorization, audit, accent-tolerant search, seed and associated-record protection tests |
 
 Run the complete suites from each application directory:
 
@@ -172,3 +184,17 @@ This record validates the repeatable API and UI behavior of the quickstart. A
 separate exploratory browser walkthrough may still be used for visual acceptance
 in a PostgreSQL-backed staging environment, but it is not required to reproduce
 the functional checks above.
+
+## Completion Record — 2026-08-25
+
+The administrative symptom and complaint catalog was validated with the focused
+feature, mobile compatibility and OpenAPI contract tests, followed by the full
+backend suite: **73 tests passed, 410 assertions**. The catalog endpoints expose
+no individual health records, catalog mutations are Admin-only and audited, and
+deletion is blocked for items already associated with records.
+
+The web integration was subsequently validated with **29 frontend tests in 16
+files**, including seven symptom-page scenarios. ESLint completed with no errors
+(seven pre-existing Fast Refresh warnings), the production build succeeded, and
+an authenticated local smoke test loaded all 12 seeded catalog items before
+revoking the temporary session.

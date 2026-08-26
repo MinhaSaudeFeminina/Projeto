@@ -1,6 +1,6 @@
 # Cliente da API Administrativa
 
-Este diretório contém os clientes TypeScript usados pelo portal administrativo web para consumir a API Laravel do incremento atual. O escopo ativo é somente administrativo: não criar clientes para app mobile, usuárias finais, ciclo menstrual, sintomas, lembretes, push ou consulta.
+Este diretório contém os clientes TypeScript usados pelo portal administrativo web para consumir a API Laravel do incremento atual. O escopo ativo é somente administrativo. O cliente de sintomas acessa apenas o catálogo não pessoal; não criar clientes para registros individuais de saúde, ciclo menstrual, lembretes, push ou resumo de consulta.
 
 ## Convenções de URL
 
