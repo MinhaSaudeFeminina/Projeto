@@ -64,6 +64,29 @@ export function addDays(date: string | Date, days: number) {
   return nextDate;
 }
 
+export function addMonths(date: string | Date, months: number) {
+  const parsedDate = typeof date === 'string' ? parseIsoDate(date) : date;
+
+  if (!parsedDate) {
+    return null;
+  }
+
+  const day = parsedDate.getDate();
+  const nextDate = new Date(parsedDate);
+
+  // `setMonth` rolls 31/01 + 1 month over into 03/03. Starting from the 1st and
+  // then clamping to the last day keeps the result inside the target month.
+  nextDate.setDate(1);
+  nextDate.setMonth(nextDate.getMonth() + months);
+  nextDate.setDate(Math.min(day, lastDayOfMonth(nextDate)));
+
+  return nextDate;
+}
+
+function lastDayOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+}
+
 export function isSameIsoDate(leftDate: string | Date, rightDate: string | Date) {
   const left = typeof leftDate === 'string' ? leftDate : toIsoDate(leftDate);
   const right = typeof rightDate === 'string' ? rightDate : toIsoDate(rightDate);
