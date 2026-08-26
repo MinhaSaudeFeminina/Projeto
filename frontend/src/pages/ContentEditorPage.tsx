@@ -122,7 +122,7 @@ export default function ContentEditorPage() {
   }
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
       <section className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-medium text-primary"><BookOpenCheck className="h-4 w-4" />Produção editorial</div>
