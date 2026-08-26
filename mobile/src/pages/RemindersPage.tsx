@@ -232,8 +232,8 @@ const styles = StyleSheet.create({
   },
   recurrenceLabel: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
   },
   recurrenceOptions: {
     flexDirection: 'row',
