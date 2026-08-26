@@ -6,12 +6,18 @@ import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { LoadingState } from '../components/ui/LoadingState';
 import { MedicalDisclaimer } from '../components/ui/MedicalDisclaimer';
 import { AppScreen } from '../components/layout/AppScreen';
 import { AppHeader } from '../components/layout/AppHeader';
+import { useAppContext } from '../context/AppContext';
+import { useApiResource } from '../hooks/useApiResource';
 import { getCycleSummary } from '../services/cycleService';
 import { getUserReminders } from '../services/remindersService';
-import { getSymptomOptions, getUserSymptoms } from '../services/symptomsService';
+import {
+  describeIntensity,
+  getUserSymptomRecords,
+} from '../services/symptomsService';
 import { formatShortDate, toIsoDate } from '../utils/date';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
@@ -32,80 +38,87 @@ const phaseTones = {
 
 export function TodayPage() {
   const navigation = useNavigation<RootStackNavigation>();
+  const { profile } = useAppContext();
   const today = useMemo(() => new Date(), []);
   const todayIsoDate = toIsoDate(today);
 
-  const cycleResult = getCycleSummary(today);
-  const symptomsResult = getUserSymptoms();
-  const symptomOptionsResult = getSymptomOptions();
-  const remindersResult = getUserReminders();
+  const cycle = useApiResource(() => getCycleSummary(today), [todayIsoDate]);
+  const symptoms = useApiResource(getUserSymptomRecords, []);
+  const reminders = useApiResource(getUserReminders, []);
 
-  if (
-    !cycleResult.ok ||
-    !symptomsResult.ok ||
-    !symptomOptionsResult.ok ||
-    !remindersResult.ok
-  ) {
+  if (cycle.loading) {
     return (
       <AppScreen>
-        <ErrorMessage message="Nao foi possivel carregar o resumo de hoje." />
+        <LoadingState message="Carregando seu resumo de hoje." />
       </AppScreen>
     );
   }
 
   const hour = today.getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const todaySymptoms = symptomsResult.data.filter(
-    (symptom) => symptom.date === todayIsoDate,
+  const todaySymptoms = (symptoms.data ?? []).filter(
+    (record) => record.occurred_on === todayIsoDate,
   );
-  const upcomingReminders = remindersResult.data
+  const upcomingReminders = (reminders.data ?? [])
     .filter((reminder) => !reminder.completed)
     .slice(0, 3);
-  const cycle = cycleResult.data;
-  const symptomOptions = symptomOptionsResult.data;
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
       <View style={styles.hero}>
         <AppHeader
-          subtitle={`${greeting}, ${cycle.user.name}`}
+          subtitle={profile ? `${greeting}, ${profile.name}` : greeting}
           title="Hoje"
         />
 
         <AppCard style={styles.cycleCard}>
-          <View style={styles.cycleRow}>
+          {cycle.data?.cycleDay && cycle.data.phase ? (
+            <View style={styles.cycleRow}>
+              <View style={styles.cycleInfo}>
+                <Text style={styles.muted}>
+                  Dia {cycle.data.cycleDay} do ciclo
+                </Text>
+                <AppChip
+                  label={`Fase ${phaseLabels[cycle.data.phase]}`}
+                  tone={phaseTones[cycle.data.phase]}
+                />
+              </View>
+              <View style={styles.nextPeriod}>
+                <Text style={styles.days}>
+                  {cycle.data.daysUntilNextPeriod}
+                </Text>
+                <Text style={styles.muted}>dias para a proxima</Text>
+              </View>
+            </View>
+          ) : (
             <View style={styles.cycleInfo}>
-              <Text style={styles.muted}>Dia {cycle.cycleDay} do ciclo</Text>
-              <AppChip
-                label={`Fase ${phaseLabels[cycle.phase]}`}
-                tone={phaseTones[cycle.phase]}
+              <Text style={styles.muted}>
+                Registre duas menstruacoes para ver a previsao do seu ciclo.
+              </Text>
+              <AppButton
+                onPress={() => navigation.navigate('MainTabs', { screen: 'Cycle' })}
+                title="Registrar menstruacao"
+                variant="ghost"
               />
             </View>
-            <View style={styles.nextPeriod}>
-              <Text style={styles.days}>{cycle.daysUntilNextPeriod}</Text>
-              <Text style={styles.muted}>dias para a proxima</Text>
-            </View>
-          </View>
+          )}
         </AppCard>
       </View>
 
-      <AppCard title="Sintomas de hoje">
-        {todaySymptoms.length > 0 ? (
-          <View style={styles.chipGroup}>
-            {todaySymptoms.map((symptom) => {
-              const symptomType = symptomOptions.find(
-                (type) => type.id === symptom.type,
-              );
+      {cycle.error && <ErrorMessage compact message={cycle.error} />}
 
-              return (
-                <AppChip
-                  icon={<Text>{symptomType?.icon}</Text>}
-                  key={symptom.id}
-                  label={`${symptomType?.label ?? symptom.type} - ${symptom.intensity}`}
-                  tone="primary"
-                />
-              );
-            })}
+      <AppCard title="Sintomas de hoje">
+        {symptoms.error ? (
+          <Text style={styles.muted}>{symptoms.error}</Text>
+        ) : todaySymptoms.length > 0 ? (
+          <View style={styles.chipGroup}>
+            {todaySymptoms.map((record) => (
+              <AppChip
+                key={record.id}
+                label={`${record.symptom?.name ?? record.custom_symptom ?? 'Sintoma'} - ${describeIntensity(record.intensity)}`}
+                tone="primary"
+              />
+            ))}
           </View>
         ) : (
           <Text style={styles.muted}>Nenhum sintoma registrado hoje.</Text>
@@ -124,9 +137,11 @@ export function TodayPage() {
               <View key={reminder.id} style={styles.reminder}>
                 <View>
                   <Text style={styles.reminderTitle}>{reminder.title}</Text>
-                  <Text style={styles.muted}>{formatShortDate(reminder.date)}</Text>
+                  <Text style={styles.muted}>
+                    {formatShortDate(reminder.date)}
+                  </Text>
                 </View>
-                <Text style={styles.reminderIcon}>cal</Text>
+                <Text style={styles.reminderIcon}>{reminder.type}</Text>
               </View>
             ))}
           </View>
@@ -142,7 +157,7 @@ export function TodayPage() {
 
       <View style={styles.tip}>
         <Text style={styles.tipTitle}>Dica de saude do dia</Text>
-        <Text style={styles.tipText}>{cycle.healthTip}</Text>
+        <Text style={styles.tipText}>{cycle.data?.healthTip}</Text>
       </View>
 
       <MedicalDisclaimer />

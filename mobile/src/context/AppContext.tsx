@@ -1,73 +1,71 @@
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
 
-import type { UserProfile } from '../data/mockData';
-import {
-  getProfile,
-  updatePreferences,
-} from '../services/profileService';
+import { getProfile, type UserProfile } from '../services/profileService';
+import { useAuthContext } from './AuthContext';
 
 type AppContextValue = {
   profile: UserProfile | null;
+  loading: boolean;
   error: string | null;
-  setNotificationsEnabled: (value: boolean) => void;
-  setDataSharingEnabled: (value: boolean) => void;
   refreshProfile: () => void;
 };
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const initialProfile = getProfile();
-  const [profile, setProfile] = useState<UserProfile | null>(
-    initialProfile.ok ? initialProfile.data : null,
-  );
-  const [error, setError] = useState<string | null>(
-    initialProfile.ok ? null : initialProfile.error.message,
-  );
+  const { session } = useAuthContext();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
-  const refreshProfile = () => {
-    const result = getProfile();
-
-    if (!result.ok) {
-      setError(result.error.message);
+  useEffect(() => {
+    if (!session) {
+      setProfile(null);
+      setError(null);
       return;
     }
 
-    setProfile(result.data);
-    setError(null);
-  };
+    let active = true;
 
-  const updatePreference = (
-    updates: Parameters<typeof updatePreferences>[0],
-  ) => {
-    const result = updatePreferences(updates);
+    setLoading(true);
 
-    if (!result.ok) {
-      setError(result.error.message);
-      return;
-    }
+    getProfile().then((result) => {
+      if (!active) {
+        return;
+      }
 
-    setProfile(result.data);
-    setError(null);
-  };
+      if (result.ok) {
+        setProfile(result.data);
+        setError(null);
+      } else {
+        setError(result.error.message);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [session, reloadToken]);
+
+  const refreshProfile = useCallback(
+    () => setReloadToken((token) => token + 1),
+    [],
+  );
 
   const value = useMemo<AppContextValue>(
-    () => ({
-      error,
-      profile,
-      refreshProfile,
-      setDataSharingEnabled: (valueToSet) =>
-        updatePreference({ dataSharingEnabled: valueToSet }),
-      setNotificationsEnabled: (valueToSet) =>
-        updatePreference({ notificationsEnabled: valueToSet }),
-    }),
-    [error, profile],
+    () => ({ error, loading, profile, refreshProfile }),
+    [error, loading, profile, refreshProfile],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

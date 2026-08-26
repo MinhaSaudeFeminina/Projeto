@@ -1,30 +1,63 @@
-import {
-  contentCategories,
-  mockContents,
-  type ContentArticle,
-  type ContentCategory,
-} from '../data/mockData';
+import { requestJson } from './client';
+import type { ApiResult } from './types';
 
-import { fail, ok, type ApiResult } from './types';
+export type ContentCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+};
 
-export function listContentCategories(): ApiResult<ContentCategory[]> {
-  return ok(contentCategories as ContentCategory[]);
+export type ContentSummary = {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string | null;
+  category: {
+    name: string | null;
+    slug: string | null;
+  };
+  published_at: string | null;
+};
+
+/** The list endpoint omits `body`; only the detail endpoint returns it. */
+export type ContentDetail = ContentSummary & {
+  body: string;
+};
+
+export type ContentFilters = {
+  q?: string;
+  category?: string;
+};
+
+export async function listContentCategories(): Promise<
+  ApiResult<ContentCategory[]>
+> {
+  const result = await requestJson<{ data: ContentCategory[] }>('/categories', {
+    token: null,
+  });
+
+  return result.ok ? { ok: true, data: result.data.data } : result;
 }
 
-export function listContentArticles(): ApiResult<ContentArticle[]> {
-  return ok(mockContents);
+export async function listContents(
+  filters: ContentFilters = {},
+): Promise<ApiResult<ContentSummary[]>> {
+  const result = await requestJson<{ data: ContentSummary[] }>('/contents', {
+    query: filters,
+    token: null,
+  });
+
+  return result.ok ? { ok: true, data: result.data.data } : result;
 }
 
-export function getContentArticleById(id: string): ApiResult<ContentArticle> {
-  const article = mockContents.find((content) => content.id === id);
+export async function getContentBySlug(
+  slug: string,
+): Promise<ApiResult<ContentDetail>> {
+  const result = await requestJson<{ data: ContentDetail }>(
+    `/contents/${encodeURIComponent(slug)}`,
+    { token: null },
+  );
 
-  if (!article) {
-    return fail(
-      'CONTENT_NOT_FOUND',
-      'Conteudo nao encontrado.',
-      false,
-    );
-  }
-
-  return ok(article);
+  return result.ok ? { ok: true, data: result.data.data } : result;
 }

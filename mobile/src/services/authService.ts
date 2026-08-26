@@ -7,6 +7,7 @@ import {
   type MobileUser,
   type RegisterPayload,
 } from '../api/authApi';
+import { setAuthToken } from '../api/authToken';
 import { fail, ok, type ApiResult } from '../api/types';
 import { secureStorage } from './secureStorage';
 
@@ -56,6 +57,8 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
       return ok(null);
     }
 
+    setAuthToken(token);
+
     return ok({
       accessState: accessState as MobileAccessState,
       token,
@@ -72,6 +75,8 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
 }
 
 export async function clearSession(): Promise<void> {
+  setAuthToken(null);
+
   await Promise.all([
     secureStorage.removeItem(tokenStorageKey),
     secureStorage.removeItem(userStorageKey),
@@ -88,6 +93,10 @@ async function persistAuthResponse(
       secureStorage.setItem(userStorageKey, JSON.stringify(response.user)),
       secureStorage.setItem(accessStateStorageKey, response.access_state),
     ]);
+
+    // Set before returning so the very next request already carries it, even
+    // if React has not re-rendered with the new session yet.
+    setAuthToken(response.token);
 
     return ok({
       accessState: response.access_state,

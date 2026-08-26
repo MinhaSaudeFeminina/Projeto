@@ -287,15 +287,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/ContentCategory'
     delete:
-      summary: Exclui categoria de conteúdo
+      summary: Remove categoria de conteúdo
       tags: [Taxonomies]
       security:
         - bearerAuth: []
       responses:
         '204':
-          description: Categoria excluída
+          description: Categoria removida
         '403':
-          description: Perfil sem permissão
+          description: Apenas administradoras podem remover categorias
+        '422':
+          description: Categoria vinculada a conteúdos existentes
   /life-stages:
     get:
       summary: Lista fases da vida
