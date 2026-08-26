@@ -175,6 +175,7 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 - `GET /api/v1/admin/contents/{id}/revisions`
 - `GET /api/v1/admin/notifications`
 - `POST /api/v1/admin/notifications/{id}/read`
+- `GET /api/v1/admin/reports?period=7d|30d|90d|365d`
 
 ## Authentication Strategy
 

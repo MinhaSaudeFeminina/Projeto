@@ -444,3 +444,15 @@ Task: "T120 [P] [US7] Create admin notifications page test in frontend/src/tests
 - [X] T163 Refactor frontend/src/pages/SymptomsPage.tsx to use React Query, controlled forms, API search, mutation feedback, and Admin-only actions
 - [X] T164 Update frontend API scope documentation for the non-personal symptom catalog in frontend/src/services/api/README.md
 - [X] T165 Run focused and complete frontend tests, lint, production build, and update quickstart validation evidence
+
+---
+
+## Phase 14: Administrative Reports Integration
+
+**Purpose**: Replace hard-coded report indicators with authenticated, period-filtered administrative aggregates while keeping personal health data and PDF export out of scope.
+
+- [X] T166 Create the authenticated administrative report endpoint with period validation and aggregate backend tests
+- [X] T167 Document the report endpoint and typed response contract in OpenAPI
+- [X] T168 Implement the typed report API client and connect the period selector to backend queries
+- [X] T169 Replace mock metrics and charts with administrative content, question, life-stage, and symptom catalog data
+- [X] T170 Implement UTF-8 CSV export and add frontend integration and serialization tests
