@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+import { phaseLabels, phaseTones } from '../components/cycle/phase';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
@@ -14,37 +15,21 @@ import { AppHeader } from '../components/layout/AppHeader';
 import { useAppContext } from '../context/AppContext';
 import { useApiResource } from '../hooks/useApiResource';
 import { getCycleSummary } from '../services/cycleService';
+import { getDayLogDetail } from '../services/dayLogService';
 import { getUserReminders } from '../services/remindersService';
-import {
-  describeIntensity,
-  getUserSymptomRecords,
-} from '../services/symptomsService';
-import { formatShortDate, toIsoDate } from '../utils/date';
+import { formatShortDate, todayIso } from '../utils/date';
+import { flowLabels, moodLabels } from '../utils/period';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
-
-const phaseLabels = {
-  folicular: 'Folicular',
-  lutea: 'Lutea',
-  menstrual: 'Menstrual',
-  ovulatoria: 'Ovulatoria',
-} as const;
-
-const phaseTones = {
-  folicular: 'peach',
-  lutea: 'rose',
-  menstrual: 'primary',
-  ovulatoria: 'warning',
-} as const;
 
 export function TodayPage() {
   const navigation = useNavigation<RootStackNavigation>();
   const { profile } = useAppContext();
   const today = useMemo(() => new Date(), []);
-  const todayIsoDate = toIsoDate(today);
+  const todayIsoDate = todayIso();
 
   const cycle = useApiResource(() => getCycleSummary(today), [todayIsoDate]);
-  const symptoms = useApiResource(getUserSymptomRecords, []);
+  const dayLog = useApiResource(() => getDayLogDetail(todayIsoDate), [todayIsoDate]);
   const reminders = useApiResource(getUserReminders, []);
 
   if (cycle.loading) {
@@ -57,15 +42,17 @@ export function TodayPage() {
 
   const hour = today.getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
-  const todaySymptoms = (symptoms.data ?? []).filter(
-    (record) => record.occurred_on === todayIsoDate,
-  );
+  const position = cycle.data?.position ?? null;
+  const draft = dayLog.data?.draft ?? null;
+  const catalog = dayLog.data?.catalog ?? [];
   // A repeating reminder always has a next occurrence, so insertion order is not
   // enough: the card shows the closest dates.
   const upcomingReminders = (reminders.data ?? [])
     .filter((reminder) => !reminder.completed)
     .sort((left, right) => left.nextDate.localeCompare(right.nextDate))
     .slice(0, 3);
+
+  const openDayLog = () => navigation.navigate('DayLog', { date: todayIsoDate });
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
@@ -76,28 +63,10 @@ export function TodayPage() {
         />
 
         <AppCard style={styles.cycleCard}>
-          {cycle.data?.cycleDay && cycle.data.phase ? (
-            <View style={styles.cycleRow}>
-              <View style={styles.cycleInfo}>
-                <Text style={styles.muted}>
-                  Dia {cycle.data.cycleDay} do ciclo
-                </Text>
-                <AppChip
-                  label={`Fase ${phaseLabels[cycle.data.phase]}`}
-                  tone={phaseTones[cycle.data.phase]}
-                />
-              </View>
-              <View style={styles.nextPeriod}>
-                <Text style={styles.days}>
-                  {cycle.data.daysUntilNextPeriod}
-                </Text>
-                <Text style={styles.muted}>dias para a proxima</Text>
-              </View>
-            </View>
-          ) : (
+          {position === null ? (
             <View style={styles.cycleInfo}>
               <Text style={styles.muted}>
-                Registre duas menstruacoes para ver a previsao do seu ciclo.
+                Registre sua menstruacao para acompanhar seu ciclo aqui.
               </Text>
               <AppButton
                 onPress={() => navigation.navigate('MainTabs', { screen: 'Cycle' })}
@@ -105,33 +74,65 @@ export function TodayPage() {
                 variant="ghost"
               />
             </View>
+          ) : position.isLate ? (
+            <View style={styles.cycleInfo}>
+              <Text style={styles.lateTitle}>
+                Menstruacao atrasada ha {position.lateDays}{' '}
+                {position.lateDays === 1 ? 'dia' : 'dias'}
+              </Text>
+              <Text style={styles.muted}>
+                Ciclos variam. Registre assim que ela chegar para o app se
+                ajustar.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.cycleRow}>
+              <View style={styles.cycleInfo}>
+                <Text style={styles.muted}>Dia {position.cycleDay} do ciclo</Text>
+                <AppChip
+                  label={`Fase ${phaseLabels[position.phase]}`}
+                  tone={phaseTones[position.phase]}
+                />
+              </View>
+              <View style={styles.nextPeriod}>
+                <Text style={styles.days}>{position.daysUntilNextPeriod}</Text>
+                <Text style={styles.muted}>
+                  {position.estimated ? 'dias (estimativa)' : 'dias para a proxima'}
+                </Text>
+              </View>
+            </View>
           )}
         </AppCard>
       </ScreenHero>
 
       {cycle.error && <ErrorMessage compact message={cycle.error} />}
 
-      <AppCard title="Sintomas de hoje">
-        {symptoms.error ? (
-          <Text style={styles.muted}>{symptoms.error}</Text>
-        ) : todaySymptoms.length > 0 ? (
+      <AppCard title="Registro de hoje">
+        {dayLog.error ? (
+          <Text style={styles.muted}>{dayLog.error}</Text>
+        ) : draft && hasEntries(draft) ? (
           <View style={styles.chipGroup}>
-            {todaySymptoms.map((record) => (
+            {draft.flow && (
+              <AppChip label={`Fluxo ${flowLabels[draft.flow]}`} tone="primary" />
+            )}
+            {draft.mood && (
+              <AppChip label={moodLabels[draft.mood]} tone="peach" />
+            )}
+            {draft.symptoms.map((symptom) => (
               <AppChip
-                key={record.id}
-                label={`${record.symptom?.name ?? record.custom_symptom ?? 'Sintoma'} - ${describeIntensity(record.intensity)}`}
-                tone="primary"
+                key={symptom.key}
+                label={
+                  catalog.find((option) => option.key === symptom.key)?.name ??
+                  'Sintoma'
+                }
+                tone="rose"
               />
             ))}
           </View>
         ) : (
-          <Text style={styles.muted}>Nenhum sintoma registrado hoje.</Text>
+          <Text style={styles.muted}>Nada registrado hoje ainda.</Text>
         )}
-        <AppButton
-          onPress={() => navigation.navigate('Symptoms')}
-          title="Registrar sintomas"
-          variant="ghost"
-        />
+        <AppButton onPress={openDayLog} title="Registrar meu dia" variant="ghost" />
       </AppCard>
 
       <AppCard title="Proximos lembretes">
@@ -170,6 +171,10 @@ export function TodayPage() {
   );
 }
 
+function hasEntries(draft: { flow: unknown; mood: unknown; symptoms: unknown[] }) {
+  return Boolean(draft.flow) || Boolean(draft.mood) || draft.symptoms.length > 0;
+}
+
 const styles = StyleSheet.create({
   chipGroup: {
     flexDirection: 'row',
@@ -193,6 +198,11 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xxl,
     textAlign: 'right',
+  },
+  lateTitle: {
+    color: theme.colors.warningForeground,
+    fontFamily: theme.typography.fonts.bold,
+    fontSize: theme.typography.sizes.md,
   },
   list: {
     gap: theme.spacing.sm,
