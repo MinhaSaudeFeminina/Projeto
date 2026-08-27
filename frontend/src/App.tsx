@@ -43,7 +43,6 @@ const App = () => (
               <Route path="/lembretes" element={<RemindersPage />} />
               <Route path="/usuarias" element={<AppUsersPage />} />
               <Route path="/notificacoes" element={<AdminNotificationsPage />} />
-              <Route path="/apoio" element={<SupportPage />} />
               <Route path="/relatorios" element={<ReportsPage />} />
             </Route>
           </Route>
@@ -58,6 +57,7 @@ const App = () => (
               <Route path="/usuarios-painel/nova" element={<AdminUserFormPage />} />
               <Route path="/usuarios-painel/:id" element={<AdminUserFormPage />} />
               <Route path="/categorias" element={<CategoriesPage />} />
+              <Route path="/apoio" element={<SupportPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

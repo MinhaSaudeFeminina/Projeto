@@ -28,4 +28,14 @@ class UserProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function lifeStage(): BelongsTo
+    {
+        return $this->belongsTo(LifeStage::class);
+    }
+
+    public function ageRange(): BelongsTo
+    {
+        return $this->belongsTo(AgeRange::class);
+    }
 }

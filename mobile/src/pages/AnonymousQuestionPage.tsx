@@ -15,7 +15,7 @@ import { AppTextInput } from '../components/ui/AppTextInput';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { MedicalDisclaimer } from '../components/ui/MedicalDisclaimer';
 import { createAnonymousMessage, submitAnonymousQuestion } from '../services/anonymousQuestionService';
-import type { AnonymousMessage } from '../data/mockData';
+import type { AnonymousMessage } from '../data/staticContent';
 import { navigateBackOrToday } from '../utils/navigation';
 import type { RootStackScreenProps } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';

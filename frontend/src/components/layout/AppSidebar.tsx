@@ -28,6 +28,7 @@ export function AppSidebar() {
   const location = useLocation();
   const visibleItems = menuItems.filter((item) => {
     if (item.path === '/usuarios-painel') return hasAdminRole('admin');
+    if (item.path === '/apoio') return hasAdminRole('admin');
     if (item.path === '/revisoes') return hasAdminRole('reviewer_professor') || hasAdminRole('admin');
     return true;
   });

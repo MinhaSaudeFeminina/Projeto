@@ -80,6 +80,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radii.md,
     borderWidth: 1,
     color: theme.colors.foreground,
+    // TextInput does not inherit the default Text font set in App.tsx.
+    fontFamily: theme.typography.fonts.regular,
     fontSize: theme.typography.sizes.md,
     minHeight: 48,
     paddingHorizontal: theme.spacing.md,
@@ -90,8 +92,8 @@ const styles = StyleSheet.create({
   },
   label: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
   },
   multiline: {
     minHeight: 112,

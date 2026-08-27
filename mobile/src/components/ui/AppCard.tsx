@@ -71,9 +71,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   title: {
-    color: theme.colors.cardForeground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 24,
   },
 });

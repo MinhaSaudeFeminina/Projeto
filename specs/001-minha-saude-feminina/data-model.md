@@ -108,16 +108,32 @@ Categoria editorial para organizar conteúdos.
 
 ### LifeStage
 
-Fase da vida associável a conteúdos educativos.
+Trilha por fase da vida: agrupa conteúdos educativos em ordem para uma faixa
+etária e só chega ao app depois de publicada.
 
 **Fields**:
 
 - `id`
-- `key`
+- `key` (derivada do nome na criação; imutável, identifica a trilha no app)
 - `name`
 - `description`
+- `ubs_orientation`
+- `warning_signals`
+- `reminder_suggestions`
+- `age_range_id` (faixa etária da trilha; as mesmas faixas da tela de conteúdo)
+- `status` (`draft`, `published`, `archived`; só `published` aparece no app)
+- `published_by`
+- `published_at`
 - `sort_order`
-- `is_active`
+- `is_active` (disponível para marcar conteúdos no painel)
+
+**Rules**:
+
+- A trilha nasce em rascunho; publicar e arquivar são exclusivos dos perfis
+  Admin e Revisor/professor, e toda transição gera auditoria.
+- Publicar exige faixa etária definida.
+- Editar e excluir seguem com o Admin; a exclusão só vale para rascunho sem
+  conteúdos vinculados.
 
 **Canonical examples**:
 
@@ -212,6 +228,7 @@ Tabela pivô entre conteúdo e fase da vida.
 
 - `content_id`
 - `life_stage_id`
+- `sort_order` (posição do conteúdo dentro da trilha)
 
 ### AgeRangeContent
 

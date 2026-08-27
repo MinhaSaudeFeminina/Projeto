@@ -5,7 +5,7 @@ import { AppScreen } from '../components/layout/AppScreen';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
-import { lifeStages } from '../data/mockData';
+import { lifeStageTracks } from '../data/staticContent';
 import { navigateBackOrToday } from '../utils/navigation';
 import type { RootStackScreenProps } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
@@ -24,7 +24,7 @@ export function LifeStagesPage({ navigation }: LifeStagesPageProps) {
       />
 
       <View style={styles.list}>
-        {lifeStages.map((stage) => (
+        {lifeStageTracks.map((stage) => (
           <AppCard key={stage.id}>
             <View style={styles.stageRow}>
               <Text style={styles.stageIcon}>{stage.icon}</Text>
@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
   stageTitle: {
     color: theme.colors.foreground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 22,
   },
   titleRow: {

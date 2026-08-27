@@ -8,49 +8,75 @@ import { AppCard } from '../components/ui/AppCard';
 import { AppChip } from '../components/ui/AppChip';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { FeedbackMessage } from '../components/ui/FeedbackMessage';
+import { LoadingState } from '../components/ui/LoadingState';
+import { useApiResource } from '../hooks/useApiResource';
 import {
-  getSymptomOptions,
-  getSymptomSuccessMessage,
+  getSymptomCatalog,
   registerSymptoms,
+  symptomIntensities,
   togglePendingSymptom,
   updatePendingSymptomIntensity,
   type PendingSymptomEntry,
 } from '../services/symptomsService';
-import type { SymptomIntensity } from '../data/mockData';
 import { navigateBackOrToday } from '../utils/navigation';
 import type { RootStackScreenProps } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
 
 type SymptomsPageProps = RootStackScreenProps<'Symptoms'>;
 
-const intensityOptions: SymptomIntensity[] = ['leve', 'moderado', 'intenso'];
+type Feedback = {
+  message: string;
+  variant: 'success' | 'warning';
+};
 
 export function SymptomsPage({ navigation }: SymptomsPageProps) {
   const [selected, setSelected] = useState<PendingSymptomEntry[]>([]);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const symptomOptionsResult = getSymptomOptions();
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [saving, setSaving] = useState(false);
+  const catalog = useApiResource(getSymptomCatalog, []);
   const handleBack = () => navigateBackOrToday(navigation);
 
-  if (!symptomOptionsResult.ok) {
+  if (catalog.loading) {
     return (
       <AppScreen>
         <AppHeader onBack={handleBack} title="Registrar sintomas" />
-        <ErrorMessage message="Nao foi possivel carregar a lista de sintomas." />
+        <LoadingState message="Carregando a lista de sintomas." />
       </AppScreen>
     );
   }
 
-  const handleSave = () => {
-    const result = registerSymptoms(selected);
+  if (!catalog.data) {
+    return (
+      <AppScreen>
+        <AppHeader onBack={handleBack} title="Registrar sintomas" />
+        <ErrorMessage
+          action={<AppButton onPress={catalog.reload} title="Tentar novamente" />}
+          message={catalog.error ?? 'Nao foi possivel carregar a lista de sintomas.'}
+        />
+      </AppScreen>
+    );
+  }
+
+  const handleSave = async () => {
+    setSaving(true);
+    const result = await registerSymptoms(selected);
+    setSaving(false);
 
     if (!result.ok) {
-      setFeedback('Nao foi possivel registrar os sintomas.');
+      setFeedback({ message: result.error.message, variant: 'warning' });
       return;
     }
 
-    const message = getSymptomSuccessMessage(selected.length);
-    setFeedback(message.ok ? message.data : 'Sintomas registrados!');
-    setSelected([]);
+    if (result.data.guidance) {
+      // A health alert has to be read, so the screen stays put to show it.
+      setFeedback({ message: result.data.guidance, variant: 'warning' });
+      setSelected([]);
+      return;
+    }
+
+    // The screen that sent the user here lists the records and reloads on
+    // focus, so it doubles as the confirmation.
+    handleBack();
   };
 
   return (
@@ -63,16 +89,16 @@ export function SymptomsPage({ navigation }: SymptomsPageProps) {
 
       {feedback && (
         <FeedbackMessage
-          message={feedback}
+          message={feedback.message}
           onDismiss={() => setFeedback(null)}
-          variant={feedback.startsWith('Nao') ? 'warning' : 'success'}
+          variant={feedback.variant}
         />
       )}
 
       <View style={styles.list}>
-        {symptomOptionsResult.data.map((symptom) => {
+        {catalog.data.map((symptom) => {
           const selectedEntry = selected.find(
-            (entry) => entry.type === symptom.id,
+            (entry) => entry.symptomId === symptom.id,
           );
 
           return (
@@ -82,13 +108,12 @@ export function SymptomsPage({ navigation }: SymptomsPageProps) {
               style={selectedEntry && styles.selectedCard}
             >
               <AppButton
-                icon={<Text style={styles.symptomIcon}>{symptom.icon}</Text>}
                 onPress={() =>
                   setSelected((current) =>
                     togglePendingSymptom(current, symptom.id),
                   )
                 }
-                title={symptom.label}
+                title={symptom.name}
                 variant={selectedEntry ? 'primary' : 'secondary'}
               />
 
@@ -96,7 +121,7 @@ export function SymptomsPage({ navigation }: SymptomsPageProps) {
                 <View style={styles.intensityBlock}>
                   <Text style={styles.intensityLabel}>Intensidade</Text>
                   <View style={styles.intensityOptions}>
-                    {intensityOptions.map((level) => (
+                    {symptomIntensities.map((level) => (
                       <AppChip
                         key={level}
                         label={level}
@@ -124,6 +149,7 @@ export function SymptomsPage({ navigation }: SymptomsPageProps) {
       {selected.length > 0 && (
         <AppButton
           fullWidth
+          loading={saving}
           onPress={handleSave}
           size="lg"
           title={`Salvar ${selected.length} sintoma(s)`}
@@ -139,8 +165,8 @@ const styles = StyleSheet.create({
   },
   intensityLabel: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.semibold,
     textTransform: 'uppercase',
   },
   intensityOptions: {
@@ -156,8 +182,5 @@ const styles = StyleSheet.create({
   },
   symptomContent: {
     gap: theme.spacing.md,
-  },
-  symptomIcon: {
-    fontSize: theme.typography.sizes.md,
   },
 });

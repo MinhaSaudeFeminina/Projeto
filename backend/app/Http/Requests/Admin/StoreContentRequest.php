@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\EducationalContent;
 use App\Rules\AllowedHealthTopic;
+use App\Services\Content\HtmlBodySanitizer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,6 +13,18 @@ class StoreContentRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()?->can('create', EducationalContent::class) ?? false;
+    }
+
+    /** O corpo chega como HTML do editor rico e é limpo antes de validar e persistir. */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('body') || ! is_string($this->input('body'))) {
+            return;
+        }
+
+        $this->merge([
+            'body' => app(HtmlBodySanitizer::class)->sanitize($this->input('body')),
+        ]);
     }
 
     public function rules(): array

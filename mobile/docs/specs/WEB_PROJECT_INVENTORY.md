@@ -223,12 +223,14 @@ Source files: `src/index.css`, `tailwind.config.ts`
 
 Important visual identity:
 
-- Font: Nunito.
-- Background/foreground: very light pink background and dark purple text.
-- Primary: pink/magenta.
-- Secondary/muted/accent: light purple/lilac tones.
-- Domain colors: `rosa`, `lilas`, `roxo`, `magenta`, `fertile`, `ovulation`
-  plus light variants.
+- Fonts: Barlow Condensed for text and headings, Leckerli One for the brand
+  (`.font-display`).
+- Background/foreground: cream background and deep plum-red text; every
+  heading uses a single deep red tone.
+- Primary: softened deep red; secondary is soft pink and accent is peach.
+- Status colors: `success`, `warning`, `info`, `destructive`.
+- Gradients: `--gradient-primary`, `--gradient-soft`, `--gradient-warm`,
+  `--gradient-sidebar`.
 - Radius token: `1rem`, with larger cards often using `rounded-2xl`.
 - Animations: fade-in, scale-in, slide-up.
 - Safe-area helper: `safe-bottom`.

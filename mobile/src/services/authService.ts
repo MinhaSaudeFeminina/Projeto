@@ -1,13 +1,15 @@
-import * as SecureStore from 'expo-secure-store';
-
 import {
   loginMobileUser,
+  registerMobileUser,
+  type AuthResponse,
   type LoginCredentials,
-  type LoginResponse,
   type MobileAccessState,
   type MobileUser,
+  type RegisterPayload,
 } from '../api/authApi';
+import { setAuthToken } from '../api/authToken';
 import { fail, ok, type ApiResult } from '../api/types';
+import { secureStorage } from './secureStorage';
 
 const tokenStorageKey = 'mobile.auth.token';
 const userStorageKey = 'mobile.auth.user';
@@ -28,20 +30,34 @@ export async function login(
     return result;
   }
 
-  return persistLoginResponse(result.data);
+  return persistAuthResponse(result.data);
+}
+
+export async function register(
+  payload: RegisterPayload,
+): Promise<ApiResult<AuthSession>> {
+  const result = await registerMobileUser(payload);
+
+  if (!result.ok) {
+    return result;
+  }
+
+  return persistAuthResponse(result.data);
 }
 
 export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
   try {
     const [token, userJson, accessState] = await Promise.all([
-      SecureStore.getItemAsync(tokenStorageKey),
-      SecureStore.getItemAsync(userStorageKey),
-      SecureStore.getItemAsync(accessStateStorageKey),
+      secureStorage.getItem(tokenStorageKey),
+      secureStorage.getItem(userStorageKey),
+      secureStorage.getItem(accessStateStorageKey),
     ]);
 
     if (!token || !userJson || !accessState) {
       return ok(null);
     }
+
+    setAuthToken(token);
 
     return ok({
       accessState: accessState as MobileAccessState,
@@ -59,22 +75,28 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
 }
 
 export async function clearSession(): Promise<void> {
+  setAuthToken(null);
+
   await Promise.all([
-    SecureStore.deleteItemAsync(tokenStorageKey),
-    SecureStore.deleteItemAsync(userStorageKey),
-    SecureStore.deleteItemAsync(accessStateStorageKey),
+    secureStorage.removeItem(tokenStorageKey),
+    secureStorage.removeItem(userStorageKey),
+    secureStorage.removeItem(accessStateStorageKey),
   ]);
 }
 
-async function persistLoginResponse(
-  response: LoginResponse,
+async function persistAuthResponse(
+  response: AuthResponse,
 ): Promise<ApiResult<AuthSession>> {
   try {
     await Promise.all([
-      SecureStore.setItemAsync(tokenStorageKey, response.token),
-      SecureStore.setItemAsync(userStorageKey, JSON.stringify(response.user)),
-      SecureStore.setItemAsync(accessStateStorageKey, response.access_state),
+      secureStorage.setItem(tokenStorageKey, response.token),
+      secureStorage.setItem(userStorageKey, JSON.stringify(response.user)),
+      secureStorage.setItem(accessStateStorageKey, response.access_state),
     ]);
+
+    // Set before returning so the very next request already carries it, even
+    // if React has not re-rendered with the new session yet.
+    setAuthToken(response.token);
 
     return ok({
       accessState: response.access_state,

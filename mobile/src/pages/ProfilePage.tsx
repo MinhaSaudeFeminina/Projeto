@@ -3,12 +3,15 @@ import { useNavigation } from '@react-navigation/native';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppButton } from '../components/ui/AppButton';
 import { AppCard } from '../components/ui/AppCard';
-import { AppToggle } from '../components/ui/AppToggle';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { LoadingState } from '../components/ui/LoadingState';
 import { useAppContext } from '../context/AppContext';
 import { useAuthContext } from '../context/AuthContext';
+import { useApiResource } from '../hooks/useApiResource';
+import { getCycleSummary } from '../services/cycleService';
 import { formatShortDate } from '../utils/date';
 import type { RootStackNavigation } from '../utils/navigationTypes';
 import { theme } from '../utils/theme';
@@ -16,13 +19,17 @@ import { theme } from '../utils/theme';
 export function ProfilePage() {
   const navigation = useNavigation<RootStackNavigation>();
   const { logout } = useAuthContext();
-  const {
-    error,
-    profile,
-    refreshProfile,
-    setDataSharingEnabled,
-    setNotificationsEnabled,
-  } = useAppContext();
+  const { error, loading, profile, refreshProfile } = useAppContext();
+  const cycle = useApiResource(getCycleSummary, []);
+
+  if (loading) {
+    return (
+      <AppScreen>
+        <AppHeader title="Perfil" />
+        <LoadingState message="Carregando seu perfil." />
+      </AppScreen>
+    );
+  }
 
   if (!profile) {
     return (
@@ -36,52 +43,64 @@ export function ProfilePage() {
     );
   }
 
+  const stats = cycle.data?.stats;
+
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero style={styles.hero}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{profile.name.charAt(0)}</Text>
         </View>
         <AppHeader subtitle={profile.email} title={profile.name} />
-        <AppButton title="Editar perfil" variant="secondary" />
-      </View>
+      </ScreenHero>
 
       {error && <ErrorMessage compact message={error} />}
+
+      <AppCard title="Seus dados">
+        <InfoRow
+          label="Data de nascimento"
+          value={
+            profile.birthDate ? formatShortDate(profile.birthDate) : 'Nao informada'
+          }
+        />
+        <InfoRow
+          label="Idade"
+          value={profile.age !== null ? `${profile.age} anos` : '--'}
+        />
+      </AppCard>
 
       <AppCard title="Informacoes do ciclo">
         <InfoRow
           label="Duracao media do ciclo"
-          value={`${profile.cycleAverageDays} dias`}
+          value={
+            stats?.averageCycleDays ? `${stats.averageCycleDays} dias` : '--'
+          }
         />
         <InfoRow
           label="Duracao media do periodo"
-          value={`${profile.periodAverageDays} dias`}
+          value={
+            stats?.averagePeriodDays ? `${stats.averagePeriodDays} dias` : '--'
+          }
         />
         <InfoRow
           label="Ultima menstruacao"
-          value={formatShortDate(profile.lastPeriodDate)}
+          value={
+            stats?.lastPeriodStart
+              ? formatShortDate(stats.lastPeriodStart)
+              : 'Nenhuma registrada'
+          }
         />
       </AppCard>
 
       <AppCard title="Estatisticas">
         <View style={styles.stats}>
-          <StatCard label="Ciclos" value={profile.cyclesRecorded.toString()} />
-          <StatCard label="Regularidade" value={profile.regularity} />
-          <StatCard label="Duracao media" value={`${profile.cycleAverageDays}d`} />
+          <StatCard label="Ciclos" value={`${stats?.cyclesRecorded ?? 0}`} />
+          <StatCard label="Regularidade" value={stats?.regularity ?? 'Sem dados'} />
+          <StatCard
+            label="Duracao media"
+            value={stats?.averageCycleDays ? `${stats.averageCycleDays}d` : '--'}
+          />
         </View>
-      </AppCard>
-
-      <AppCard title="Configuracoes">
-        <AppToggle
-          label="Notificacoes"
-          onValueChange={setNotificationsEnabled}
-          value={profile.notificationsEnabled}
-        />
-        <AppToggle
-          label="Compartilhamento de dados"
-          onValueChange={setDataSharingEnabled}
-          value={profile.dataSharingEnabled}
-        />
       </AppCard>
 
       <View style={styles.links}>
@@ -159,18 +178,12 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: theme.colors.primaryForeground,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xxl,
-    fontWeight: theme.typography.weights.extraBold,
   },
   hero: {
     alignItems: 'center',
-    backgroundColor: theme.colors.lilasLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
     gap: theme.spacing.md,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.xl,
   },
   infoLabel: {
     color: theme.colors.mutedForeground,
@@ -184,8 +197,8 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
   },
   links: {
     gap: theme.spacing.sm,
@@ -195,15 +208,15 @@ const styles = StyleSheet.create({
   },
   quickIcon: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
     width: 24,
   },
   quickLabel: {
     color: theme.colors.foreground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
   quickLink: {
     alignItems: 'center',
@@ -235,8 +248,8 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
   stats: {
     flexDirection: 'row',

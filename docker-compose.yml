@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: woman_health_desktop
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U laravel -d woman_health_desktop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    # Run as the host user so files written into the bind mount (.env, logs,
+    # cache) stay editable outside the container.
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: woman_health_desktop
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+    ports:
+      - "8000:8000"
+    volumes:
+      # Live-reload the source; vendor/ stays in the image layer. `:z` relabels
+      # the bind mount for SELinux hosts (Fedora/RHEL) and is ignored elsewhere.
+      - ./backend:/var/www/html:z
+      - /var/www/html/vendor
+      # The contract tests read the OpenAPI spec from the repo root.
+      - ./specs:/var/www/specs:ro,z
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      # Read by the browser, so it points at the published backend port.
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "8080:8080"
+    volumes:
+      # Live-reload the source; node_modules stays in the image layer.
+      - ./frontend:/app:z
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  mobile:
+    build: ./mobile
+    # Run as the host user so files written into the bind mount (.expo cache)
+    # stay editable outside the container.
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      # Read by the browser, so it points at the published backend port.
+      EXPO_PUBLIC_API_BASE_URL: http://localhost:8000/api/v1/mobile
+    ports:
+      - "8081:8081"
+    volumes:
+      # Live-reload the source; node_modules stays in the image layer.
+      - ./mobile:/app:z
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

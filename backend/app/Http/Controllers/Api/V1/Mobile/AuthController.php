@@ -58,11 +58,7 @@ class AuthController extends Controller
             return $user;
         });
 
-        return response()->json([
-            'token' => $user->createToken('mobile', ['mobile:restricted'])->plainTextToken,
-            'access_state' => 'email_verification_required',
-            'user' => $user->only(['id', 'name', 'email']),
-        ], 201);
+        return $this->sessionResponse($user, 201);
     }
 
     public function login(Request $request): JsonResponse
@@ -84,12 +80,21 @@ class AuthController extends Controller
             ]);
         }
 
-        $fullAccess = $user->email_verified_at && $this->legalGate->hasAcceptedCurrentDocuments($user);
+        return $this->sessionResponse($user);
+    }
+
+    /**
+     * Access depends only on accepting the documents in force. Registration
+     * records that acceptance, so a new account starts with full access.
+     */
+    private function sessionResponse(User $user, int $status = 200): JsonResponse
+    {
+        $fullAccess = $this->legalGate->hasAcceptedCurrentDocuments($user);
 
         return response()->json([
             'token' => $user->createToken('mobile', [$fullAccess ? 'mobile:full' : 'mobile:restricted'])->plainTextToken,
             'access_state' => $fullAccess ? 'full' : 'restricted',
             'user' => $user->only(['id', 'name', 'email']),
-        ]);
+        ], $status);
     }
 }

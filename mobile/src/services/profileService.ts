@@ -1,66 +1,41 @@
 import {
   getCurrentProfile,
-  updateProfilePreferences,
-  type ProfilePreferenceUpdates,
+  updateCurrentProfile,
+  type ProfileResponse,
+  type ProfileUpdate,
 } from '../api/profileApi';
 import type { ApiResult } from '../api/types';
-import type { UserProfile } from '../data/mockData';
 
-export type ProfileStats = {
-  cyclesRecorded: number;
-  regularity: string;
-  cycleAverageDays: number;
-  periodAverageDays: number;
+export type UserProfile = {
+  id: number;
+  name: string;
+  email: string;
+  birthDate: string | null;
+  age: number | null;
+  lifeStageId: number | null;
 };
 
-export function getProfile(): ApiResult<UserProfile> {
-  return getCurrentProfile();
+export async function getProfile(): Promise<ApiResult<UserProfile>> {
+  const result = await getCurrentProfile();
+
+  return result.ok ? { ok: true, data: toUserProfile(result.data) } : result;
 }
 
-export function getProfileStats(): ApiResult<ProfileStats> {
-  const result = getCurrentProfile();
+export async function updateProfile(
+  updates: ProfileUpdate,
+): Promise<ApiResult<UserProfile>> {
+  const result = await updateCurrentProfile(updates);
 
-  if (!result.ok) {
-    return result;
-  }
+  return result.ok ? { ok: true, data: toUserProfile(result.data) } : result;
+}
 
+function toUserProfile(response: ProfileResponse): UserProfile {
   return {
-    ok: true,
-    data: {
-      cyclesRecorded: result.data.cyclesRecorded,
-      regularity: result.data.regularity,
-      cycleAverageDays: result.data.cycleAverageDays,
-      periodAverageDays: result.data.periodAverageDays,
-    },
+    age: response.profile.calculated_age,
+    birthDate: response.profile.birth_date,
+    email: response.user.email,
+    id: response.user.id,
+    lifeStageId: response.profile.life_stage_id,
+    name: response.user.name,
   };
-}
-
-export function updatePreferences(
-  updates: ProfilePreferenceUpdates,
-): ApiResult<UserProfile> {
-  return updateProfilePreferences(updates);
-}
-
-export function toggleNotifications(): ApiResult<UserProfile> {
-  const profile = getCurrentProfile();
-
-  if (!profile.ok) {
-    return profile;
-  }
-
-  return updateProfilePreferences({
-    notificationsEnabled: !profile.data.notificationsEnabled,
-  });
-}
-
-export function toggleDataSharing(): ApiResult<UserProfile> {
-  const profile = getCurrentProfile();
-
-  if (!profile.ok) {
-    return profile;
-  }
-
-  return updateProfilePreferences({
-    dataSharingEnabled: !profile.data.dataSharingEnabled,
-  });
 }
