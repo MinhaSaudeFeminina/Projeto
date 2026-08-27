@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { theme } from '../../utils/theme';
 import { AuthField, type AuthFieldProps } from './AuthField';
-import { authColors } from './authTheme';
 
 export type PasswordFieldProps = Omit<AuthFieldProps, 'icon' | 'trailing'>;
 
@@ -24,7 +24,7 @@ export function PasswordField(props: PasswordFieldProps) {
           style={styles.visibilityButton}
         >
           <Ionicons
-            color={authColors.muted}
+            color={theme.colors.mutedForeground}
             name={visible ? 'eye-off-outline' : 'eye-outline'}
             size={21}
           />

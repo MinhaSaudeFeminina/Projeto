@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
+import { ScreenHero } from '../components/layout/ScreenHero';
 import { AppCard } from '../components/ui/AppCard';
 import { getSupportInfo } from '../services/supportService';
 import { navigateBackOrToday } from '../utils/navigation';
@@ -16,13 +17,13 @@ export function SupportPage({ navigation }: SupportPageProps) {
 
   return (
     <AppScreen contentContainerStyle={styles.screen}>
-      <View style={styles.hero}>
+      <ScreenHero>
         <AppHeader
           onBack={handleBack}
           subtitle={supportInfo.description}
           title="Suporte e acolhimento"
         />
-      </View>
+      </ScreenHero>
 
       <AppCard style={styles.emergencyCard}>
         <Text style={styles.emergencyIcon}>SOS</Text>
@@ -89,13 +90,13 @@ const styles = StyleSheet.create({
   },
   contactName: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
   },
   contactNumber: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
   contactRow: {
     alignItems: 'center',
@@ -111,8 +112,8 @@ const styles = StyleSheet.create({
   },
   emergencyIcon: {
     color: theme.colors.destructive,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.extraBold,
     textAlign: 'center',
   },
   emergencyText: {
@@ -122,18 +123,9 @@ const styles = StyleSheet.create({
   },
   emergencyTitle: {
     color: theme.colors.destructive,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
     textAlign: 'center',
-  },
-  hero: {
-    backgroundColor: theme.colors.roxoLight,
-    borderBottomLeftRadius: theme.radii.xxl,
-    borderBottomRightRadius: theme.radii.xxl,
-    marginHorizontal: -theme.spacing.lg,
-    marginTop: -theme.spacing.lg,
-    padding: theme.spacing.lg,
-    paddingTop: theme.spacing.xl,
   },
   phoneCircle: {
     alignItems: 'center',
@@ -145,15 +137,15 @@ const styles = StyleSheet.create({
   },
   phoneIcon: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xs,
-    fontWeight: theme.typography.weights.bold,
   },
   screen: {
     paddingTop: 0,
   },
   sectionTitle: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
 });

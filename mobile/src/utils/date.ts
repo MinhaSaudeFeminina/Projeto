@@ -9,8 +9,19 @@ export function parseIsoDate(date: string) {
   return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
+/**
+ * Local calendar date, not UTC. `toISOString()` would shift an evening entry in
+ * Brazil (UTC-3) to the next day, so "registrei hoje" would land on tomorrow.
+ */
 export function toIsoDate(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function todayIso() {
+  return toIsoDate(new Date());
 }
 
 export function formatShortDate(date: string | Date) {
@@ -48,8 +59,10 @@ export function daysBetween(startDate: string | Date, endDate: string | Date) {
     return 0;
   }
 
+  // Rounded, not floored: a DST shift makes the delta 23 or 25 hours, and
+  // flooring would silently drop a day.
   const millisecondsPerDay = 1000 * 60 * 60 * 24;
-  return Math.floor((end.getTime() - start.getTime()) / millisecondsPerDay);
+  return Math.round((end.getTime() - start.getTime()) / millisecondsPerDay);
 }
 
 export function addDays(date: string | Date, days: number) {
@@ -64,11 +77,48 @@ export function addDays(date: string | Date, days: number) {
   return nextDate;
 }
 
+/** `addDays` for ISO strings, returning '' when the input is not a valid date. */
+export function addDaysIso(date: string, days: number) {
+  const shifted = addDays(date, days);
+
+  return shifted ? toIsoDate(shifted) : '';
+}
+
+export function addMonths(date: string | Date, months: number) {
+  const parsedDate = typeof date === 'string' ? parseIsoDate(date) : date;
+
+  if (!parsedDate) {
+    return null;
+  }
+
+  const day = parsedDate.getDate();
+  const nextDate = new Date(parsedDate);
+
+  // `setMonth` rolls 31/01 + 1 month over into 03/03. Starting from the 1st and
+  // then clamping to the last day keeps the result inside the target month.
+  nextDate.setDate(1);
+  nextDate.setMonth(nextDate.getMonth() + months);
+  nextDate.setDate(Math.min(day, lastDayOfMonth(nextDate)));
+
+  return nextDate;
+}
+
+function lastDayOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+}
+
 export function isSameIsoDate(leftDate: string | Date, rightDate: string | Date) {
   const left = typeof leftDate === 'string' ? leftDate : toIsoDate(leftDate);
   const right = typeof rightDate === 'string' ? rightDate : toIsoDate(rightDate);
 
   return left === right;
+}
+
+/** ISO date rendered as the DD/MM/AAAA the masked inputs expect. */
+export function formatBrDate(date: string) {
+  const [year, month, day] = date.split('-');
+
+  return year && month && day ? `${day}/${month}/${year}` : '';
 }
 
 export function maskBrDate(value: string) {

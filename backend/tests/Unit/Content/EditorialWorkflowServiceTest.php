@@ -6,8 +6,9 @@ use App\Models\EducationalContent;
 use App\Services\Content\EditorialWorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('rejects an editorial transition from an unexpected state', function (): void {
     $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
@@ -32,10 +33,10 @@ it('rejects an editorial transition from an unexpected state', function (): void
 it('records reviewer metadata when approving content', function (): void {
     $author = adminUserWithCanonicalRole(AdminRole::AUTHOR);
     $reviewer = adminUserWithCanonicalRole(AdminRole::REVIEWER);
-    $category = ContentCategory::create(['name' => 'Gestação', 'slug' => 'gestacao']);
+    $category = ContentCategory::create(['name' => 'Saúde preventiva', 'slug' => 'saude-preventiva']);
     $content = EducationalContent::create([
-        'title' => 'Cuidados na gestação',
-        'slug' => 'cuidados-na-gestacao',
+        'title' => 'Cuidados preventivos',
+        'slug' => 'cuidados-preventivos',
         'summary' => 'Resumo educativo.',
         'body' => 'Procure acompanhamento profissional.',
         'category_id' => $category->id,

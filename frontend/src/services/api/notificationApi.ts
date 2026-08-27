@@ -1,4 +1,5 @@
 import { apiRequest } from "@/services/api/client";
+import { isTextAvailableOnWeb } from "@/services/webContentScope";
 import { getAdminToken } from "@/state/adminAuthStore";
 
 export type AdminNotification = {
@@ -24,8 +25,16 @@ function authOptions() {
   return { token: getAdminToken() };
 }
 
-export function listAdminNotifications(): Promise<AdminNotificationResponse> {
-  return apiRequest<AdminNotificationResponse>("/admin/notifications", {}, authOptions());
+export async function listAdminNotifications(): Promise<AdminNotificationResponse> {
+  const response = await apiRequest<AdminNotificationResponse>("/admin/notifications", {}, authOptions());
+  const data = response.data.filter((notification) =>
+    isTextAvailableOnWeb(notification.title, notification.message, notification.action_url),
+  );
+
+  return {
+    data,
+    meta: { unread_count: data.filter((notification) => notification.read_at === null).length },
+  };
 }
 
 export function markAdminNotificationRead(notificationId: number): Promise<void> {

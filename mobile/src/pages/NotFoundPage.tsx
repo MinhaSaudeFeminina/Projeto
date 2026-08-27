@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
   },
   code: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: 44,
-    fontWeight: theme.typography.weights.extraBold,
   },
   message: {
     color: theme.colors.mutedForeground,
@@ -48,9 +48,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.bold,
     textAlign: 'center',
   },
 });

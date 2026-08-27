@@ -1,5 +1,4 @@
 export type ContentStatus = 'rascunho' | 'em_revisao' | 'publicado' | 'arquivado';
-export type QuestionStatus = 'nova' | 'em_analise' | 'respondida' | 'arquivada';
 export type Priority = 'baixa' | 'media' | 'alta' | 'urgente';
 export type UserRole = 'admin' | 'editor' | 'profissional' | 'visualizador';
 export type NotificationStatus = 'rascunho' | 'agendada' | 'enviada' | 'cancelada';
@@ -93,20 +92,6 @@ export interface Reminder {
   isActive: boolean;
   priority: Priority;
   channel: string;
-}
-
-export interface AnonymousQuestion {
-  id: string;
-  question: string;
-  category: string;
-  createdAt: string;
-  status: QuestionStatus;
-  priority: Priority;
-  answer?: string;
-  internalNotes?: string;
-  assignedTo?: string;
-  riskTag?: string;
-  isSensitive: boolean;
 }
 
 export interface AppUser {

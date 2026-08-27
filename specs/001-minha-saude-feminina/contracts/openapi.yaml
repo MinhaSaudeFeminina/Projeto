@@ -71,6 +71,57 @@ paths:
                       published: { type: integer, minimum: 0 }
                       archived: { type: integer, minimum: 0 }
 
+  /reports:
+    get:
+      summary: Retorna indicadores administrativos agregados por perÃ­odo
+      tags: [Reports]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 365d]
+            default: 30d
+      responses:
+        '200':
+          description: Indicadores e distribuiÃ§Ãµes administrativas sem dados pessoais de saÃºde
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    required: [period, summary, content_statuses, life_stages, symptom_categories]
+                    properties:
+                      period:
+                        type: object
+                        properties:
+                          key: { type: string, enum: [7d, 30d, 90d, 365d] }
+                          start: { type: string, format: date }
+                          end: { type: string, format: date }
+                      summary:
+                        type: object
+                        properties:
+                          contents_created: { type: integer, minimum: 0 }
+                          contents_published: { type: integer, minimum: 0 }
+                          symptoms_created: { type: integer, minimum: 0 }
+                      content_statuses:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+                      life_stages:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+                      symptom_categories:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReportDataPoint' }
+        '401':
+          description: AutenticaÃ§Ã£o obrigatÃ³ria
+        '422':
+          description: PerÃ­odo invÃ¡lido
+
   /admin-users:
     get:
       summary: Lista usuárias administrativas
@@ -319,9 +370,50 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LifeStage'
+    post:
+      summary: Cria uma trilha em rascunho
+      description: A trilha nasce em rascunho e só chega ao app depois de publicada.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifeStageCreate'
+      responses:
+        '201':
+          description: Trilha criada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '422':
+          description: Dados inválidos ou faixa etária ausente
   /life-stages/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+    get:
+      summary: Detalha uma trilha com os conteúdos vinculados
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
     patch:
       summary: Atualiza a trilha de uma fase da vida
       tags: [Taxonomies]
@@ -343,6 +435,101 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/LifeStage'
+    delete:
+      summary: Exclui uma trilha em rascunho e sem conteúdos
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Trilha excluída
+        '422':
+          description: A trilha ainda tem conteúdos vinculados
+  /life-stages/{id}/contents:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    put:
+      summary: Vincula conteúdos à trilha na ordem escolhida
+      description: >-
+        Substitui a lista inteira. A posição de cada id no array vira a ordem em
+        que a usuária percorre a trilha.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_ids]
+              properties:
+                content_ids:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: integer
+                  example: [12, 7, 30]
+      responses:
+        '200':
+          description: Conteúdos vinculados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '422':
+          description: Conteúdo inexistente ou arquivado na lista
+  /life-stages/{id}/publish:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Publica a trilha
+      description: Exclusivo do perfil admin ou professor/revisor. Exige faixa etária definida.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha publicada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '403':
+          description: Perfil sem permissão para publicar
+        '422':
+          description: Trilha sem faixa etária definida
+  /life-stages/{id}/archive:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Arquiva a trilha e a retira do app
+      description: Exclusivo do perfil admin ou professor/revisor.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha arquivada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '403':
+          description: Perfil sem permissão para arquivar
   /age-ranges:
     get:
       summary: Lista faixas etárias
@@ -664,82 +851,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/ContentRevision'
 
-  /anonymous-questions:
-    get:
-      summary: Lista e filtra perguntas anônimas recebidas
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      parameters:
-        - { name: q, in: query, schema: { type: string } }
-        - { name: status, in: query, schema: { $ref: '#/components/schemas/AnonymousQuestionStatus' } }
-        - { name: priority, in: query, schema: { $ref: '#/components/schemas/AnonymousQuestionPriority' } }
-      responses:
-        '200':
-          description: Lista paginada de perguntas anônimas
-        '403':
-          description: Perfil sem permissão
-  /anonymous-questions/{id}:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    get:
-      summary: Exibe uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Pergunta anônima encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/AnonymousQuestion'
-        '403':
-          description: Perfil sem permissão
-  /anonymous-questions/{id}/answer:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    post:
-      summary: Salva a resposta orientativa de uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [answer]
-              properties:
-                answer: { type: string, maxLength: 5000 }
-                internal_notes: { type: string, nullable: true, maxLength: 5000 }
-      responses:
-        '200':
-          description: Resposta salva
-        '403':
-          description: Perfil sem permissão
-        '409':
-          description: Pergunta já arquivada
-        '422':
-          description: Dados inválidos
-  /anonymous-questions/{id}/archive:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    post:
-      summary: Arquiva uma pergunta anônima
-      tags: [Anonymous Questions]
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Pergunta arquivada
-        '403':
-          description: Perfil sem permissão
-
   /notifications:
     get:
       summary: Lista notificações administrativas
@@ -781,6 +892,14 @@ components:
       schema:
         type: integer
   schemas:
+    ReportDataPoint:
+      type: object
+      required: [key, label, value]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        value: { type: integer, minimum: 0 }
+
     LoginRequest:
       type: object
       required: [email, password]
@@ -1099,11 +1218,40 @@ components:
           items:
             type: string
           example: ["Mamografia bienal"]
+        status:
+          type: string
+          enum: [draft, published, archived]
+          description: Situação da trilha; só `published` chega ao app
+        age_range_id:
+          type: integer
+          nullable: true
+        age_range:
+          allOf:
+            - $ref: '#/components/schemas/AgeRange'
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        contents:
+          type: array
+          description: Conteúdos vinculados, na ordem da trilha
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              title:
+                type: string
+              slug:
+                type: string
+              status:
+                type: string
         sort_order:
           type: integer
         is_active:
           type: boolean
-          description: Fase publicada; em rascunho quando falso
+          description: Fase disponível para marcar conteúdos no painel
         contents_count:
           type: integer
           description: Conteúdos vinculados à fase
@@ -1128,10 +1276,19 @@ components:
           maxItems: 20
           items:
             type: string
+        age_range_id:
+          type: integer
+          nullable: true
         sort_order:
           type: integer
         is_active:
           type: boolean
+    LifeStageCreate:
+      type: object
+      required: [name, age_range_id]
+      description: A `key` e a situação não vêm do formulário; a trilha nasce em rascunho.
+      allOf:
+        - $ref: '#/components/schemas/LifeStageWrite'
     AgeRange:
       type: object
       required: [id, label]
@@ -1355,29 +1512,3 @@ components:
         created_at:
           type: string
           format: date-time
-    AnonymousQuestionStatus:
-      type: string
-      enum: [nova, em_analise, respondida, arquivada]
-    AnonymousQuestionPriority:
-      type: string
-      enum: [baixa, media, alta, urgente]
-    AnonymousQuestion:
-      type: object
-      required: [id, question, category, status, priority, is_sensitive, created_at, updated_at]
-      properties:
-        id: { type: integer }
-        question: { type: string }
-        category: { type: string }
-        status:
-          $ref: '#/components/schemas/AnonymousQuestionStatus'
-        priority:
-          $ref: '#/components/schemas/AnonymousQuestionPriority'
-        answer: { type: string, nullable: true }
-        internal_notes: { type: string, nullable: true }
-        is_sensitive: { type: boolean }
-        answered_by: { type: integer, nullable: true }
-        answered_at: { type: string, format: date-time, nullable: true }
-        archived_by: { type: integer, nullable: true }
-        archived_at: { type: string, format: date-time, nullable: true }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }

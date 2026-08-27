@@ -1,113 +1,151 @@
-import {
-  createSymptomRecord,
-  listSymptomCatalog,
-  listSymptomRecords,
-  type Symptom,
-  type SymptomRecord,
-} from '../api/symptomsApi';
+import { listSymptomCatalog } from '../api/symptomsApi';
 import { fail, ok, type ApiResult } from '../api/types';
-import { toIsoDate } from '../utils/date';
+import { databaseFailure } from './access';
+import { getDatabase } from '../db/database';
+import {
+  insertMissingRemoteSymptoms,
+  insertUserSymptom,
+  listCatalog,
+  type SymptomCatalogRow,
+} from '../db/symptomCatalogRepository';
+import { otherSymptomCategory } from '../data/symptomCatalogSeed';
+import { isBlank, slugify } from '../utils/text';
+import type { SymptomIntensity } from '../utils/period';
 
-export type { Symptom, SymptomRecord };
-
-export type SymptomIntensity = 'leve' | 'moderado' | 'intenso';
-
-export const symptomIntensities: SymptomIntensity[] = [
-  'leve',
-  'moderado',
-  'intenso',
-];
-
-/**
- * The backend stores intensity on a 1-10 scale; the app offers three levels.
- * These are the mid-points of each third, so a round trip keeps its label.
- */
-const intensityScale: Record<SymptomIntensity, number> = {
-  leve: 3,
-  moderado: 6,
-  intenso: 9,
+export type SymptomOption = {
+  key: string;
+  name: string;
+  category: string;
+  shortDescription: string | null;
+  askIntensity: boolean;
+  isAlertCandidate: boolean;
+  severityAlertText: string | null;
+  isCustom: boolean;
 };
 
-export type PendingSymptomEntry = {
-  symptomId: number;
-  intensity: SymptomIntensity;
-  notes: string;
-  date: string;
+export type SymptomGroup = {
+  category: string;
+  symptoms: SymptomOption[];
 };
 
-export function getSymptomCatalog(): Promise<ApiResult<Symptom[]>> {
-  return listSymptomCatalog();
+export async function getSymptomCatalog(): Promise<ApiResult<SymptomOption[]>> {
+  try {
+    const db = await getDatabase();
+    const rows = await listCatalog(db);
+
+    // Fire and forget: the seeded catalog is already on screen, and a slow or
+    // absent network must never delay logging a symptom.
+    void refreshCatalog();
+
+    return ok(rows.map(toOption));
+  } catch (error) {
+    return databaseFailure(error);
+  }
 }
 
-export function getUserSymptomRecords(): Promise<ApiResult<SymptomRecord[]>> {
-  return listSymptomRecords();
-}
+export function groupSymptoms(symptoms: SymptomOption[]): SymptomGroup[] {
+  const groups: SymptomGroup[] = [];
 
-export function describeIntensity(value: number): SymptomIntensity {
-  if (value >= 8) {
-    return 'intenso';
+  for (const symptom of symptoms) {
+    const group = groups.find((item) => item.category === symptom.category);
+
+    if (group) {
+      group.symptoms.push(symptom);
+    } else {
+      groups.push({ category: symptom.category, symptoms: [symptom] });
+    }
   }
 
-  return value >= 5 ? 'moderado' : 'leve';
+  return groups;
 }
 
-export function togglePendingSymptom(
-  entries: PendingSymptomEntry[],
-  symptomId: number,
-  date = toIsoDate(new Date()),
-): PendingSymptomEntry[] {
-  const exists = entries.some((entry) => entry.symptomId === symptomId);
-
-  if (exists) {
-    return entries.filter((entry) => entry.symptomId !== symptomId);
+export async function addCustomSymptom(
+  name: string,
+): Promise<ApiResult<SymptomOption>> {
+  if (isBlank(name)) {
+    return fail('EMPTY_SYMPTOM_NAME', 'Escreva o nome do sintoma.');
   }
 
-  return [...entries, { date, intensity: 'leve', notes: '', symptomId }];
-}
+  const key = `custom:${slugify(name)}`;
 
-export function updatePendingSymptomIntensity(
-  entries: PendingSymptomEntry[],
-  symptomId: number,
-  intensity: SymptomIntensity,
-): PendingSymptomEntry[] {
-  return entries.map((entry) =>
-    entry.symptomId === symptomId ? { ...entry, intensity } : entry,
-  );
-}
-
-export type RegisteredSymptoms = {
-  records: SymptomRecord[];
-  /** Set when at least one record tripped a health alert on the backend. */
-  guidance: string | null;
-};
-
-export async function registerSymptoms(
-  entries: PendingSymptomEntry[],
-): Promise<ApiResult<RegisteredSymptoms>> {
-  if (entries.length === 0) {
-    return fail('EMPTY_SYMPTOM_ENTRIES', 'Selecione pelo menos um sintoma.');
+  if (key === 'custom:') {
+    return fail('INVALID_SYMPTOM_NAME', 'Escreva o nome do sintoma com letras.');
   }
 
-  // The API takes one record per call, so a partial failure is possible; the
-  // first error is surfaced and the already-saved records are kept.
-  const records: SymptomRecord[] = [];
-  let guidance: string | null = null;
+  try {
+    const db = await getDatabase();
 
-  for (const entry of entries) {
-    const result = await createSymptomRecord({
-      intensity: intensityScale[entry.intensity],
-      notes: entry.notes || null,
-      occurred_on: entry.date,
-      symptom_id: entry.symptomId,
+    await insertUserSymptom(db, {
+      category: 'Meus sintomas',
+      key,
+      name: name.trim(),
     });
 
-    if (!result.ok) {
-      return result;
-    }
+    const rows = await listCatalog(db);
+    const created = rows.find((row) => row.key === key);
 
-    records.push(result.data.record);
-    guidance = guidance ?? result.data.guidance;
+    return created
+      ? ok(toOption(created))
+      : fail('SYMPTOM_NOT_SAVED', 'Nao foi possivel salvar esse sintoma.');
+  } catch (error) {
+    return databaseFailure(error);
+  }
+}
+
+/**
+ * The admin catalog can grow, so new names are pulled in. Only inserts:
+ * `GET /symptoms` returns just id, name, description and is_alert_candidate,
+ * none of the category, intensity, ordering or guidance fields this catalog
+ * holds, so updating from it would blank the seeded copy.
+ */
+async function refreshCatalog() {
+  const result = await listSymptomCatalog();
+
+  if (!result.ok) {
+    return;
   }
 
-  return ok({ guidance, records });
+  try {
+    const db = await getDatabase();
+
+    await insertMissingRemoteSymptoms(
+      db,
+      result.data.map((symptom) => ({
+        description: symptom.description,
+        isAlertCandidate: symptom.is_alert_candidate,
+        key: slugify(symptom.name),
+        name: symptom.name,
+      })),
+      otherSymptomCategory,
+    );
+  } catch {
+    // A catalog that could not be refreshed is still the seeded one.
+  }
+}
+
+/**
+ * The rule the backend applies in `HealthAlertGuidanceService`, moved to the
+ * device along with the records. The message is the symptom's own text rather
+ * than one generic string, which is strictly more useful.
+ */
+export function getSymptomGuidance(
+  symptom: SymptomOption,
+  intensity: SymptomIntensity | null,
+) {
+  const shouldWarn = symptom.isAlertCandidate || intensity === 'intenso';
+
+  return shouldWarn ? symptom.severityAlertText : null;
+}
+
+function toOption(row: SymptomCatalogRow): SymptomOption {
+  return {
+    askIntensity: row.ask_intensity === 1,
+    category: row.category ?? otherSymptomCategory,
+    isAlertCandidate: row.is_alert_candidate === 1,
+    isCustom: row.source === 'user',
+    key: row.key,
+    name: row.name,
+    severityAlertText: row.severity_alert_text,
+    shortDescription: row.short_description,
+  };
 }

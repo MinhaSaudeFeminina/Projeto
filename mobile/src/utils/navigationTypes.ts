@@ -5,6 +5,9 @@ import type {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
+/** Which section of the day log the user came to fill in. */
+export type DayLogFocus = 'flow' | 'mood' | 'symptoms';
+
 export type MainTabParamList = {
   Today: undefined;
   Cycle: undefined;
@@ -18,7 +21,9 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   ContentDetail: { slug: string };
   AnonymousQuestion: undefined;
-  Symptoms: { sourceAction?: string } | undefined;
+  DayLog: { date: string; focus?: DayLogFocus; symptomKey?: string };
+  PeriodEditor: { periodId?: number } | undefined;
+  CycleHistory: undefined;
   Reminders: undefined;
   Support: undefined;
   LifeStages: undefined;

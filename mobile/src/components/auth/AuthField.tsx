@@ -8,7 +8,7 @@ import {
   type TextInputProps,
 } from 'react-native';
 
-import { authColors } from './authTheme';
+import { theme } from '../../utils/theme';
 
 export type AuthFieldProps = TextInputProps & {
   error?: string;
@@ -28,9 +28,9 @@ export function AuthField({
     <View style={styles.fieldGroup}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <View style={[styles.inputShell, error && styles.inputShellError]}>
-        <Ionicons color={authColors.rose} name={icon} size={21} />
+        <Ionicons color={theme.colors.rose} name={icon} size={21} />
         <TextInput
-          placeholderTextColor={authColors.muted}
+          placeholderTextColor={theme.colors.mutedForeground}
           style={styles.input}
           {...inputProps}
         />
@@ -43,30 +43,32 @@ export function AuthField({
 
 const styles = StyleSheet.create({
   fieldError: {
-    color: authColors.primary,
-    fontSize: 12,
-    fontWeight: '600',
+    color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.semibold,
+    fontSize: theme.typography.sizes.xs,
   },
   fieldGroup: {
     gap: 7,
   },
   fieldLabel: {
-    color: authColors.text,
-    fontSize: 14,
-    fontWeight: '700',
+    color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.bold,
+    fontSize: theme.typography.sizes.sm,
   },
   input: {
-    color: authColors.text,
+    color: theme.colors.foreground,
     flex: 1,
-    fontSize: 16,
+    // TextInput does not inherit the default Text font set in App.tsx.
+    fontFamily: theme.typography.fonts.regular,
+    fontSize: theme.typography.sizes.md,
     height: 54,
     paddingVertical: 0,
   },
   inputShell: {
     alignItems: 'center',
-    backgroundColor: authColors.input,
-    borderColor: authColors.border,
-    borderRadius: 14,
+    backgroundColor: theme.colors.card,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radii.md,
     borderWidth: 1,
     flexDirection: 'row',
     gap: 12,
@@ -75,6 +77,6 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   inputShellError: {
-    borderColor: authColors.primary,
+    borderColor: theme.colors.primary,
   },
 });

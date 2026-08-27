@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\EducationalContent;
+use App\Rules\AllowedHealthTopic;
 use App\Services\Content\HtmlBodySanitizer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,9 +33,9 @@ class UpdateContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'summary' => ['sometimes', 'required', 'string', 'max:1000'],
-            'body' => ['sometimes', 'required', 'string', 'max:100000'],
+            'title' => ['sometimes', 'required', 'string', 'max:255', new AllowedHealthTopic],
+            'summary' => ['sometimes', 'required', 'string', 'max:1000', new AllowedHealthTopic],
+            'body' => ['sometimes', 'required', 'string', 'max:100000', new AllowedHealthTopic],
             'category_id' => ['sometimes', 'required', 'integer', Rule::exists('content_categories', 'id')->where('is_active', true)],
             'life_stage_ids' => ['sometimes', 'array'],
             'life_stage_ids.*' => ['integer', 'distinct', Rule::exists('life_stages', 'id')->where('is_active', true)],

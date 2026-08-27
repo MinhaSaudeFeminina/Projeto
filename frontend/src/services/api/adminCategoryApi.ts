@@ -1,4 +1,5 @@
 import { apiRequest } from "@/services/api/client";
+import { isCategoryAvailableOnWeb } from "@/services/webContentScope";
 import { getAdminToken } from "@/state/adminAuthStore";
 
 export type ManagedContentCategory = {
@@ -28,10 +29,14 @@ export async function listContentCategories(): Promise<ManagedContentCategory[]>
     authOptions(),
   );
 
-  return response.data;
+  return response.data.filter(isCategoryAvailableOnWeb);
 }
 
 export async function createContentCategory(payload: ContentCategoryPayload): Promise<ManagedContentCategory> {
+  if (!isCategoryAvailableOnWeb(payload)) {
+    throw new Error("Este tema não está disponível no portal web.");
+  }
+
   const response = await apiRequest<{ data: ManagedContentCategory }>("/admin/categories", {
     method: "POST",
     body: JSON.stringify(payload),
@@ -44,6 +49,10 @@ export async function updateContentCategory(
   id: number,
   payload: ContentCategoryPayload,
 ): Promise<ManagedContentCategory> {
+  if (!isCategoryAvailableOnWeb(payload)) {
+    throw new Error("Este tema não está disponível no portal web.");
+  }
+
   const response = await apiRequest<{ data: ManagedContentCategory }>(`/admin/categories/${id}`, {
     method: "PATCH",
     body: JSON.stringify(payload),

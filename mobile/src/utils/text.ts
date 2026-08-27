@@ -23,3 +23,10 @@ export function matchesAnyNormalized(values: string[], query: string) {
 export function isBlank(value: string) {
   return value.trim().length === 0;
 }
+
+/** Stable identifier for a symptom name, accent- and case-insensitive. */
+export function slugify(value: string) {
+  return normalizeText(value)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}

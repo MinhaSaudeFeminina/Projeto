@@ -1,7 +1,8 @@
 import { apiRequest } from "@/services/api/client";
+import { isCategoryAvailableOnWeb, isLifeStageAvailableOnWeb } from "@/services/webContentScope";
 import { getAdminToken } from "@/state/adminAuthStore";
 
-export type ContentCategory = { id: number; name: string; slug?: string };
+export type ContentCategory = { id: number; name: string; slug?: string; description?: string | null };
 export type LifeStage = { id: number; key?: string; name: string };
 export type AgeRange = { id: number; label: string; min_age?: number; max_age?: number | null };
 
@@ -18,5 +19,9 @@ export async function listTaxonomies(): Promise<ContentTaxonomies> {
     { token: getAdminToken() },
   );
 
-  return response.data;
+  return {
+    ...response.data,
+    categories: response.data.categories.filter(isCategoryAvailableOnWeb),
+    life_stages: response.data.life_stages.filter(isLifeStageAvailableOnWeb),
+  };
 }

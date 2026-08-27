@@ -14,11 +14,9 @@ import { theme } from '../../utils/theme';
 export type AppChipTone =
   | 'default'
   | 'primary'
-  | 'rosa'
-  | 'lilas'
-  | 'roxo'
-  | 'magenta'
-  | 'fertile'
+  | 'rose'
+  | 'peach'
+  | 'success'
   | 'warning';
 
 export type AppChipProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -77,7 +75,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     borderColor: theme.colors.border,
-    borderRadius: theme.radii.xl,
+    // Web badges are fully rounded.
+    borderRadius: theme.radii.pill,
     borderWidth: 1,
     flexDirection: 'row',
     gap: theme.spacing.xs,
@@ -90,8 +89,8 @@ const styles = StyleSheet.create({
   },
   label: {
     color: theme.colors.foreground,
+    fontFamily: theme.typography.fonts.semibold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.semibold,
     maxWidth: 180,
   },
   pressed: {
@@ -110,32 +109,24 @@ const toneStyles = StyleSheet.create({
   default: {
     backgroundColor: theme.colors.muted,
   },
-  fertile: {
-    backgroundColor: theme.colors.fertileLight,
-    borderColor: theme.colors.fertile,
-  },
-  lilas: {
-    backgroundColor: theme.colors.lilasLight,
-    borderColor: theme.colors.lilas,
-  },
-  magenta: {
-    backgroundColor: theme.colors.rosaLight,
-    borderColor: theme.colors.magenta,
+  peach: {
+    backgroundColor: theme.colors.peachLight,
+    borderColor: theme.colors.peach,
   },
   primary: {
     backgroundColor: theme.colors.secondary,
     borderColor: theme.colors.primary,
   },
-  rosa: {
-    backgroundColor: theme.colors.rosaLight,
-    borderColor: theme.colors.rosa,
+  rose: {
+    backgroundColor: theme.colors.roseLight,
+    borderColor: theme.colors.rose,
   },
-  roxo: {
-    backgroundColor: theme.colors.roxoLight,
-    borderColor: theme.colors.roxo,
+  success: {
+    backgroundColor: theme.colors.successLight,
+    borderColor: theme.colors.success,
   },
   warning: {
-    backgroundColor: theme.colors.ovulationLight,
-    borderColor: theme.colors.ovulation,
+    backgroundColor: theme.colors.warningLight,
+    borderColor: theme.colors.warning,
   },
 });

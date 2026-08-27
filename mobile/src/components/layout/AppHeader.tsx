@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
   },
   backText: {
     color: theme.colors.primary,
+    fontFamily: theme.typography.fonts.extraBold,
     fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.extraBold,
   },
   container: {
     alignItems: 'center',
@@ -94,9 +94,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.xl,
-    fontWeight: theme.typography.weights.extraBold,
     textAlign: 'center',
   },
 });

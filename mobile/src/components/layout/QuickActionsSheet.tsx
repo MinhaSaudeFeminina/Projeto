@@ -7,45 +7,59 @@ import {
 } from 'react-native';
 
 import { quickActions } from '../../data/staticContent';
+import type { DayLogFocus } from '../../utils/navigationTypes';
 import { theme } from '../../utils/theme';
 
 export type QuickActionRoute =
   | 'AnonymousQuestion'
   | 'Contents'
   | 'Cycle'
-  | 'Reminders'
-  | 'Symptoms';
+  | 'DayLog'
+  | 'Reminders';
+
+/** What the day log should open on, and which symptom it should pre-tick. */
+export type QuickActionTarget = {
+  route: QuickActionRoute;
+  focus?: DayLogFocus;
+  symptomKey?: string;
+};
 
 export type QuickActionsSheetProps = {
   visible: boolean;
   onClose: () => void;
-  onNavigate: (route: QuickActionRoute, sourceAction?: string) => void;
+  onNavigate: (target: QuickActionTarget) => void;
 };
 
-export function getQuickActionRoute(id: string): QuickActionRoute | null {
+export function getQuickActionTarget(id: string): QuickActionTarget | null {
   if (id === 'pergunta') {
-    return 'AnonymousQuestion';
+    return { route: 'AnonymousQuestion' };
   }
 
   if (id === 'conteudo') {
-    return 'Contents';
-  }
-
-  if (
-    id === 'sintomas' ||
-    id === 'corrimento' ||
-    id === 'colica' ||
-    id === 'humor'
-  ) {
-    return 'Symptoms';
+    return { route: 'Contents' };
   }
 
   if (id === 'lembrete') {
-    return 'Reminders';
+    return { route: 'Reminders' };
   }
 
   if (id === 'menstruacao') {
-    return 'Cycle';
+    return { focus: 'flow', route: 'DayLog' };
+  }
+
+  if (id === 'humor') {
+    return { focus: 'mood', route: 'DayLog' };
+  }
+
+  // The catalog keys come from `symptomCatalogSeed`, so "Registrar colica"
+  // opens the day log with colica already ticked instead of dropping the user
+  // in an undifferentiated list.
+  if (id === 'colica' || id === 'corrimento') {
+    return { focus: 'symptoms', route: 'DayLog', symptomKey: id };
+  }
+
+  if (id === 'sintomas') {
+    return { focus: 'symptoms', route: 'DayLog' };
   }
 
   return null;
@@ -57,14 +71,14 @@ export function QuickActionsSheet({
   onNavigate,
 }: QuickActionsSheetProps) {
   function handleAction(id: string) {
-    const route = getQuickActionRoute(id);
+    const target = getQuickActionTarget(id);
 
-    if (!route) {
+    if (!target) {
       return;
     }
 
     onClose();
-    onNavigate(route, route === 'Symptoms' ? id : undefined);
+    onNavigate(target);
   }
 
   return (
@@ -128,8 +142,8 @@ const styles = StyleSheet.create({
   actionLabel: {
     color: theme.colors.secondaryForeground,
     flex: 1,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.sm,
-    fontWeight: theme.typography.weights.bold,
     lineHeight: 19,
   },
   backdrop: {
@@ -147,8 +161,8 @@ const styles = StyleSheet.create({
   },
   closeText: {
     color: theme.colors.mutedForeground,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.md,
-    fontWeight: theme.typography.weights.bold,
   },
   grid: {
     flexDirection: 'row',
@@ -173,8 +187,8 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
   },
   title: {
-    color: theme.colors.foreground,
+    color: theme.colors.heading,
+    fontFamily: theme.typography.fonts.bold,
     fontSize: theme.typography.sizes.lg,
-    fontWeight: theme.typography.weights.extraBold,
   },
 });

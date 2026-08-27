@@ -87,7 +87,6 @@ export default function NotificationsPage() {
                     <SelectItem value="todas">Todas as usuárias</SelectItem>
                     <SelectItem value="adolescentes">Adolescentes</SelectItem>
                     <SelectItem value="fase_adulta">Fase adulta</SelectItem>
-                    <SelectItem value="gestantes">Gestantes</SelectItem>
                     <SelectItem value="climaterio">Climatério/menopausa</SelectItem>
                   </SelectContent>
                 </Select>

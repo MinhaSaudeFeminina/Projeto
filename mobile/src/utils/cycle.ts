@@ -1,18 +1,31 @@
-import type { CycleRecord } from '../api/cycleApi';
-
-import { addDays, daysBetween, parseIsoDate, toIsoDate } from './date';
+import { addDays, daysBetween, toIsoDate, todayIso } from './date';
 
 export type CyclePhase = 'menstrual' | 'folicular' | 'ovulatoria' | 'lutea';
 
+/**
+ * Mutually exclusive cycle state of a calendar day. Symptoms are deliberately
+ * absent: they are drawn as a dot on top of whatever state the day already has,
+ * so a period day with symptoms keeps reading as a period day.
+ */
 export type CalendarDayStatus =
   | 'period'
   | 'predictedPeriod'
   | 'fertile'
   | 'ovulation'
-  | 'symptom'
   | 'none';
 
 export type Regularity = 'Regular' | 'Irregular' | 'Sem dados';
+
+/**
+ * A recorded menstruation. `end_date` is null while it is still happening.
+ * The snake_case names are the SQLite column names, kept as-is so rows travel
+ * from the database to these rules without a translation layer.
+ */
+export type CycleRecord = {
+  id: number;
+  start_date: string;
+  end_date: string | null;
+};
 
 /**
  * Everything the app shows about the cycle is derived from the periods the
@@ -24,19 +37,52 @@ export type CycleStats = {
   averageCycleDays: number | null;
   averagePeriodDays: number | null;
   lastPeriodStart: string | null;
+  lastPeriodEnd: string | null;
+  /** True when the most recent period has no end date yet. */
+  ongoing: boolean;
   regularity: Regularity;
 };
 
+/** Where the user is inside the current cycle. */
+export type CyclePosition = {
+  /** 1-based and unbounded: it keeps counting when the period is late. */
+  cycleDay: number;
+  phase: CyclePhase;
+  /** Zero or negative once the predicted date has passed. */
+  daysUntilNextPeriod: number;
+  isLate: boolean;
+  lateDays: number;
+  /** 1-based day of the menstruation itself, null outside a period. */
+  periodDay: number | null;
+  /** True while the numbers lean on the textbook defaults. */
+  estimated: boolean;
+};
+
+export type CycleForecast = {
+  periodDates: string[];
+  fertileDates: string[];
+  ovulationDates: string[];
+};
+
 /** Two consecutive starts less than this far apart are the same period. */
-const minimumCycleDays = 10;
+export const minimumCycleDays = 10;
+/**
+ * Above this, the gap is not a cycle: it is a stretch the user did not track.
+ * Backfilling old periods makes holey history normal, and without this cap a
+ * single six-month gap folded into the mean destroys every prediction.
+ */
+const maximumCycleDays = 60;
 /** Spread between the shortest and longest cycle still considered regular. */
 const regularSpreadDays = 4;
+/** Textbook cycle, used only to predict before the user has two periods. */
+export const defaultCycleDays = 28;
+/** Textbook menstruation length, used the same way. */
+export const defaultPeriodDays = 5;
+/** The luteal phase is the stable half; ovulation is counted back from the end. */
+const lutealPhaseDays = 14;
 
 export function summarizeCycles(cycles: CycleRecord[]): CycleStats {
-  const sorted = [...cycles].sort((left, right) =>
-    left.start_date.localeCompare(right.start_date),
-  );
-
+  const sorted = sortByStart(cycles);
   const cycleLengths: number[] = [];
 
   for (let index = 1; index < sorted.length; index += 1) {
@@ -45,7 +91,7 @@ export function summarizeCycles(cycles: CycleRecord[]): CycleStats {
       sorted[index].start_date,
     );
 
-    if (length >= minimumCycleDays) {
+    if (length >= minimumCycleDays && length <= maximumCycleDays) {
       cycleLengths.push(length);
     }
   }
@@ -55,142 +101,240 @@ export function summarizeCycles(cycles: CycleRecord[]): CycleStats {
     .map((cycle) => daysBetween(cycle.start_date, cycle.end_date as string) + 1)
     .filter((length) => length > 0);
 
+  const last = sorted.at(-1) ?? null;
+
   return {
-    cyclesRecorded: sorted.length,
     averageCycleDays: average(cycleLengths),
     averagePeriodDays: average(periodLengths),
-    lastPeriodStart: sorted.at(-1)?.start_date ?? null,
+    cyclesRecorded: sorted.length,
+    lastPeriodEnd: last?.end_date ?? null,
+    lastPeriodStart: last?.start_date ?? null,
+    ongoing: Boolean(last) && last?.end_date === null,
     regularity: rateRegularity(cycleLengths),
   };
 }
 
-export function getCycleDay(stats: CycleStats, referenceDate = new Date()) {
-  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
+export function sortByStart(cycles: CycleRecord[]) {
+  return [...cycles].sort((left, right) =>
+    left.start_date.localeCompare(right.start_date),
+  );
+}
+
+/**
+ * Cycle length to predict with. Until two periods are recorded there is no
+ * average, and returning nothing there left a woman who had just logged her
+ * first period with an app that showed her a screen full of dashes. Anything
+ * derived from the fallback is labelled an estimate; `CycleStats` stays honest.
+ */
+export function getEffectiveCycleDays(stats: CycleStats) {
+  return stats.averageCycleDays ?? defaultCycleDays;
+}
+
+export function getEffectivePeriodDays(stats: CycleStats) {
+  return stats.averagePeriodDays ?? defaultPeriodDays;
+}
+
+export function isCycleEstimated(stats: CycleStats) {
+  return stats.averageCycleDays === null;
+}
+
+export function getCyclePosition(
+  stats: CycleStats,
+  cycles: CycleRecord[],
+  referenceIsoDate = todayIso(),
+): CyclePosition | null {
+  if (!stats.lastPeriodStart) {
     return null;
   }
 
-  const elapsedDays = daysBetween(stats.lastPeriodStart, referenceDate);
+  const elapsedDays = daysBetween(stats.lastPeriodStart, referenceIsoDate);
 
   if (elapsedDays < 0) {
     return null;
   }
 
-  return (elapsedDays % stats.averageCycleDays) + 1;
+  // No modulo here on purpose. Wrapping used to report "dia 8" to a woman who
+  // was eight days late, which is the exact moment she trusts this screen most.
+  const cycleDay = elapsedDays + 1;
+  const cycleLength = getEffectiveCycleDays(stats);
+  const daysUntilNextPeriod = cycleLength - cycleDay + 1;
+
+  return {
+    cycleDay,
+    daysUntilNextPeriod,
+    estimated: isCycleEstimated(stats),
+    // `daysUntilNextPeriod` is 0 on the day the period is due, so late starts
+    // below zero. Counting the due day itself as a day of delay would tell a
+    // woman she is late on the exact day she is expecting to bleed.
+    isLate: daysUntilNextPeriod < 0,
+    lateDays: Math.max(0, -daysUntilNextPeriod),
+    periodDay: getPeriodDay(cycles, referenceIsoDate),
+    phase: getCyclePhase(cycleDay, stats),
+  };
 }
 
-export function getDaysUntilNextPeriod(
-  stats: CycleStats,
-  referenceDate = new Date(),
-) {
-  const cycleDay = getCycleDay(stats, referenceDate);
+/** 1-based day inside the menstruation covering `date`, or null. */
+export function getPeriodDay(cycles: CycleRecord[], date = todayIso()) {
+  const current = cycles.find((cycle) => isDateInCycle(date, cycle, date));
 
-  if (cycleDay === null || !stats.averageCycleDays) {
-    return null;
-  }
-
-  return stats.averageCycleDays - cycleDay + 1;
+  return current ? daysBetween(current.start_date, date) + 1 : null;
 }
 
-export function getCyclePhase(cycleDay: number): CyclePhase {
-  if (cycleDay <= 5) {
+/**
+ * Anchored to the same `length - 14` that drives `getOvulationDate`. Fixed
+ * thresholds used to claim day 21 of a 35-day cycle was luteal while the
+ * ovulation date said it was ovulation day.
+ */
+export function getCyclePhase(cycleDay: number, stats: CycleStats): CyclePhase {
+  if (cycleDay <= getEffectivePeriodDays(stats)) {
     return 'menstrual';
   }
 
-  if (cycleDay <= 13) {
+  const ovulationDay = getEffectiveCycleDays(stats) - lutealPhaseDays + 1;
+
+  if (cycleDay < ovulationDay - 1) {
     return 'folicular';
   }
 
-  if (cycleDay <= 16) {
+  if (cycleDay <= ovulationDay + 1) {
     return 'ovulatoria';
   }
 
   return 'lutea';
 }
 
+/** Next expected ovulation, counted from the last recorded period. */
 export function getOvulationDate(stats: CycleStats) {
-  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
+  if (!stats.lastPeriodStart) {
     return null;
   }
 
-  return addDays(stats.lastPeriodStart, stats.averageCycleDays - 14);
+  return addDays(stats.lastPeriodStart, getEffectiveCycleDays(stats) - lutealPhaseDays);
 }
 
-export function getPredictedPeriodDates(stats: CycleStats) {
-  if (!stats.lastPeriodStart || !stats.averageCycleDays) {
-    return [];
+/**
+ * Predictions covering an arbitrary window, so paging the calendar forward
+ * keeps showing them instead of going blank after the first projected cycle.
+ */
+export function buildCycleForecast(
+  stats: CycleStats,
+  fromDate: string,
+  toDate: string,
+): CycleForecast {
+  const forecast: CycleForecast = {
+    fertileDates: [],
+    ovulationDates: [],
+    periodDates: [],
+  };
+
+  if (!stats.lastPeriodStart) {
+    return forecast;
   }
 
-  const firstDate = addDays(stats.lastPeriodStart, stats.averageCycleDays);
+  const cycleLength = getEffectiveCycleDays(stats);
+  const periodLength = getEffectivePeriodDays(stats);
 
-  if (!firstDate) {
-    return [];
+  // The window can open before the last recorded period, so the current
+  // cycle's fertile window and ovulation belong to it too: index 0.
+  // `maximumProjections` only guards against a corrupt cycle length; the loop
+  // normally stops as soon as a projected start passes the window.
+  const maximumProjections = 60;
+
+  for (let index = 0; index <= maximumProjections; index += 1) {
+    const start = addDays(stats.lastPeriodStart, cycleLength * index);
+
+    if (!start || toIsoDate(start) > toDate) {
+      break;
+    }
+
+    // Index 0 is the recorded period itself, drawn from `cycles`, not predicted.
+    if (index > 0) {
+      collectRange(forecast.periodDates, start, periodLength, fromDate, toDate);
+    }
+
+    const ovulation = addDays(start, cycleLength - lutealPhaseDays);
+
+    if (ovulation) {
+      pushWhenInside(forecast.ovulationDates, toIsoDate(ovulation), fromDate, toDate);
+      collectRange(forecast.fertileDates, addDays(ovulation, -5), 7, fromDate, toDate);
+    }
   }
 
-  const length = stats.averagePeriodDays ?? 5;
-
-  return Array.from({ length }, (_, offset) => addDays(firstDate, offset))
-    .filter((date): date is Date => date !== null)
-    .map(toIsoDate);
+  return forecast;
 }
 
-export function getFertileWindowDates(stats: CycleStats) {
-  const ovulationDate = getOvulationDate(stats);
-
-  if (!ovulationDate) {
-    return [];
-  }
-
-  return Array.from({ length: 7 }, (_, index) =>
-    addDays(ovulationDate, index - 5),
-  )
-    .filter((date): date is Date => date !== null)
-    .map(toIsoDate);
-}
-
-export function isDateInCycle(date: string, cycle: CycleRecord) {
-  const currentDate = parseIsoDate(date);
-  const startDate = parseIsoDate(cycle.start_date);
-
-  if (!currentDate || !startDate) {
+export function isDateInCycle(
+  date: string,
+  cycle: CycleRecord,
+  referenceIsoDate = todayIso(),
+) {
+  if (date < cycle.start_date) {
     return false;
   }
 
-  const endDate = cycle.end_date ? parseIsoDate(cycle.end_date) : startDate;
+  // An ongoing period runs from its start up to today. Falling back to the
+  // start date painted a single day and made "estou menstruada" invisible.
+  const end = cycle.end_date ?? referenceIsoDate;
 
-  return Boolean(endDate) && currentDate >= startDate && currentDate <= endDate!;
+  return date <= end;
 }
 
 export function getCalendarDayStatus(params: {
-  date: string;
   cycles: CycleRecord[];
-  symptomDates: string[];
-  stats: CycleStats;
+  date: string;
+  forecast: CycleForecast;
+  referenceIsoDate?: string;
 }): CalendarDayStatus {
-  const { date, cycles, symptomDates, stats } = params;
+  const { cycles, date, forecast, referenceIsoDate = todayIso() } = params;
 
-  if (cycles.some((cycle) => isDateInCycle(date, cycle))) {
+  if (cycles.some((cycle) => isDateInCycle(date, cycle, referenceIsoDate))) {
     return 'period';
   }
 
-  const ovulationDate = getOvulationDate(stats);
-
-  if (ovulationDate && date === toIsoDate(ovulationDate)) {
+  if (forecast.ovulationDates.includes(date)) {
     return 'ovulation';
   }
 
-  if (getFertileWindowDates(stats).includes(date)) {
+  if (forecast.fertileDates.includes(date)) {
     return 'fertile';
   }
 
-  if (getPredictedPeriodDates(stats).includes(date)) {
+  if (forecast.periodDates.includes(date)) {
     return 'predictedPeriod';
   }
 
-  if (symptomDates.includes(date)) {
-    return 'symptom';
+  return 'none';
+}
+
+function collectRange(
+  target: string[],
+  start: Date | null,
+  length: number,
+  fromDate: string,
+  toDate: string,
+) {
+  if (!start) {
+    return;
   }
 
-  return 'none';
+  for (let offset = 0; offset < length; offset += 1) {
+    const date = addDays(start, offset);
+
+    if (date) {
+      pushWhenInside(target, toIsoDate(date), fromDate, toDate);
+    }
+  }
+}
+
+function pushWhenInside(
+  target: string[],
+  date: string,
+  fromDate: string,
+  toDate: string,
+) {
+  if (date >= fromDate && date <= toDate && !target.includes(date)) {
+    target.push(date);
+  }
 }
 
 function average(values: number[]) {
