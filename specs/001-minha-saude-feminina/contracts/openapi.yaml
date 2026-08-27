@@ -370,9 +370,50 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LifeStage'
+    post:
+      summary: Cria uma trilha em rascunho
+      description: A trilha nasce em rascunho e só chega ao app depois de publicada.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifeStageCreate'
+      responses:
+        '201':
+          description: Trilha criada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '422':
+          description: Dados inválidos ou faixa etária ausente
   /life-stages/{id}:
     parameters:
       - $ref: '#/components/parameters/Id'
+    get:
+      summary: Detalha uma trilha com os conteúdos vinculados
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
     patch:
       summary: Atualiza a trilha de uma fase da vida
       tags: [Taxonomies]
@@ -394,6 +435,101 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/LifeStage'
+    delete:
+      summary: Exclui uma trilha em rascunho e sem conteúdos
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Trilha excluída
+        '422':
+          description: A trilha ainda tem conteúdos vinculados
+  /life-stages/{id}/contents:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    put:
+      summary: Vincula conteúdos à trilha na ordem escolhida
+      description: >-
+        Substitui a lista inteira. A posição de cada id no array vira a ordem em
+        que a usuária percorre a trilha.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_ids]
+              properties:
+                content_ids:
+                  type: array
+                  maxItems: 100
+                  items:
+                    type: integer
+                  example: [12, 7, 30]
+      responses:
+        '200':
+          description: Conteúdos vinculados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '422':
+          description: Conteúdo inexistente ou arquivado na lista
+  /life-stages/{id}/publish:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Publica a trilha
+      description: Exclusivo do perfil admin ou professor/revisor. Exige faixa etária definida.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha publicada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '403':
+          description: Perfil sem permissão para publicar
+        '422':
+          description: Trilha sem faixa etária definida
+  /life-stages/{id}/archive:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    post:
+      summary: Arquiva a trilha e a retira do app
+      description: Exclusivo do perfil admin ou professor/revisor.
+      tags: [Taxonomies]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Trilha arquivada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/LifeStage'
+        '403':
+          description: Perfil sem permissão para arquivar
   /age-ranges:
     get:
       summary: Lista faixas etárias
@@ -1082,11 +1218,40 @@ components:
           items:
             type: string
           example: ["Mamografia bienal"]
+        status:
+          type: string
+          enum: [draft, published, archived]
+          description: Situação da trilha; só `published` chega ao app
+        age_range_id:
+          type: integer
+          nullable: true
+        age_range:
+          allOf:
+            - $ref: '#/components/schemas/AgeRange'
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        contents:
+          type: array
+          description: Conteúdos vinculados, na ordem da trilha
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              title:
+                type: string
+              slug:
+                type: string
+              status:
+                type: string
         sort_order:
           type: integer
         is_active:
           type: boolean
-          description: Fase publicada; em rascunho quando falso
+          description: Fase disponível para marcar conteúdos no painel
         contents_count:
           type: integer
           description: Conteúdos vinculados à fase
@@ -1111,10 +1276,19 @@ components:
           maxItems: 20
           items:
             type: string
+        age_range_id:
+          type: integer
+          nullable: true
         sort_order:
           type: integer
         is_active:
           type: boolean
+    LifeStageCreate:
+      type: object
+      required: [name, age_range_id]
+      description: A `key` e a situação não vêm do formulário; a trilha nasce em rascunho.
+      allOf:
+        - $ref: '#/components/schemas/LifeStageWrite'
     AgeRange:
       type: object
       required: [id, label]
