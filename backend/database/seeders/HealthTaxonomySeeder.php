@@ -24,8 +24,6 @@ class HealthTaxonomySeeder extends Seeder
         foreach ([
             ['name' => 'adolescente', 'description' => 'Fase adolescente.', 'sort_order' => 1],
             ['name' => 'adulta', 'description' => 'Fase adulta.', 'sort_order' => 2],
-            ['name' => 'gestante', 'description' => 'Contexto de gestação.', 'sort_order' => 3],
-            ['name' => 'puerpério', 'description' => 'Período pós-parto.', 'sort_order' => 4],
             ['name' => 'climatério/menopausa', 'description' => 'Climatério e menopausa.', 'sort_order' => 5],
         ] as $stage) {
             LifeStage::updateOrCreate(['name' => $stage['name']], $stage);

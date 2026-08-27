@@ -26,8 +26,6 @@ class DemoReportsSeeder extends Seeder
         $records = [
             ['slug' => 'demo-relatorio-rascunho', 'title' => "Orienta\u{00E7}\u{00F5}es para o ciclo", 'status' => EducationalContent::DRAFT, 'stage' => 'adolescencia'],
             ['slug' => 'demo-relatorio-revisao', 'title' => "Sa\u{00FA}de \u{00ED}ntima na vida adulta", 'status' => EducationalContent::IN_REVIEW, 'stage' => 'vida_adulta'],
-            ['slug' => 'demo-relatorio-aprovado', 'title' => "Cuidados na gesta\u{00E7}\u{00E3}o", 'status' => EducationalContent::APPROVED, 'stage' => 'gestacao'],
-            ['slug' => 'demo-relatorio-publicado', 'title' => "Bem-estar no puerp\u{00E9}rio", 'status' => EducationalContent::PUBLISHED, 'stage' => 'puerperio'],
             ['slug' => 'demo-relatorio-arquivado', 'title' => "Climat\u{00E9}rio e menopausa", 'status' => EducationalContent::ARCHIVED, 'stage' => 'climaterio_menopausa'],
         ];
 

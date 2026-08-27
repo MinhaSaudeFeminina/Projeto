@@ -13,8 +13,6 @@ class ContentTaxonomySeeder extends Seeder
         $lifeStages = [
             ['key' => 'adolescencia', 'name' => 'Adolescência', 'sort_order' => 10],
             ['key' => 'vida_adulta', 'name' => 'Vida adulta', 'sort_order' => 20],
-            ['key' => 'gestacao', 'name' => 'Gestação', 'sort_order' => 30],
-            ['key' => 'puerperio', 'name' => 'Puerpério', 'sort_order' => 40],
             ['key' => 'climaterio_menopausa', 'name' => 'Climatério/menopausa', 'sort_order' => 50],
         ];
 

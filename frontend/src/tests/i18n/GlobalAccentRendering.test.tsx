@@ -23,7 +23,7 @@ beforeEach(() => {
   vi.mocked(listAdminContents).mockResolvedValue([]);
   vi.mocked(listTaxonomies).mockResolvedValue({
     categories: [{ id: 1, name: "Saúde íntima" }],
-    life_stages: [{ id: 2, name: "Gestação" }, { id: 3, name: "Climatério/menopausa" }],
+    life_stages: [{ id: 2, name: "Adolescência" }, { id: 3, name: "Climatério/menopausa" }],
     age_ranges: [{ id: 4, label: "50+" }],
   });
 });
@@ -45,7 +45,7 @@ test("global administrative surfaces preserve Portuguese accents", async () => {
 
   expect(screen.getByRole("heading", { name: "Conteúdos educativos" })).toBeInTheDocument();
   expect(await screen.findByRole("option", { name: "Saúde íntima" })).toBeInTheDocument();
-  expect(screen.getByRole("option", { name: "Gestação" })).toBeInTheDocument();
+  expect(screen.getByRole("option", { name: "Adolescência" })).toBeInTheDocument();
   expect(screen.getByRole("option", { name: "Climatério/menopausa" })).toBeInTheDocument();
   expect(screen.getByText("A busca encontra palavras com ou sem acentos.")).toBeInTheDocument();
   expectValidUtf8Text(contents.container);
