@@ -16,7 +16,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { useState, type ComponentProps } from 'react';
+import { useEffect, useState, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   SafeAreaProvider,
@@ -25,29 +25,33 @@ import {
 
 import {
   QuickActionsSheet,
-  type QuickActionRoute,
+  type QuickActionTarget,
 } from './src/components/layout/QuickActionsSheet';
 import { SafeAreaScreen } from './src/components/layout/SafeAreaScreen';
 import { LoadingState } from './src/components/ui/LoadingState';
+import { getDatabase } from './src/db/database';
 import { AuthProvider, useAuthContext } from './src/context/AuthContext';
 import { AppProvider } from './src/context/AppContext';
 import { AnonymousQuestionPage } from './src/pages/AnonymousQuestionPage';
 import { ContentDetailPage } from './src/pages/ContentDetailPage';
 import { ContentsPage } from './src/pages/ContentsPage';
+import { CycleHistoryPage } from './src/pages/CycleHistoryPage';
 import { CyclePage } from './src/pages/CyclePage';
+import { DayLogPage } from './src/pages/DayLogPage';
 import { LifeStagesPage } from './src/pages/LifeStagesPage';
 import { LoginPage } from './src/pages/LoginPage';
 import { NotFoundPage } from './src/pages/NotFoundPage';
+import { PeriodEditorPage } from './src/pages/PeriodEditorPage';
 import { ProfilePage } from './src/pages/ProfilePage';
 import { RegisterPage } from './src/pages/RegisterPage';
 import { RemindersPage } from './src/pages/RemindersPage';
 import { SupportPage } from './src/pages/SupportPage';
-import { SymptomsPage } from './src/pages/SymptomsPage';
 import { TodayPage } from './src/pages/TodayPage';
 import type {
   MainTabParamList,
   RootStackParamList,
 } from './src/utils/navigationTypes';
+import { todayIso } from './src/utils/date';
 import { theme } from './src/utils/theme';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -137,16 +141,22 @@ function MainTabs() {
 function MainTabBar({ descriptors, navigation, state }: BottomTabBarProps) {
   const [quickActionsVisible, setQuickActionsVisible] = useState(false);
 
-  const handleQuickNavigate = (
-    route: QuickActionRoute,
-    sourceAction?: string,
-  ) => {
-    if (route === 'Contents' || route === 'Cycle') {
-      navigation.navigate(route);
+  const handleQuickNavigate = (target: QuickActionTarget) => {
+    if (target.route === 'Contents' || target.route === 'Cycle') {
+      navigation.navigate(target.route);
       return;
     }
 
-    navigation.getParent()?.navigate(route, sourceAction ? { sourceAction } : undefined);
+    if (target.route === 'DayLog') {
+      navigation.getParent()?.navigate('DayLog', {
+        date: todayIso(),
+        focus: target.focus,
+        symptomKey: target.symptomKey,
+      });
+      return;
+    }
+
+    navigation.getParent()?.navigate(target.route);
   };
 
   return (
@@ -177,6 +187,9 @@ function MainTabBar({ descriptors, navigation, state }: BottomTabBarProps) {
 
           const item = (
             <Pressable
+              // Without an explicit label the icon glyph becomes part of the
+              // accessible name, so a screen reader announces it before "Ciclo".
+              accessibilityLabel={label}
               accessibilityRole="tab"
               accessibilityState={{ selected: isFocused }}
               key={route.key}
@@ -256,6 +269,15 @@ export default function App() {
 function RootNavigator() {
   const { initializing, session } = useAuthContext();
 
+  // Warm the database up so the first Ciclo screen is not cold. Deliberately
+  // not awaited: a failure here has to surface as an error message on the
+  // screen that needed data, not as a blank app.
+  useEffect(() => {
+    if (session) {
+      void getDatabase().catch(() => undefined);
+    }
+  }, [session]);
+
   if (initializing) {
     return (
       <SafeAreaScreen>
@@ -282,7 +304,9 @@ function RootNavigator() {
             component={AnonymousQuestionPage}
             name="AnonymousQuestion"
           />
-          <Stack.Screen component={SymptomsPage} name="Symptoms" />
+          <Stack.Screen component={DayLogPage} name="DayLog" />
+          <Stack.Screen component={PeriodEditorPage} name="PeriodEditor" />
+          <Stack.Screen component={CycleHistoryPage} name="CycleHistory" />
           <Stack.Screen component={RemindersPage} name="Reminders" />
           <Stack.Screen component={SupportPage} name="Support" />
           <Stack.Screen component={LifeStagesPage} name="LifeStages" />

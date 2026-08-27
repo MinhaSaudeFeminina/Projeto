@@ -9,6 +9,7 @@ import {
 } from '../api/authApi';
 import { setAuthToken } from '../api/authToken';
 import { fail, ok, type ApiResult } from '../api/types';
+import { setCurrentUser } from '../db/currentUser';
 import { secureStorage } from './secureStorage';
 
 const tokenStorageKey = 'mobile.auth.token';
@@ -57,12 +58,15 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
       return ok(null);
     }
 
+    const user = JSON.parse(userJson) as MobileUser;
+
     setAuthToken(token);
+    setCurrentUser({ accessState: accessState as MobileAccessState, id: user.id });
 
     return ok({
       accessState: accessState as MobileAccessState,
       token,
-      user: JSON.parse(userJson) as MobileUser,
+      user,
     });
   } catch {
     await clearSession();
@@ -76,6 +80,9 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
 
 export async function clearSession(): Promise<void> {
   setAuthToken(null);
+  // The local cycle data stays: it is scoped by user id, so logging back in
+  // restores it and another account on the same phone sees an empty calendar.
+  setCurrentUser(null);
 
   await Promise.all([
     secureStorage.removeItem(tokenStorageKey),
@@ -97,6 +104,10 @@ async function persistAuthResponse(
     // Set before returning so the very next request already carries it, even
     // if React has not re-rendered with the new session yet.
     setAuthToken(response.token);
+    setCurrentUser({
+      accessState: response.access_state,
+      id: response.user.id,
+    });
 
     return ok({
       accessState: response.access_state,
