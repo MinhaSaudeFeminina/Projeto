@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\EducationalContent;
+use App\Rules\AllowedHealthTopic;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,9 +17,9 @@ class StoreContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'summary' => ['required', 'string', 'max:1000'],
-            'body' => ['required', 'string', 'max:100000'],
+            'title' => ['required', 'string', 'max:255', new AllowedHealthTopic],
+            'summary' => ['required', 'string', 'max:1000', new AllowedHealthTopic],
+            'body' => ['required', 'string', 'max:100000', new AllowedHealthTopic],
             'category_id' => ['required', 'integer', Rule::exists('content_categories', 'id')->where('is_active', true)],
             'life_stage_ids' => ['sometimes', 'array'],
             'life_stage_ids.*' => ['integer', 'distinct', Rule::exists('life_stages', 'id')->where('is_active', true)],

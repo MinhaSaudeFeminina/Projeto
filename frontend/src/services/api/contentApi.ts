@@ -1,10 +1,18 @@
 import { apiRequest } from "@/services/api/client";
+import {
+  isCategoryAvailableOnWeb,
+  isLifeStageAvailableOnWeb,
+  isTextAvailableOnWeb,
+} from "@/services/webContentScope";
 import { getAdminToken } from "@/state/adminAuthStore";
 
 export type ContentTaxonomyRecord = {
   id: number;
+  key?: string;
   name?: string;
   label?: string;
+  slug?: string;
+  description?: string | null;
 };
 
 export type AdminContent = {
@@ -58,6 +66,18 @@ function authOptions() {
   return { token: getAdminToken() };
 }
 
+function isContentAvailableOnWeb(content: AdminContent): boolean {
+  return isCategoryAvailableOnWeb(content.category)
+    && content.life_stages.every(isLifeStageAvailableOnWeb)
+    && isTextAvailableOnWeb(content.title, content.slug, content.summary, content.body);
+}
+
+function assertPayloadAvailableOnWeb(input: ContentPayload): void {
+  if (!isTextAvailableOnWeb(input.title, input.summary, input.body)) {
+    throw new Error("Este tema não está disponível no portal web.");
+  }
+}
+
 export async function listAdminContents(filters: ContentListFilters = {}): Promise<AdminContent[]> {
   const params = new URLSearchParams();
 
@@ -71,29 +91,43 @@ export async function listAdminContents(filters: ContentListFilters = {}): Promi
   const suffix = params.size ? `?${params.toString()}` : "";
   const response = await apiRequest<ContentListResponse>(`/admin/contents${suffix}`, {}, authOptions());
 
-  return response.data;
+  return response.data.filter(isContentAvailableOnWeb);
 }
 
 export async function getAdminContent(id: number): Promise<AdminContent> {
   const response = await apiRequest<ContentResponse>(`/admin/contents/${id}`, {}, authOptions());
 
+  if (!isContentAvailableOnWeb(response.data)) {
+    throw new Error("Conteúdo não disponível no portal web.");
+  }
+
   return response.data;
 }
 
 export async function createDraftContent(input: ContentPayload): Promise<AdminContent> {
+  assertPayloadAvailableOnWeb(input);
   const response = await apiRequest<ContentResponse>("/admin/contents", {
     method: "POST",
     body: JSON.stringify(input),
   }, authOptions());
 
+  if (!isContentAvailableOnWeb(response.data)) {
+    throw new Error("Conteúdo não disponível no portal web.");
+  }
+
   return response.data;
 }
 
 export async function updateDraftContent(id: number, input: ContentPayload): Promise<AdminContent> {
+  assertPayloadAvailableOnWeb(input);
   const response = await apiRequest<ContentResponse>(`/admin/contents/${id}`, {
     method: "PATCH",
     body: JSON.stringify(input),
   }, authOptions());
+
+  if (!isContentAvailableOnWeb(response.data)) {
+    throw new Error("Conteúdo não disponível no portal web.");
+  }
 
   return response.data;
 }

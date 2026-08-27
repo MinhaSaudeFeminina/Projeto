@@ -1,4 +1,5 @@
 import { apiRequest } from "@/services/api/client";
+import { isLifeStageAvailableOnWeb } from "@/services/webContentScope";
 import { getAdminToken } from "@/state/adminAuthStore";
 
 export type ReportPeriod = "7d" | "30d" | "90d" | "365d";
@@ -30,5 +31,8 @@ export async function getAdminReport(period: ReportPeriod): Promise<AdminReport>
     { token: getAdminToken() },
   );
 
-  return response.data;
+  return {
+    ...response.data,
+    life_stages: response.data.life_stages.filter(isLifeStageAvailableOnWeb),
+  };
 }
