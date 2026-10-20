@@ -101,6 +101,8 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T021 [US1] Enforce least-privilege access, email verification, and or role checks where applicable
 - [ ] T022 [US1] Add audit trail and history capture for sensitive or editorial actions
 - [ ] T023 [US1] Review PT-BR copy, readability, accessibility, and discreet notifications or errors
+- [ ] T024 [US1] Test role-dependent mandatory review and authorized review bypass where content creation is involved
+- [ ] T025 [US1] Test publish and archive permissions per role, including any mandatory prior review
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -114,16 +116,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested)
 
-- [ ] T024 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T025 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T026 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
+- [ ] T027 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Create [Entity] model in src/models/[entity].py
-- [ ] T027 [US2] Implement [Service] in src/services/[service].py
-- [ ] T028 [US2] Implement [endpoint or feature] in src/[location]/[file].py
-- [ ] T029 [US2] Integrate with User Story 1 components (if needed)
-- [ ] T030 [US2] Add role, editorial-state, and audit requirements specific to this story
+- [ ] T028 [P] [US2] Create [Entity] model in src/models/[entity].py
+- [ ] T029 [US2] Implement [Service] in src/services/[service].py
+- [ ] T030 [US2] Implement [endpoint or feature] in src/[location]/[file].py
+- [ ] T031 [US2] Integrate with User Story 1 components (if needed)
+- [ ] T032 [US2] Add role, editorial-state, and audit requirements specific to this story
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,15 +139,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested)
 
-- [ ] T031 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T032 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T033 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
+- [ ] T034 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Create [Entity] model in src/models/[entity].py
-- [ ] T034 [US3] Implement [Service] in src/services/[service].py
-- [ ] T035 [US3] Implement [endpoint or feature] in src/[location]/[file].py
-- [ ] T036 [US3] Verify MVP boundary and document any deferred non-MVP capability
+- [ ] T035 [P] [US3] Create [Entity] model in src/models/[entity].py
+- [ ] T036 [US3] Implement [Service] in src/services/[service].py
+- [ ] T037 [US3] Implement [endpoint or feature] in src/[location]/[file].py
+- [ ] T038 [US3] Verify MVP boundary and document any deferred non-MVP capability
 
 **Checkpoint**: All user stories should now be independently functional
 

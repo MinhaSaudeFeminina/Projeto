@@ -121,6 +121,10 @@
   Archived.
 - Identify which roles can create, edit, review, approve, publish, archive, or
   manage the content or process.
+- State whether creation requires a second-person review for each author role;
+  any bypass MUST identify its authorized roles and audit metadata.
+- State whether an author may publish their own content, which prior review or
+  approval is mandatory, and whether publication or archiving differs by role.
 - Define which audit events, timestamps, and history records are required.
 
 ### Key Entities *(include if feature involves data)*

@@ -213,9 +213,11 @@ Conteúdo educativo gerenciado no fluxo editorial.
 
 **Rules**:
 
-- Conteúdo novo começa em `draft`.
+- Conteúdo novo de aluno/acadêmica autora começa em `draft` e exige revisão de Revisor/professor ou Admin.
+- Conteúdo novo de Revisor/professor ou Admin começa em `approved`, sem segunda revisão, preenchendo `reviewed_by`, `reviewed_at`, `approved_by` e `approved_at` com o ator autorizador para rastreabilidade.
 - Apenas autora do rascunho ou Admin pode editar rascunho.
-- Apenas conteúdo `approved` pode ser publicado.
+- Apenas conteúdo `approved`, com aprovação autorizada registrada, pode ser publicado.
+- Revisor/professor e Admin podem publicar conteúdo `approved`; aluno/acadêmica autora pode publicar somente conteúdo próprio aprovado por Revisor/professor ou Admin.
 - Apenas conteúdo `published` pode ser arquivado.
 - Ajustes retornam conteúdo para `draft` com comentário editorial.
 - Texto exibido preserva acentuação; `search_text_normalized` é separado.
@@ -365,15 +367,18 @@ Item não pessoal do catálogo administrativo de sintomas e queixas.
 ## State Transitions
 
 ```text
-Rascunho -> Em revisão -> Aprovado -> Publicado -> Arquivado
+Aluno/acadêmica autora: Rascunho -> Em revisão -> Aprovado -> Publicado -> Arquivado
+Revisor/professor ou Admin: Aprovado -> Publicado -> Arquivado
 ```
 
 **Allowed transitions**:
 
-- `draft` -> `in_review`: Acadêmica/autora dona do rascunho ou Admin.
+- criação -> `draft`: aluno/acadêmica autora.
+- criação -> `approved`: Revisor/professor ou Admin, com autorização por papel auditada.
+- `draft` -> `in_review`: aluno/acadêmica autora dona do rascunho.
 - `in_review` -> `draft`: Revisor/professor ou Admin solicitando ajustes.
 - `in_review` -> `approved`: Revisor/professor ou Admin.
-- `approved` -> `published`: Admin.
+- `approved` -> `published`: Revisor/professor ou Admin; aluno/acadêmica autora somente para conteúdo próprio após aprovação de Revisor/professor ou Admin.
 - `published` -> `archived`: Admin.
 
 All other transitions are blocked in this increment.

@@ -17,7 +17,7 @@ import {
 } from "@/services/api/contentApi";
 import { approveContent, requestContentAdjustments, submitContentForReview } from "@/services/api/editorialApi";
 import { listTaxonomies, type ContentTaxonomies } from "@/services/api/taxonomyApi";
-import { hasAdminRole } from "@/state/adminAuthStore";
+import { getAdminUser, hasAdminRole } from "@/state/adminAuthStore";
 
 const emptyForm: ContentPayload = {
   title: "",
@@ -39,6 +39,8 @@ export default function ContentEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentUser = getAdminUser();
+  const bypassesSecondReview = hasAdminRole("reviewer_professor") || hasAdminRole("admin");
 
   useEffect(() => {
     let mounted = true;
@@ -63,9 +65,17 @@ export default function ContentEditorPage() {
     return () => { mounted = false; };
   }, [editingId]);
 
-  const isEditable = !content || content.status === "draft";
-  const canSubmitReview = content?.status === "draft" && (hasAdminRole("academic_author") || hasAdminRole("admin"));
+  const isEditable = !content
+    || content.status === "draft"
+    || (hasAdminRole("admin") && content.status !== "archived")
+    || (hasAdminRole("reviewer_professor") && content.author_id === currentUser?.id && content.status === "approved");
+  const canSubmitReview = content?.status === "draft" && hasAdminRole("academic_author");
   const canReview = content?.status === "in_review" && (hasAdminRole("reviewer_professor") || hasAdminRole("admin"));
+  const saveLabel = editingId
+    ? "Salvar alterações"
+    : bypassesSecondReview
+      ? "Salvar como aprovado"
+      : "Salvar rascunho";
 
   function toggleId(field: "life_stage_ids" | "age_range_ids", value: number) {
     setForm((current) => ({
@@ -129,6 +139,9 @@ export default function ContentEditorPage() {
           <div className="flex items-center gap-2 text-sm font-medium text-primary"><BookOpenCheck className="h-4 w-4" />Produção editorial</div>
           <h1 className="text-2xl font-bold">{editingId ? "Editar conteúdo educativo" : "Novo conteúdo educativo"}</h1>
           <p className="text-muted-foreground">Revise a ortografia e a acentuação antes de salvar.</p>
+          {!editingId && bypassesSecondReview ? (
+            <p className="text-sm text-muted-foreground">Seu conteúdo será salvo como aprovado e poderá ser publicado diretamente, sem uma segunda revisão.</p>
+          ) : null}
         </div>
         {content ? <EditorialStatusBadge status={content.status} /> : null}
       </section>
@@ -147,7 +160,7 @@ export default function ContentEditorPage() {
 
         <div className="flex flex-wrap justify-end gap-2">
           <Button asChild type="button" variant="outline"><Link to="/conteudos">Voltar</Link></Button>
-          {isEditable ? <Button type="submit" disabled={isSaving || isLoading || !form.category_id}><Save className="mr-2 h-4 w-4" />{isSaving ? "Salvando..." : "Salvar rascunho"}</Button> : null}
+          {isEditable ? <Button type="submit" disabled={isSaving || isLoading || !form.category_id}><Save className="mr-2 h-4 w-4" />{isSaving ? "Salvando..." : saveLabel}</Button> : null}
           {canSubmitReview ? <Button type="button" disabled={isSaving} onClick={() => void handleSubmitReview()}><Send className="mr-2 h-4 w-4" />Enviar para revisão</Button> : null}
           {canReview ? <Button type="button" disabled={isSaving} onClick={() => setReviewDialogOpen(true)}>Registrar revisão</Button> : null}
         </div>

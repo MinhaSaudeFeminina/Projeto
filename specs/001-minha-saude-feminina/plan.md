@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implementar o incremento atual do Minha Saúde Feminina como um portal administrativo web em React/TypeScript consumindo uma API REST Laravel com PostgreSQL. A entrega cobre autenticação administrativa, gestão de usuários administrativos, perfis e permissões, gestão de conteúdos educativos, categorias, fases da vida, faixas etárias, fluxo editorial, auditoria, histórico de alterações, notificações administrativas por e-mail, busca tolerante a acentos e suporte UTF-8 ponta a ponta.
+Implementar o incremento atual do Minha Saúde Feminina como um portal administrativo web em React/TypeScript consumindo uma API REST Laravel com PostgreSQL. A entrega cobre autenticação administrativa, gestão de usuários administrativos, perfis e permissões, gestão de conteúdos educativos, categorias, fases da vida, faixas etárias, fluxo editorial com revisão obrigatória por papel de autoria, auditoria, histórico de alterações, notificações administrativas por e-mail, busca tolerante a acentos e suporte UTF-8 ponta a ponta.
 
 O app mobile, usuários comuns do futuro app, ciclo menstrual, registros individuais de sintomas, lembretes mobile, push mobile, perguntas para consulta e resumo visual permanecem fora deste incremento. Por ampliação aprovada em 2026-08-25, o backend administrativo inclui apenas o catálogo não pessoal de sintomas e queixas, com CRUD, busca, autorização e auditoria; o consumo mobile e a exposição de registros de saúde no portal não serão implementados agora.
 
@@ -38,7 +38,7 @@ O app mobile, usuários comuns do futuro app, ciclo menstrual, registros individ
 
 **Access Roles**: Acadêmica/autora, Revisor/professor, Admin.
 
-**Editorial/Audit Impact**: fluxo Rascunho -> Em revisão -> Aprovado -> Publicado -> Arquivado, com auditoria obrigatória em todas as transições e histórico de alterações de conteúdo.
+**Editorial/Audit Impact**: conteúdo de aluno/acadêmica autora segue Rascunho -> Em revisão -> Aprovado e só então pode ser publicado pela própria pessoa autora. Conteúdo criado por Revisor/professor ou Admin entra diretamente em Aprovado e pode ser publicado por esses perfis. Arquivamento permanece exclusivo de Admin; todas as transições mantêm auditoria e histórico.
 
 ## Constitution Check
 
@@ -187,16 +187,16 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 
 ## Authorization Strategy
 
-- **Acadêmica/autora**: cria conteúdos em Rascunho, edita próprios rascunhos e envia próprios conteúdos para revisão.
-- **Revisor/professor**: acessa fila de revisão, revisa, aprova ou solicita ajustes em conteúdos Em revisão.
-- **Admin**: gerencia usuários, perfis, permissões, categorias, taxonomias, todos os conteúdos, publicação e arquivamento.
+- **Aluno/acadêmica autora**: cria conteúdos em Rascunho, edita próprios rascunhos, envia-os para revisão obrigatória e publica somente o próprio conteúdo depois de aprovado por Revisor/professor ou Admin.
+- **Revisor/professor**: cria conteúdos diretamente em Aprovado, sem segunda revisão, publica conteúdos Aprovados e revisa, aprova ou solicita ajustes em conteúdos de alunos/autoras que estejam Em revisão.
+- **Admin**: cria conteúdos diretamente em Aprovado, sem segunda revisão, publica conteúdos Aprovados e gerencia usuários, perfis, permissões, categorias, taxonomias, todos os conteúdos e arquivamento.
 - Policies do Laravel são obrigatórias para conteúdo, usuário administrativo, categoria, auditoria e notificações.
 - Frontend deve ocultar ações indisponíveis, mas o bloqueio decisivo fica no backend.
 
 ## Audit Strategy
 
 - Cada transição editorial registra ator, conteúdo, ação, estado anterior, estado novo, data/hora, comentário quando aplicável e metadados mínimos.
-- Criação e edição de conteúdo registram revisão/histórico e evento de auditoria.
+- Criação e edição de conteúdo registram revisão/histórico e evento de auditoria; criações de professor/Admin registram também o bypass autorizado de segunda revisão e o estado inicial Aprovado.
 - Aprovação registra `approved_by` e `approved_at`; publicação registra `published_by` e `published_at`; arquivamento registra `archived_by` e `archived_at`.
 - Alterações de usuários administrativos, perfis, permissões e estado ativo geram auditoria.
 - Eventos são append-only. Correções devem gerar novo evento, não alterar histórico.
@@ -209,7 +209,7 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 - O destinatário é determinado por perfil e relação com o conteúdo:
   - Revisores recebem conteúdo enviado para revisão.
   - Autora recebe ajustes solicitados.
-  - Admins recebem aprovações pendentes de publicação e eventos críticos.
+  - Autora e Admins recebem aprovações prontas para publicação, conforme suas permissões.
 - E-mails usam UTF-8, assunto em Português do Brasil e corpo minimalista com link para o portal.
 - Falha de e-mail registra `email_failed_at`/metadados sem desfazer o evento editorial.
 
@@ -259,8 +259,8 @@ Ver contrato em [contracts/openapi.yaml](./contracts/openapi.yaml). Principais g
 2. **Foundation portal**: login, estado de autenticação, cliente API, layout administrativo, guards de rota e dashboard inicial.
 3. **Admin users and permissions**: CRUD de usuários administrativos, ativação/desativação, alteração de perfil, auditoria e telas correspondentes.
 4. **Taxonomies**: categorias, fases da vida e faixas etárias para associação a conteúdos, com endpoints e filtros.
-5. **Content drafts**: modelo de conteúdos, criação/edição de rascunhos próprios, histórico de alterações e busca básica.
-6. **Editorial workflow**: envio para revisão, tela de revisão, solicitação de ajustes, aprovação, publicação e arquivamento com policies.
+5. **Content creation**: modelo de conteúdos, rascunhos próprios para aluno/autora, criação Aprovada para professor/Admin, histórico de alterações e busca básica.
+6. **Editorial workflow**: envio obrigatório de conteúdo de aluno/autora para revisão, tela de revisão, solicitação de ajustes, aprovação, publicação e arquivamento com policies.
 7. **Audit and history UI**: páginas de auditoria e histórico por conteúdo, com filtros e permissões.
 8. **Notifications**: notificações no painel, e-mails administrativos UTF-8 e tratamento de falhas.
 9. **Accent-tolerant search**: normalização, índices, filtros administrativos e testes de preservação de grafia.

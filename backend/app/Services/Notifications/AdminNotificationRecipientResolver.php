@@ -16,7 +16,7 @@ class AdminNotificationRecipientResolver
     {
         $recipients = match ($event) {
             'submitted_for_review' => $this->usersWithRole(AdminRole::REVIEWER),
-            'approved' => $this->usersWithRole(AdminRole::ADMIN),
+            'approved' => $this->usersWithRole(AdminRole::ADMIN)->merge($this->contentAuthor($content)),
             'adjustments_requested', 'published', 'archived' => $this->contentAuthor($content),
             default => new Collection,
         };

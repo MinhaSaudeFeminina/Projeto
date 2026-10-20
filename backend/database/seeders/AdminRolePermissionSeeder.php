@@ -32,13 +32,13 @@ class AdminRolePermissionSeeder extends Seeder
         $roles = [
             AdminRole::AUTHOR => [
                 'name' => 'Acadêmica/autora',
-                'description' => 'Cria e edita rascunhos próprios.',
-                'permissions' => ['content.create', 'content.update_own_draft', 'content.submit_review', 'notifications.view'],
+                'description' => 'Cria e edita rascunhos próprios e publica o próprio conteúdo após revisão.',
+                'permissions' => ['content.create', 'content.update_own_draft', 'content.submit_review', 'content.publish', 'notifications.view'],
             ],
             AdminRole::REVIEWER => [
                 'name' => 'Revisor/professor',
-                'description' => 'Revisa, aprova ou solicita ajustes.',
-                'permissions' => ['content.review', 'content.approve', 'audit.view', 'notifications.view'],
+                'description' => 'Cria e publica conteúdo sem segunda revisão e revisa materiais de acadêmicas/autoras.',
+                'permissions' => ['content.create', 'content.review', 'content.approve', 'content.publish', 'audit.view', 'notifications.view'],
             ],
             AdminRole::ADMIN => [
                 'name' => 'Admin',

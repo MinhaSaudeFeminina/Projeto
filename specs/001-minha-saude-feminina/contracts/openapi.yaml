@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Minha Saúde Feminina Admin API
-  version: 1.0.0
+  version: 1.1.0
   description: API administrativa para o incremento de portal web, backend Laravel e PostgreSQL.
 servers:
   - url: /api/v1/admin
@@ -675,7 +675,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/EducationalContent'
     post:
-      summary: Cria conteúdo em Rascunho
+      summary: Cria conteúdo com estado inicial definido pelo papel da pessoa autora
+      description: >-
+        Aluno/acadêmica autora cria em Rascunho e depende de revisão obrigatória.
+        Revisor/professor e Admin criam diretamente em Aprovado, com autorização
+        auditada e sem necessidade de segunda revisão. A publicação não é automática,
+        mas Revisor/professor e Admin podem publicá-lo diretamente depois da criação.
       tags: [Contents]
       security:
         - bearerAuth: []
@@ -788,6 +793,10 @@ paths:
   /contents/{id}/publish:
     post:
       summary: Publica conteúdo Aprovado
+      description: >-
+        Revisor/professor e Admin podem publicar conteúdo Aprovado. Aluno/acadêmica
+        autora pode publicar somente conteúdo próprio após revisão e aprovação
+        registrada por Revisor/professor ou Admin.
       tags: [Editorial Workflow]
       security:
         - bearerAuth: []

@@ -78,7 +78,9 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::post('contents/{content}/submit-review', [EditorialActionController::class, 'submitReview'])->name('contents.submit-review');
         Route::post('contents/{content}/request-adjustments', [EditorialActionController::class, 'requestAdjustments'])->name('contents.request-adjustments');
         Route::post('contents/{content}/approve', [EditorialActionController::class, 'approve'])->name('contents.approve');
-        Route::post('contents/{content}/publish', [EditorialActionController::class, 'publish'])->middleware('admin.role:admin')->name('contents.publish');
+        Route::post('contents/{content}/publish', [EditorialActionController::class, 'publish'])
+            ->middleware('admin.role:academic_author,reviewer_professor,admin')
+            ->name('contents.publish');
         Route::post('contents/{content}/archive', [EditorialActionController::class, 'archive'])->middleware('admin.role:admin')->name('contents.archive');
         Route::get('contents/{content}/audit', [AdminContentAuditController::class, 'index'])->name('contents.audit');
         Route::get('contents/{content}/revisions', [AdminContentRevisionController::class, 'index'])->name('contents.revisions');

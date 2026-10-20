@@ -56,7 +56,7 @@ Este incremento cobre:
 - Categorias de conteúdo.
 - Fases da vida e faixas etárias associadas a conteúdos.
 - Gestão de conteúdos educativos.
-- Fluxo editorial: Rascunho → Em revisão → Aprovado → Publicado → Arquivado.
+- Fluxo editorial condicionado ao papel: aluno/acadêmica autora passa por Rascunho → Em revisão → Aprovado antes de publicar o próprio conteúdo; professor/revisor e Admin criam diretamente em Aprovado e podem publicá-lo. O arquivamento permanece explícito e exclusivo de Admin.
 - Auditoria editorial e histórico de alterações.
 - Notificações administrativas no painel e por e-mail.
 - Busca administrativa tolerante a acentos.
@@ -68,18 +68,20 @@ documentação.
 
 ## Perfis Administrativos
 
-- Acadêmica/autora: cria rascunhos, edita os próprios rascunhos e envia para revisão.
-- Revisor/professor: revisa, aprova ou solicita ajustes.
-- Admin: gerencia usuários administrativos, permissões, conteúdos, publicação e arquivamento.
+- Aluno/acadêmica autora: cria rascunhos, edita os próprios rascunhos, envia para revisão obrigatória e publica somente o próprio conteúdo aprovado.
+- Revisor/professor: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado sem segunda revisão e revisa conteúdo de alunos/autoras.
+- Admin: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado e gerencia usuários administrativos, permissões, conteúdos e arquivamento.
 
 O backend deve aplicar permissões com middleware e policies. O portal pode ocultar ações, mas não é a fonte final de autorização.
 
 ## Fluxo Editorial
 
-O ciclo suportado é `Rascunho → Em revisão → Aprovado → Publicado → Arquivado`.
-Acadêmicas/autoras trabalham nos próprios rascunhos, revisores/professores
-aprovam ou solicitam ajustes e Admins publicam ou arquivam. Cada transição gera
-auditoria append-only e os snapshots de revisão preservam o histórico.
+O ciclo de aluno/acadêmica autora é `Rascunho → Em revisão → Aprovado →
+Publicado → Arquivado`. Conteúdo de Revisor/professor ou Admin entra diretamente
+em `Aprovado`, com autoria e autorização por papel registradas, sem segunda
+revisão. Professores/revisores e Admins publicam conteúdo Aprovado; alunos
+publicam somente o próprio conteúdo após revisão, e apenas Admins arquivam. Cada transição gera
+auditoria append-only e os snapshots preservam o histórico.
 
 ## Auditoria e Logs
 

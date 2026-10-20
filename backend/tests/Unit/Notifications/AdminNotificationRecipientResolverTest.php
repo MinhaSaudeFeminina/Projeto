@@ -28,7 +28,7 @@ it('resolve destinatários ativos conforme o evento editorial', function (): voi
 
     expect($resolver->resolve('submitted_for_review', $content, $author)->modelKeys())->toBe([$reviewer->id])
         ->and($resolver->resolve('adjustments_requested', $content, $reviewer)->modelKeys())->toBe([$author->id])
-        ->and($resolver->resolve('approved', $content, $reviewer)->modelKeys())->toBe([$admin->id])
+        ->and($resolver->resolve('approved', $content, $reviewer)->modelKeys())->toBe([$admin->id, $author->id])
         ->and($resolver->resolve('published', $content, $admin)->modelKeys())->toBe([$author->id])
         ->and($resolver->resolve('archived', $content, $admin)->modelKeys())->toBe([$author->id]);
 });

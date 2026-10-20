@@ -39,16 +39,25 @@
 
 **Expected result**: Categories, life stages and age ranges are available for content association and preserve UTF-8 text.
 
-## Scenario 4: Draft and Submit Content
+## Scenario 4: Student Draft and Mandatory Review
 
-1. Sign in as Acadêmica/autora.
+1. Sign in as aluno/acadêmica autora.
 2. Create content titled “Saúde íntima e menstruação”.
 3. Associate a category, at least one life stage and at least one age range.
 4. Save it as Rascunho.
 5. Edit the draft and confirm history is updated.
 6. Submit it for review.
 
-**Expected result**: Content moves from Rascunho to Em revisão, with author, timestamps and audit events.
+**Expected result**: Student-authored content moves from Rascunho to Em revisão and cannot become Aprovado without a Revisor/professor or Admin, with author, timestamps and audit events.
+
+## Scenario 4A: Professor and Admin Creation Without Second Review
+
+1. Sign in as Revisor/professor and create a valid educational content item.
+2. Confirm it is created as Aprovado, with the professor recorded as author and authorizing actor.
+3. Repeat as Admin.
+4. Confirm neither item enters the review queue or generates a second-review requirement.
+
+**Expected result**: Professor/Admin content is ready for direct explicit publication by either authorized profile without a second review, while retaining authorization metadata, revision history and audit.
 
 ## Scenario 5: Request Adjustments
 
@@ -61,20 +70,21 @@
 
 ## Scenario 6: Approve, Publish and Archive
 
-1. Submit adjusted content for review again.
+1. Submit adjusted student content for review again.
 2. Sign in as Revisor/professor and approve it.
-3. Sign in as Admin and publish the approved content.
-4. Archive the published content.
+3. Sign in again as the aluno/acadêmica autora and publish the own approved content.
+4. Sign in as Admin and archive the published content.
 
 **Expected result**: The content follows Rascunho → Em revisão → Aprovado → Publicado → Arquivado, with approval date, responsible users and audit history.
 
 ## Scenario 7: Permission Boundaries
 
-1. As Acadêmica/autora, try to approve, publish and archive content.
-2. As Revisor/professor, try to publish, archive and manage users.
-3. As Admin, perform publication and archiving.
+1. As aluno/acadêmica autora, create content and confirm publication is unavailable before review.
+2. Have Revisor/professor approve it, return as the student author and publish it; confirm another student cannot publish it.
+3. As Revisor/professor, create content and confirm it is Aprovado without second review; publish it directly, then verify archiving and user management remain forbidden.
+4. As Admin, create content without second review and perform publication and archiving.
 
-**Expected result**: Forbidden actions are blocked by the backend and not only hidden in the interface.
+**Expected result**: Student content keeps mandatory review before self-publication, professor/Admin can publish Aprovado content directly, archiving remains Admin-only, and all forbidden actions are blocked by the backend and not only hidden in the interface.
 
 ## Scenario 8: Admin Notifications
 
@@ -147,7 +157,7 @@ The quickstart scenarios are backed by the following repeatable checks:
 | Scenarios | Automated evidence |
 |---|---|
 | 1–2, 7 | Admin authentication, inactive access, route guard, user management and authorization feature/UI tests |
-| 3–4 | Taxonomy, UTF-8 persistence, content draft, association, revision and editor tests |
+| 3–4A | Taxonomy, UTF-8 persistence, role-dependent initial content status, association, revision and editor tests |
 | 5–6 | Editorial workflow, review queue, publication, archive, audit and history tests |
 | 8–9 | Panel notification, recipient resolution, mail rendering/failure and accent tests |
 | 10 | Accent-insensitive normalizer, API search and portal search/rendering tests |

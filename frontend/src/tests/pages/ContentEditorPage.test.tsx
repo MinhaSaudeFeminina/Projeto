@@ -55,6 +55,23 @@ test("creates a draft with category, life stage and age range", async () => {
   }));
 });
 
+test("shows that professor content is saved without a second review", async () => {
+  window.localStorage.setItem("msf_admin_token", "token");
+  window.localStorage.setItem("msf_admin_user", JSON.stringify({
+    id: 3,
+    name: "Professora Revisora",
+    email: "revisora@example.com",
+    roles: ["reviewer_professor"],
+  }));
+
+  render(<MemoryRouter><ContentEditorPage /></MemoryRouter>);
+
+  expect(await screen.findByText("Seu conteúdo será salvo como aprovado e poderá ser publicado diretamente, sem uma segunda revisão.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Salvar como aprovado" })).toBeInTheDocument();
+
+  window.localStorage.clear();
+});
+
 test("allows a reviewer to approve content from the detail page", async () => {
   window.localStorage.setItem("msf_admin_token", "token");
   window.localStorage.setItem("msf_admin_user", JSON.stringify({

@@ -1,24 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: template -> 1.0.0
+- Version change: 2.0.0 -> 3.0.0
 - Modified principles:
-  - Template Principle 1 -> I. Seguranca em Saude
-  - Template Principle 2 -> II. Linguagem Acolhedora
-  - Template Principle 3 -> III. Privacidade, LGPD e Dados Sensiveis
-  - Template Principle 4 -> IV. Autenticacao, Acesso e Permissoes
-  - Template Principle 5 -> V. Fluxo Editorial e Auditoria
-  - new -> VI. Acessibilidade e Experiencia
-  - new -> VII. Desenvolvimento Incremental e Escopo de MVP
-  - new -> VIII. Arquitetura Integrada e Responsabilidades por Canal
-- Added sections:
-  - Restricoes Operacionais e de Produto
-  - Governanca de Especificacao, Planejamento e Entrega
+  - V. Fluxo Editorial e Auditoria: permite publicação direta por
+    professor/revisor e Admin e publicação do próprio conteúdo pelo aluno
+    somente após revisão e aprovação autorizadas; arquivamento segue Admin-only.
+- Added sections: none
 - Removed sections: none
 - Templates requiring updates:
-  - updated .specify/templates/plan-template.md
-  - updated .specify/templates/spec-template.md
-  - updated .specify/templates/tasks-template.md
-  - pending .specify/templates/commands/*.md (directory not present in repository)
+  - ✅ updated .specify/templates/plan-template.md
+  - ✅ updated .specify/templates/spec-template.md
+  - ✅ updated .specify/templates/tasks-template.md
+  - ⚠ .specify/templates/commands/*.md não existe no repositório
 - Follow-up TODOs: none
 -->
 # Minha Saude Feminina Constitution
@@ -63,15 +56,22 @@ permissoes com privilegio minimo. Rationale: separacao de contextos e controle d
 acesso reduzem exposicao indevida e erro operacional.
 
 ### V. Fluxo Editorial e Auditoria
-Conteudos educativos MUST seguir o estado Rascunho -> Em revisao -> Aprovado ->
-Publicado -> Arquivado. Academicas ou autoras MAY criar e editar apenas seus
-proprios rascunhos, revisores ou professores MUST revisar, aprovar ou solicitar
-ajustes, e administradores MUST poder gerenciar todo o processo. Conteudos
-publicados MUST manter registro de autoria, revisao e aprovacao. O sistema MUST
-registrar quem criou, editou, enviou para revisao, revisou, aprovou, publicou ou
-arquivou conteudos, com data e hora, e MUST manter historico de alteracoes.
-Rationale: rastreabilidade editorial e responsabilizacao sao inegociaveis em
-conteudo de saude.
+Os estados editoriais MUST permanecer Rascunho -> Em revisao -> Aprovado ->
+Publicado -> Arquivado, com entrada condicionada ao papel da pessoa autora.
+Conteudo criado por aluno ou academica/autora MUST iniciar em Rascunho e MUST
+ser revisado e aprovado por professor/revisor ou Admin antes que a propria
+pessoa autora possa publica-lo. Conteudo criado por professor/revisor ou Admin
+MAY iniciar em Aprovado, sem segunda revisao ou aprovacao, e esses perfis MUST
+poder publica-lo diretamente, desde que a autoria, o papel autorizador e a data
+sejam registrados. A publicacao MUST continuar sendo uma acao explicita e
+auditada. O arquivamento MUST permanecer exclusivo de Admin. Administradores
+MUST poder gerenciar todo o processo. O sistema MUST
+registrar quem criou, editou, enviou para revisao, revisou ou autorizou,
+publicou e arquivou conteudos, com data e hora, e MUST manter historico de
+alteracoes. Rationale: a qualificacao do professor e a autoridade do Admin
+eliminam revisao redundante, enquanto a revisao previa do conteudo estudantil
+protege a publicacao sem retirar a autonomia da pessoa autora, sempre com
+rastreabilidade obrigatoria para conteudo de saude.
 
 ### VI. Acessibilidade e Experiencia
 O aplicativo mobile MUST ser simples, intuitivo e acessivel para usuarias finais.
@@ -159,4 +159,4 @@ padrao MUST favorecer seguranca em saude, privacidade, rastreabilidade e foco no
 MVP. Excecoes temporarias MUST ter responsavel nomeado, prazo e criterio de
 encerramento documentados.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-06-10
+**Version**: 3.0.0 | **Ratified**: 2026-06-10 | **Last Amended**: 2026-10-20

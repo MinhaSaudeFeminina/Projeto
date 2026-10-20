@@ -86,3 +86,43 @@ test("allows an Admin to publish and then archive approved content", async () =>
   await waitFor(() => expect(archiveContent).toHaveBeenCalledWith(10));
   expect(await screen.findByLabelText("Estado editorial: Arquivado")).toBeInTheDocument();
 });
+
+test.each([
+  ["professor", { id: 2, roles: ["reviewer_professor"] }],
+  ["aluno autor após revisão", { id: 1, roles: ["academic_author"] }],
+])("allows %s to publish approved content", async (_label, user) => {
+  window.localStorage.setItem("msf_admin_token", "token");
+  window.localStorage.setItem("msf_admin_user", JSON.stringify({
+    ...user,
+    name: "Pessoa autora",
+    email: "autora@example.com",
+  }));
+  vi.mocked(listAdminContents).mockResolvedValue([approvedContent]);
+  vi.mocked(publishContent).mockResolvedValue({
+    ...approvedContent,
+    status: "published",
+    published_by: user.id,
+    published_at: "2026-08-24T13:00:00.000Z",
+  });
+
+  render(<MemoryRouter><ContentListPage /></MemoryRouter>);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Publicar" }));
+  await waitFor(() => expect(publishContent).toHaveBeenCalledWith(10));
+});
+
+test("does not allow a student to publish another author's approved content", async () => {
+  window.localStorage.setItem("msf_admin_token", "token");
+  window.localStorage.setItem("msf_admin_user", JSON.stringify({
+    id: 9,
+    name: "Outro aluno",
+    email: "outro@example.com",
+    roles: ["academic_author"],
+  }));
+  vi.mocked(listAdminContents).mockResolvedValue([approvedContent]);
+
+  render(<MemoryRouter><ContentListPage /></MemoryRouter>);
+
+  expect(await screen.findByText("Saúde em todas as fases")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Publicar" })).not.toBeInTheDocument();
+});
