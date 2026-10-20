@@ -194,7 +194,7 @@
 
 ## Phase 7: User Story 5 - Publicar e arquivar conteúdos (Priority: P1)
 
-**Goal**: Admin publishes approved content and archives published content with audit and publication metadata.
+**Goal**: Authorized roles publish approved content and Admin archives published content with audit and publication metadata.
 
 **Independent Test**: Block publication without approval, publish approved content, archive published content, and verify metadata/history.
 
@@ -210,7 +210,7 @@
 - [X] T102 [US5] Extend editorial action controller with publish and archive actions in backend/app/Http/Controllers/Api/V1/Admin/EditorialActionController.php
 - [X] T103 [US5] Add publish and archive routes in backend/routes/api.php
 - [X] T104 [US5] Add publish and archive methods to editorial API service in frontend/src/services/api/editorialApi.ts
-- [X] T105 [US5] Add Admin-only publish and archive controls in frontend/src/pages/ContentListPage.tsx
+- [X] T105 [US5] Add role-aware publish and Admin-only archive controls in frontend/src/pages/ContentListPage.tsx
 - [X] T106 [US5] Add publication and archive metadata display in frontend/src/pages/ContentAuditPage.tsx
 
 **Checkpoint**: US5 is independently functional and testable.
@@ -456,3 +456,29 @@ Task: "T120 [P] [US7] Create admin notifications page test in frontend/src/tests
 - [X] T168 Implement the typed report API client and connect the period selector to backend queries
 - [X] T169 Replace mock metrics and charts with administrative content, question, life-stage, and symptom catalog data
 - [X] T170 Implement UTF-8 CSV export and add frontend integration and serialization tests
+
+---
+
+## Phase 15: Role-Based Editorial Review Bypass
+
+**Purpose**: Keep mandatory second-person review for student/academic authors while allowing professor/reviewer and Admin authors to create content already ready for publication.
+
+- [X] T171 Add backend regression tests for role-based initial content status and approval metadata in backend/tests/Feature/Admin/ContentDraftTest.php
+- [X] T172 Implement role-based content creation and permissions in backend/app/Http/Controllers/Api/V1/Admin/ContentController.php and backend/app/Policies/EducationalContentPolicy.php
+- [X] T173 Update canonical role permissions and descriptions in backend/database/seeders/AdminRolePermissionSeeder.php
+- [X] T174 Add frontend regression tests and role-aware creation copy in frontend/src/tests/pages/ContentEditorPage.test.tsx and frontend/src/pages/ContentEditorPage.tsx
+- [X] T175 Align constitution, specification, plan, data model, research, OpenAPI contract, quickstart, and contributor guidance with the new editorial rule
+- [ ] T176 Run focused and complete backend/frontend validation suites
+
+---
+
+## Phase 16: Role-Based Direct Publication
+
+**Purpose**: Allow Revisor/professor and Admin to publish approved content directly while allowing aluno/acadêmica autora to publish only their own content after authorized review and approval.
+
+- [X] T177 Add backend authorization tests for professor direct publication, student self-publication after review, ownership boundaries, and Admin-only archiving
+- [X] T178 Implement role-aware publication policy and canonical `content.publish` permissions
+- [X] T179 Add frontend tests and role-aware publication controls for professor, Admin, and reviewed student content
+- [X] T180 Notify the student author when reviewed content becomes ready for publication
+- [X] T181 Align constitution, specification, plan, data model, research, OpenAPI, quickstart, templates, and contributor guidance with role-based publication
+- [ ] T182 Run focused and complete backend/frontend validation suites

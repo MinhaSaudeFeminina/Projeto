@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-10
 
-**Updated**: 2026-08-25
+**Updated**: 2026-10-20
 
 **Status**: Draft
 
@@ -16,6 +16,8 @@ Minha Saúde Feminina continua sendo concebido como um ecossistema com aplicativ
 
 O objetivo deste incremento é permitir que usuárias administrativas criem, revisem, aprovem, publiquem e arquivem conteúdos educativos sobre saúde feminina com controle de acesso, rastreabilidade e qualidade textual. O sistema deve operar em Português do Brasil, preservar acentos, cedilha e caracteres especiais, e permitir busca administrativa tolerante a acentos.
 
+No fluxo editorial, conteúdos criados por aluno/acadêmica autora exigem revisão de professor/revisor ou Admin antes que o próprio aluno possa publicá-los. Conteúdos criados por professor/revisor ou Admin não exigem uma segunda revisão: são registrados diretamente como Aprovados e podem ser publicados por professor/revisor ou Admin, mantendo autoria, papel autorizador, data e auditoria. O arquivamento permanece exclusivo de Admin.
+
 O aplicativo mobile, cadastro e login de usuárias finais, registros pessoais de saúde, lembretes mobile, push notifications mobile, perguntas para consulta, resumo visual e funcionalidades específicas do app permanecem fora deste incremento e planejados para fase futura. O catálogo administrativo de sintomas e queixas é uma exceção explícita: pode ser gerenciado no portal sem expor registros individuais de saúde.
 
 O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do portal, backend ou conteúdo publicado deve diagnosticar doenças, prescrever medicamentos, orientar automedicação, substituir atendimento profissional ou induzir atraso na busca por cuidado.
@@ -25,7 +27,7 @@ O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do
 ### Session 2026-06-10
 
 - Q: Qual deve ser a profundidade realista do MVP para os módulos descritos? → A: A resposta original incluía todos os módulos com profundidade mínima testável, mas foi substituída pelo novo recorte de 2026-06-13.
-- Q: Quem pode publicar e arquivar conteúdos no MVP? → A: Revisor/professor pode aprovar ou solicitar ajustes; Admin publica e arquiva.
+- Q: Quem pode publicar e arquivar conteúdos no MVP? → A: Regra original substituída em 2026-10-20: Revisor/professor e Admin publicam conteúdo Aprovado; aluno publica somente o próprio conteúdo após revisão; apenas Admin arquiva.
 - Q: Que informações podem aparecer em notificações e e-mails administrativos? → A: E-mail administrativo informa apenas evento e ação necessária, direcionando ao portal para detalhes.
 
 ### Session 2026-06-13
@@ -40,6 +42,12 @@ O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do
 - O backend administrativo passa a incluir o catálogo de sintomas e queixas consumido pela tela web.
 - Perfis administrativos autenticados podem consultar o catálogo; somente Admin pode criar, alterar, desativar ou excluir itens.
 - Registros individuais de sintomas das usuárias continuam fora do portal administrativo e não podem ser expostos por esses endpoints.
+
+### Session 2026-10-20
+
+- Aluno/acadêmica autora continua criando em Rascunho e obrigatoriamente depende de revisão e aprovação de professor/revisor ou Admin.
+- Professor/revisor e Admin podem criar conteúdo sem revisão ou aprovação de uma segunda pessoa; o conteúdo nasce Aprovado e a autorização por papel fica auditada.
+- A publicação permanece uma ação explícita: Revisor/professor e Admin podem publicar conteúdo Aprovado diretamente; aluno/acadêmica autora pode publicar apenas conteúdo próprio depois de revisão e aprovação autorizadas. O arquivamento permanece exclusivo de Admin.
 
 ## Technical Decisions for Planning
 
@@ -67,9 +75,9 @@ O produto mantém caráter educativo e de apoio ao autocuidado. Nenhuma parte do
 
 ## Personas and User Types
 
-- **Acadêmica/autora**: Usuária administrativa que cria conteúdos em Rascunho, edita os próprios rascunhos e envia materiais para revisão.
-- **Revisor/professor**: Usuário administrativo que revisa conteúdos enviados, solicita ajustes ou aprova materiais antes da publicação.
-- **Admin**: Usuário administrativo com permissão para gerenciar usuárias administrativas, perfis, conteúdos, publicação, arquivamento e auditoria.
+- **Aluno/acadêmica autora**: Usuária administrativa que cria conteúdos em Rascunho, edita os próprios rascunhos e envia materiais para revisão obrigatória.
+- **Revisor/professor**: Usuário administrativo que cria conteúdo diretamente Aprovado e revisa conteúdos enviados por alunos/autoras, solicitando ajustes ou aprovando materiais antes da publicação.
+- **Admin**: Usuário administrativo que cria conteúdo diretamente Aprovado e gerencia usuárias administrativas, perfis, conteúdos, publicação, arquivamento e auditoria.
 - **Equipe de governança do produto**: Grupo responsável por zelar por segurança em saúde, qualidade editorial, LGPD, acessibilidade, escopo do incremento e conformidade do fluxo.
 - **Usuária final do aplicativo**: Pessoa prevista na visão futura do ecossistema, sem acesso e sem funcionalidades neste incremento.
 
@@ -123,12 +131,14 @@ Como Acadêmica/autora, quero criar conteúdos educativos em rascunho e editar m
 2. **Given** um rascunho próprio, **When** a autora edita título, corpo ou metadados, **Then** o sistema salva a alteração e registra histórico.
 3. **Given** um rascunho de outra autora, **When** uma Acadêmica/autora tenta editá-lo, **Then** o sistema bloqueia a ação.
 4. **Given** conteúdo em Português do Brasil, **When** ele é exibido no portal, **Then** acentos, cedilha e caracteres especiais são preservados.
+5. **Given** um Revisor/professor autenticado, **When** cria um conteúdo válido, **Then** o conteúdo é salvo como Aprovado sem exigir revisão ou aprovação de uma segunda pessoa.
+6. **Given** um Admin autenticado, **When** cria um conteúdo válido, **Then** o conteúdo é salvo como Aprovado sem exigir revisão ou aprovação de uma segunda pessoa.
 
 ---
 
 ### User Story 4 - Revisar, aprovar ou solicitar ajustes (Priority: P1)
 
-Como Revisor/professor, quero revisar conteúdos enviados, aprovar materiais adequados ou solicitar ajustes para garantir qualidade antes da publicação.
+Como Revisor/professor, quero revisar conteúdos enviados por alunos/autoras, aprovar materiais adequados ou solicitar ajustes para garantir qualidade antes da publicação.
 
 **Why this priority**: Conteúdos de saúde exigem revisão qualificada antes de publicação.
 
@@ -145,18 +155,20 @@ Como Revisor/professor, quero revisar conteúdos enviados, aprovar materiais ade
 
 ### User Story 5 - Publicar e arquivar conteúdos (Priority: P1)
 
-Como Admin, quero publicar conteúdos aprovados e arquivar conteúdos publicados para controlar o que está disponível para uso futuro pelo ecossistema.
+Como pessoa autora autorizada, quero publicar conteúdo quando as exigências do meu perfil estiverem atendidas, enquanto Admin mantém o arquivamento, para controlar o que está disponível para uso futuro pelo ecossistema.
 
-**Why this priority**: A publicação precisa ser uma decisão administrativa auditável, separada da aprovação editorial.
+**Why this priority**: A publicação precisa ser uma ação explícita e auditável, respeitando a revisão obrigatória de conteúdo estudantil.
 
-**Independent Test**: Pode ser testado aprovando um conteúdo, publicando como Admin, arquivando conteúdo publicado e verificando histórico e estados.
+**Independent Test**: Pode ser testado publicando conteúdo Aprovado como professor/Admin, revisando conteúdo estudantil, publicando-o como aluno autor e arquivando como Admin.
 
 **Acceptance Scenarios**:
 
-1. **Given** um conteúdo Aprovado, **When** Admin publica o conteúdo, **Then** o estado muda para Publicado e registra quem publicou e quando.
-2. **Given** um conteúdo sem aprovação registrada, **When** Admin tenta publicar, **Then** o sistema bloqueia a publicação.
-3. **Given** um conteúdo Publicado, **When** Admin arquiva, **Then** o estado muda para Arquivado e registra o arquivamento.
-4. **Given** um conteúdo Arquivado, **When** ele é consultado no portal, **Then** permanece visível para auditoria administrativa e histórico, sem voltar automaticamente ao fluxo ativo.
+1. **Given** um conteúdo Aprovado, **When** Revisor/professor ou Admin publica o conteúdo, **Then** o estado muda para Publicado e registra quem publicou e quando.
+2. **Given** um conteúdo próprio do aluno aprovado por Revisor/professor ou Admin, **When** o aluno publica, **Then** o estado muda para Publicado e preserva os dados da revisão.
+3. **Given** um conteúdo estudantil ainda sem revisão e aprovação autorizadas, **When** o aluno tenta publicar, **Then** o sistema bloqueia a publicação.
+4. **Given** um conteúdo de outro autor, **When** um aluno tenta publicá-lo, **Then** o sistema bloqueia a publicação.
+5. **Given** um conteúdo Publicado, **When** Admin arquiva, **Then** o estado muda para Arquivado e registra o arquivamento.
+6. **Given** um conteúdo Arquivado, **When** ele é consultado no portal, **Then** permanece visível para auditoria administrativa e histórico, sem voltar automaticamente ao fluxo ativo.
 
 ---
 
@@ -228,9 +240,11 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 
 - Tentativa de login com usuário administrativo inexistente, senha incorreta, acesso desativado ou perfil ausente deve ser recusada sem vazar informações indevidas.
 - Usuária administrativa desativada durante uma sessão ativa deve perder acesso a novas ações protegidas.
-- Acadêmica/autora não deve editar conteúdo de outra autora, aprovar, publicar ou arquivar.
-- Revisor/professor não deve publicar, arquivar ou gerenciar usuárias administrativas no MVP.
+- Acadêmica/autora não deve editar, aprovar, publicar conteúdo de outra autora nem arquivar conteúdo.
+- Revisor/professor pode publicar conteúdo Aprovado, mas não deve arquivar ou gerenciar usuárias administrativas no MVP.
 - Admin não deve publicar conteúdo sem aprovação registrada.
+- Conteúdo criado por aluno/acadêmica autora nunca deve ignorar a revisão obrigatória de professor/revisor ou Admin.
+- Conteúdo criado por professor/revisor ou Admin deve nascer Aprovado, sem gerar pendência de segunda revisão, mas com autoria e autorização auditadas.
 - Transições fora do fluxo Rascunho → Em revisão → Aprovado → Publicado → Arquivado devem ser bloqueadas.
 - Solicitação de ajustes deve registrar comentário editorial e retornar o conteúdo para Rascunho sem criar estados paralelos fora do fluxo oficial.
 - Conteúdo Arquivado deve permanecer auditável e não deve ser apagado automaticamente.
@@ -253,7 +267,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - **FR-007**: O sistema MUST permitir que Admin desative e reative acessos administrativos.
 - **FR-008**: O sistema MUST aplicar permissões administrativas por perfil em todas as telas e ações protegidas.
 - **FR-009**: O sistema MUST oferecer os perfis Acadêmica/autora, Revisor/professor e Admin.
-- **FR-010**: Acadêmica/autora MUST poder criar conteúdos em Rascunho.
+- **FR-010**: Aluno/acadêmica autora MUST poder criar conteúdos em Rascunho.
 - **FR-011**: Acadêmica/autora MUST poder editar os próprios rascunhos.
 - **FR-012**: Acadêmica/autora MUST poder enviar os próprios rascunhos para revisão.
 - **FR-013**: Revisor/professor MUST poder visualizar fila de conteúdos Em revisão permitidos ao seu perfil.
@@ -261,9 +275,9 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - **FR-015**: Revisor/professor MUST poder solicitar ajustes em conteúdos Em revisão com comentário editorial obrigatório.
 - **FR-016**: Solicitações de ajuste MUST retornar o conteúdo para Rascunho com comentário editorial obrigatório.
 - **FR-017**: Admin MUST poder visualizar e gerenciar todos os conteúdos educativos.
-- **FR-018**: Admin MUST poder publicar conteúdos Aprovados.
+- **FR-018**: Revisor/professor e Admin MUST poder publicar conteúdos Aprovados.
 - **FR-019**: Admin MUST poder arquivar conteúdos Publicados.
-- **FR-020**: O sistema MUST implementar o fluxo editorial Rascunho → Em revisão → Aprovado → Publicado → Arquivado.
+- **FR-020**: O sistema MUST implementar Rascunho → Em revisão → Aprovado para conteúdo de aluno/acadêmica autora e permitir entrada direta em Aprovado para conteúdo criado por Revisor/professor ou Admin; Publicado → Arquivado permanece comum aos dois caminhos.
 - **FR-021**: O sistema MUST bloquear transições editoriais inválidas.
 - **FR-022**: Conteúdos educativos MUST possuir, no mínimo, título, corpo, categoria ou classificação editorial, estado, autoria e datas relevantes.
 - **FR-023**: Conteúdos educativos MUST preservar Português do Brasil com acentuação correta, cedilha e caracteres especiais.
@@ -300,6 +314,14 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - **FR-054**: A busca do catálogo MUST ser tolerante a acentos e preservar a grafia original na resposta.
 - **FR-055**: Itens associados a registros MUST NOT ser excluídos; o sistema MUST permitir desativar sua exibição.
 - **FR-056**: Endpoints administrativos do catálogo MUST NOT retornar registros individuais de sintomas ou outros dados pessoais de saúde.
+- **FR-057**: Revisor/professor e Admin MUST poder criar conteúdos educativos.
+- **FR-058**: Conteúdo criado por Revisor/professor ou Admin MUST ser registrado como Aprovado sem revisão ou aprovação de uma segunda pessoa.
+- **FR-059**: Conteúdo criado por aluno/acadêmica autora MUST permanecer em Rascunho até ser enviado e aprovado por Revisor/professor ou Admin.
+- **FR-060**: A dispensa de segunda revisão MUST registrar autoria, papel autorizador, data e estado inicial na auditoria e no histórico.
+- **FR-061**: Aluno/acadêmica autora MUST poder publicar apenas conteúdo próprio que tenha sido revisado e aprovado por Revisor/professor ou Admin.
+- **FR-062**: Aluno/acadêmica autora MUST NOT publicar conteúdo em Rascunho, Em revisão, sem aprovação autorizada ou pertencente a outra pessoa autora.
+- **FR-063**: Toda publicação MUST registrar `published_by`, `published_at`, histórico e evento de auditoria.
+- **FR-064**: Apenas Admin MUST poder arquivar conteúdo Publicado.
 
 ### Non-Functional Requirements
 
@@ -317,13 +339,14 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 ### Business Rules
 
 - **BR-001**: Usuárias finais não acessam este incremento; apenas usuárias administrativas acessam o portal.
-- **BR-002**: Acadêmica/autora cria rascunhos, edita os próprios rascunhos e envia para revisão.
-- **BR-003**: Revisor/professor revisa, aprova ou solicita ajustes; não publica nem arquiva no MVP.
-- **BR-004**: Admin gerencia usuárias administrativas, permissões, todos os conteúdos, publicação e arquivamento.
+- **BR-002**: Aluno/acadêmica autora cria rascunhos, edita os próprios rascunhos e envia para revisão obrigatória de Revisor/professor ou Admin.
+- **BR-003**: Revisor/professor cria conteúdo diretamente Aprovado, pode publicar conteúdo Aprovado e revisa, aprova ou solicita ajustes em conteúdo de aluno/autora; não arquiva no MVP.
+- **BR-004**: Admin cria conteúdo diretamente Aprovado e gerencia usuárias administrativas, permissões, todos os conteúdos, publicação e arquivamento.
 - **BR-005**: Publicação exige aprovação prévia registrada.
+- **BR-013**: Aluno/acadêmica autora publica somente conteúdo próprio após revisão e aprovação por Revisor/professor ou Admin.
 - **BR-006**: Arquivamento preserva auditoria e histórico.
 - **BR-007**: Solicitação de ajustes retorna o conteúdo para Rascunho e exige comentário editorial.
-- **BR-008**: Conteúdos publicados mantêm autoria, revisão, aprovação, data de aprovação, publicação e histórico editorial.
+- **BR-008**: Conteúdos publicados mantêm autoria, revisão quando obrigatória ou autorização direta por papel, data correspondente, publicação e histórico editorial.
 - **BR-009**: Notificações administrativas devem respeitar perfil e necessidade de ação.
 - **BR-010**: E-mails administrativos não devem incluir conteúdo editorial completo quando o portal puder exibir os detalhes de forma autenticada.
 - **BR-011**: Conteúdos, interface, notificações e e-mails devem manter Português do Brasil com acentuação correta, exceto slugs, URLs e identificadores internos inevitáveis.
@@ -335,7 +358,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - O portal e os conteúdos MUST NOT diagnosticar doenças, prescrever medicamentos, recomendar dosagem, orientar automedicação ou substituir atendimento profissional.
 - Conteúdos educativos MUST indicar quando procurar atendimento profissional quando o tema envolver sinais de alerta ou risco.
 - Conteúdos educativos devem evitar linguagem alarmista, discriminatória, moralizante ou que gere culpa.
-- Conteúdos de saúde devem ser publicados somente após revisão e aprovação por perfil autorizado.
+- Conteúdos de aluno/acadêmica autora devem ser publicados somente após revisão e aprovação por Revisor/professor ou Admin; conteúdo criado por Revisor/professor ou Admin dispensa segunda revisão, mas exige autorização por papel e auditoria.
 - Não haverá integração com UBS, serviços públicos, prontuários ou encaminhamento automatizado neste incremento.
 
 ### Privacy, LGPD & Access Constraints *(mandatory for this project)*
@@ -350,16 +373,17 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 
 ### Editorial & Audit Constraints *(mandatory when content or admin actions are involved)*
 
-- Estados editoriais obrigatórios: Rascunho → Em revisão → Aprovado → Publicado → Arquivado.
-- Acadêmica/autora pode criar conteúdos em Rascunho, editar os próprios rascunhos e enviar para revisão.
-- Revisor/professor pode revisar conteúdos Em revisão, aprovar ou solicitar ajustes, sem permissão de publicação ou arquivamento no MVP.
+- Estados editoriais obrigatórios: Rascunho → Em revisão → Aprovado → Publicado → Arquivado, com entrada direta em Aprovado apenas para conteúdo criado por Revisor/professor ou Admin.
+- Aluno/acadêmica autora pode criar conteúdos em Rascunho, editar os próprios rascunhos e enviar para revisão obrigatória.
+- Revisor/professor pode criar conteúdo diretamente Aprovado, publicar conteúdo Aprovado e revisar conteúdos Em revisão de alunos/autoras, aprovar ou solicitar ajustes, sem permissão de arquivamento no MVP.
+- Admin pode criar conteúdo diretamente Aprovado sem segunda revisão.
 - Admin pode gerenciar todos os conteúdos, usuárias administrativas, publicação, arquivamento e ações editoriais autorizadas.
-- Conteúdo aprovado pode ser publicado apenas por Admin.
+- Conteúdo aprovado pode ser publicado por Revisor/professor ou Admin; aluno/acadêmica autora pode publicar somente o próprio conteúdo depois de revisão e aprovação por um desses perfis.
 - Conteúdo publicado pode ser arquivado apenas por Admin.
 - Todo conteúdo MUST manter histórico de alterações com versões ou registros suficientes para rastrear evolução editorial.
 - Auditoria MUST registrar quem criou, editou, enviou para revisão, revisou, aprovou, publicou e arquivou conteúdo.
 - Auditoria MUST registrar data e hora dos eventos relevantes, data de aprovação, estado anterior e estado resultante.
-- Conteúdos publicados MUST manter autoria, revisão e aprovação associadas.
+- Conteúdos publicados MUST manter autoria, revisão e aprovação quando obrigatórias ou autorização direta por papel quando houver dispensa de segunda revisão.
 
 ### Text Quality & Accent Requirements
 
@@ -375,7 +399,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 
 - **Usuária administrativa**: Pessoa autorizada a acessar o portal; possui credenciais, estado de acesso, perfil administrativo e histórico de ações.
 - **Perfil administrativo**: Conjunto de permissões associado a Acadêmica/autora, Revisor/professor ou Admin.
-- **Conteúdo educativo**: Material informativo sobre saúde feminina; possui título, corpo, categoria ou classificação, estado editorial, autoria, revisão, aprovação, publicação, arquivamento e histórico.
+- **Conteúdo educativo**: Material informativo sobre saúde feminina; possui título, corpo, categoria ou classificação, estado editorial, autoria, revisão/aprovação obrigatória ou autorização direta por papel, publicação, arquivamento e histórico.
 - **Evento de auditoria editorial**: Registro de ação relevante sobre conteúdo ou permissão administrativa; identifica responsável, ação, data, hora, estado anterior, estado resultante e metadados necessários.
 - **Histórico de alterações**: Registro de versões ou mudanças de conteúdo suficiente para rastrear evolução editorial.
 - **Notificação administrativa**: Aviso no painel ou por e-mail sobre evento editorial ou ação necessária, direcionado a perfis autorizados.
@@ -388,7 +412,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - **SC-001**: 100% das ações administrativas protegidas avaliadas exigem autenticação administrativa válida.
 - **SC-002**: 100% das tentativas avaliadas de executar ação fora do perfil são bloqueadas.
 - **SC-003**: 95% das pessoas administrativas em teste conseguem autenticar, navegar no painel e localizar suas ações permitidas sem ajuda externa.
-- **SC-004**: 100% dos conteúdos publicados avaliados possuem autoria, revisão, aprovação, data de aprovação, publicação e histórico editorial rastreável.
+- **SC-004**: 100% dos conteúdos publicados avaliados possuem autoria, revisão quando obrigatória ou autorização direta por papel, data correspondente, publicação e histórico editorial rastreável.
 - **SC-005**: 100% das transições editoriais inválidas avaliadas são bloqueadas.
 - **SC-006**: 95% dos eventos editoriais relevantes avaliados geram auditoria com responsável, ação, data, hora e estado resultante quando aplicável.
 - **SC-007**: 90% das pessoas participantes em teste conseguem completar o fluxo Rascunho → Em revisão → Aprovado → Publicado → Arquivado com os perfis corretos.
@@ -402,7 +426,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 
 - O ecossistema futuro terá app mobile para usuárias finais, mas esse canal não será implementado agora.
 - O portal administrativo será usado por pessoas vinculadas ao contexto acadêmico/editorial do produto.
-- Conteúdos serão escritos principalmente por Acadêmicas/autoras e revisados por Revisores/professores antes da publicação por Admin.
+- Conteúdos de alunos/acadêmicas autoras serão revisados por Revisores/professores ou Admin antes de poderem ser publicados pelo próprio aluno; conteúdos produzidos por Revisores/professores e Admins dispensam segunda revisão e podem ser publicados diretamente por esses perfis.
 - Categorias e metadados editoriais serão suficientes para organizar conteúdos no portal neste incremento; taxonomias avançadas podem evoluir depois.
 - A publicação no portal prepara conteúdos para consumo futuro pelo ecossistema, mas não exige app mobile ou endpoint público para usuárias finais neste incremento.
 - Notificações administrativas por e-mail informam apenas evento e ação necessária, evitando conteúdo completo e direcionando ao portal para detalhes.
@@ -420,6 +444,7 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - Gestão de usuárias administrativas.
 - Controle de perfis e permissões administrativas.
 - Perfis administrativos Acadêmica/autora, Revisor/professor e Admin.
+- Revisão obrigatória para conteúdo de aluno/acadêmica autora e criação diretamente Aprovada para Revisor/professor e Admin.
 - Cadastro e edição de conteúdos educativos.
 - Revisão, aprovação, publicação e arquivamento de conteúdos.
 - Fluxo editorial Rascunho → Em revisão → Aprovado → Publicado → Arquivado.
@@ -472,5 +497,5 @@ Como Admin, quero cadastrar e manter o catálogo de sintomas e queixas para cont
 - Nenhuma funcionalidade do incremento pode apresentar conclusão diagnóstica.
 - Nenhuma funcionalidade do incremento pode sugerir início, interrupção, troca ou dosagem de medicamento.
 - Nenhuma funcionalidade do incremento pode substituir avaliação de profissional de saúde.
-- Conteúdos de saúde devem ser publicados somente após revisão e aprovação por perfil autorizado.
+- Conteúdos de aluno/acadêmica autora devem ser publicados somente após revisão e aprovação por perfil autorizado; conteúdo de Revisor/professor ou Admin pode seguir sem segunda revisão, com autorização e auditoria registradas.
 - O incremento não terá integração com UBS, serviços públicos, prontuários ou profissionais em tempo real.

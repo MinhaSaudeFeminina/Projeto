@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreContentRequest;
 use App\Http\Requests\Admin\UpdateContentRequest;
+use App\Models\AdminRole;
 use App\Models\EducationalContent;
 use App\Services\Audit\AuditRecorder;
 use App\Services\Content\AdminContentSearchQuery;
@@ -60,25 +61,38 @@ class ContentController extends Controller
             $data = $request->validated();
             $lifeStageIds = Arr::pull($data, 'life_stage_ids', []);
             $ageRangeIds = Arr::pull($data, 'age_range_ids', []);
+            $actor = $request->user();
+            $bypassesSecondReview = $actor->hasAnyAdminRole([AdminRole::REVIEWER, AdminRole::ADMIN]);
+            $authorizedAt = $bypassesSecondReview ? now() : null;
+            $initialStatus = $bypassesSecondReview
+                ? EducationalContent::APPROVED
+                : EducationalContent::DRAFT;
 
             $content = EducationalContent::create([
                 ...$data,
                 'slug' => $textPreparation->uniqueSlug($data['title']),
-                'status' => EducationalContent::DRAFT,
-                'author_id' => $request->user()->id,
+                'status' => $initialStatus,
+                'author_id' => $actor->id,
+                'reviewed_by' => $bypassesSecondReview ? $actor->id : null,
+                'reviewed_at' => $authorizedAt,
+                'approved_by' => $bypassesSecondReview ? $actor->id : null,
+                'approved_at' => $authorizedAt,
             ]);
             $content->lifeStages()->sync($lifeStageIds);
             $content->ageRanges()->sync($ageRangeIds);
             $content->load(['category', 'lifeStages', 'ageRanges', 'author:id,name']);
             $textPreparation->refreshSearchIndex($content);
 
-            $revisions->record($content, $request->user(), 'Conteúdo criado');
+            $revisions->record($content, $actor, 'Conteúdo criado');
             $audit->recordEditorialEvent(
-                actor: $request->user(),
+                actor: $actor,
                 action: 'content_created',
                 content: $content,
-                newStatus: EducationalContent::DRAFT,
-                metadata: ['fields' => ['title', 'summary', 'body', 'category_id', 'life_stage_ids', 'age_range_ids']],
+                newStatus: $initialStatus,
+                metadata: [
+                    'fields' => ['title', 'summary', 'body', 'category_id', 'life_stage_ids', 'age_range_ids'],
+                    'review_required' => ! $bypassesSecondReview,
+                ],
             );
 
             return $content;

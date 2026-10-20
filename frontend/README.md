@@ -6,18 +6,19 @@ usuárias finais não fazem parte desta entrega.
 
 ## Perfis e responsabilidades
 
-- **Acadêmica/autora**: cria e edita os próprios rascunhos e os envia para revisão.
-- **Revisor/professor**: consulta a fila, aprova conteúdos ou solicita ajustes.
-- **Admin**: gerencia pessoas administrativas, publica, arquiva e acompanha todo o processo.
+- **Aluno/acadêmica autora**: cria e edita os próprios rascunhos, envia-os para revisão obrigatória e publica somente o próprio conteúdo depois de aprovado.
+- **Revisor/professor**: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado sem segunda revisão e consulta a fila de conteúdo de alunos/autoras para aprovar ou solicitar ajustes.
+- **Admin**: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado, gerencia pessoas administrativas, arquiva e acompanha todo o processo.
 
 O frontend adapta navegação e ações ao perfil autenticado, mas a autorização
 definitiva é aplicada pelo backend.
 
 ## Fluxo editorial
 
-As telas acompanham `Rascunho → Em revisão → Aprovado → Publicado → Arquivado`,
-incluindo fila de revisão, comentários de ajuste, auditoria, histórico e
-notificações administrativas.
+As telas mantêm `Rascunho → Em revisão → Aprovado → Publicado → Arquivado` para
+conteúdo de aluno/acadêmica autora e mostram a entrada direta em `Aprovado` para
+conteúdo criado por Revisor/professor ou Admin. O portal inclui fila de revisão,
+comentários de ajuste, auditoria, histórico e notificações administrativas.
 
 ## Português do Brasil e acessibilidade
 

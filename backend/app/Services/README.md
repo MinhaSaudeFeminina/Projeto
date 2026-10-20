@@ -29,7 +29,8 @@ Pastas legadas ou de fases futuras, como `Health/`, `Legal/` e `Profile/`, não 
 
 ## Conteúdo e Fluxo Editorial
 
-- O fluxo editorial permitido é `draft` -> `in_review` -> `approved` -> `published` -> `archived`.
+- Para aluno/acadêmica autora, o fluxo é `draft` -> `in_review` -> `approved` -> `published` -> `archived`; a pessoa autora só publica depois da aprovação de professor/revisor ou Admin.
+- Conteúdo criado por `reviewer_professor` ou `admin` entra em `approved`, sem segunda revisão, e pode ser publicado diretamente por esses perfis, sempre com histórico e auditoria.
 - Solicitação de ajustes retorna conteúdo de `in_review` para `draft` com comentário editorial obrigatório.
 - Conteúdos novos começam como `draft`.
 - Autoras editam apenas rascunhos próprios; Admin pode gerenciar todos conforme policy.

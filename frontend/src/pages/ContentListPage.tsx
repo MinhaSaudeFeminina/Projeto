@@ -49,6 +49,18 @@ export default function ContentListPage() {
   const isAdmin = hasAdminRole("admin");
   const isReviewer = hasAdminRole("reviewer_professor");
 
+  function canPublish(content: AdminContent): boolean {
+    if (content.status !== "approved" || !content.approved_by || !content.approved_at) return false;
+    if (isAdmin || isReviewer) return true;
+
+    return content.author_id === currentUser?.id
+      && content.submitted_by === currentUser?.id
+      && Boolean(content.submitted_at)
+      && content.reviewed_by === content.approved_by
+      && Boolean(content.reviewed_at)
+      && content.approved_by !== currentUser?.id;
+  }
+
   async function loadContents(searchFilters: ContentListFilters = {}) {
     setIsLoading(true);
     setError(null);
@@ -104,7 +116,7 @@ export default function ContentListPage() {
             <FilePenLine className="h-4 w-4" /> Gestão editorial
           </div>
           <h1 className="text-2xl font-bold">Conteúdos educativos</h1>
-          <p className="text-muted-foreground">Crie rascunhos e acompanhe seu estado editorial.</p>
+          <p className="text-muted-foreground">Crie conteúdos e acompanhe seu estado editorial até a publicação.</p>
         </div>
         <Button asChild><Link to="/conteudos/novo"><Plus className="mr-2 h-4 w-4" />Novo conteúdo</Link></Button>
       </section>
@@ -137,7 +149,7 @@ export default function ContentListPage() {
                     {isAdmin || isReviewer || content.author_id === currentUser?.id ? (
                       <Button asChild variant="ghost" size="sm"><Link to={`/conteudos/${content.id}/auditoria`}><FileClock className="mr-1 h-4 w-4" />Auditoria</Link></Button>
                     ) : null}
-                    {isAdmin && content.status === "approved" ? (
+                    {canPublish(content) ? (
                       <Button
                         type="button"
                         size="sm"

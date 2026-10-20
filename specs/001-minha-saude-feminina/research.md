@@ -41,14 +41,14 @@
 - Campos texto livres no conteúdo: rejeitado por dificultar filtros e consistência.
 - Taxonomias editáveis por todos os perfis: rejeitado por risco editorial; Admin controla gestão quando houver tela de administração.
 
-### Decision: manter fluxo editorial linear
+### Decision: manter estados editoriais comuns com entrada condicionada ao papel
 
-**Rationale**: Rascunho → Em revisão → Aprovado → Publicado → Arquivado cobre o ciclo requerido e simplifica validação, auditoria e permissões.
+**Rationale**: Conteúdo de aluno/acadêmica autora percorre Rascunho → Em revisão → Aprovado, com revisão obrigatória por Revisor/professor ou Admin, e só então pode ser publicado pela própria pessoa autora. Conteúdo criado por Revisor/professor ou Admin entra diretamente em Aprovado e pode ser publicado por esses perfis, porque sua qualificação ou autoridade elimina a necessidade de uma segunda aprovação. O arquivamento permanece exclusivo de Admin, preservando validação, auditoria e permissões.
 
 **Alternatives considered**:
 
 - Estado “Reprovado”: rejeitado neste incremento; materiais inadequados retornam para Rascunho por solicitação de ajustes.
-- Publicação por Revisor/professor: rejeitada; Admin publica e arquiva.
+- Publicação automática ao criar: rejeitada; publicar permanece uma ação explícita de Revisor/professor ou Admin, ou do aluno autor após revisão. Admin arquiva explicitamente.
 
 ### Decision: auditoria append-only e histórico de alterações por snapshot
 

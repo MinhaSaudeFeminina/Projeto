@@ -18,9 +18,9 @@ Não criar policies para app mobile, usuárias finais, ciclo menstrual, sintomas
 
 ## Perfis Canônicos
 
-- `academic_author`: cria conteúdos em `draft`, edita apenas rascunhos próprios e envia próprios conteúdos para revisão.
-- `reviewer_professor`: acessa conteúdos em `in_review`, solicita ajustes e aprova conteúdos.
-- `admin`: gerencia usuários administrativos, perfis, permissões, taxonomias, todos os conteúdos, publicação, arquivamento, auditoria e notificações.
+- `academic_author`: representa aluno/acadêmica autora, cria conteúdos em `draft`, edita apenas rascunhos próprios, envia-os para revisão obrigatória e publica somente o próprio conteúdo aprovado.
+- `reviewer_professor`: cria conteúdo diretamente em `approved`, publica conteúdo aprovado sem segunda revisão e acessa conteúdos de alunos/autoras em `in_review` para solicitar ajustes ou aprovar.
+- `admin`: publica conteúdos aprovados e gerencia usuários administrativos, perfis, permissões, taxonomias, todos os conteúdos, arquivamento, auditoria e notificações.
 
 Permissões granulares podem existir no banco, mas devem reforçar esses perfis canônicos, não abrir comportamento fora do MVP.
 
@@ -35,13 +35,13 @@ Permissões granulares podem existir no banco, mas devem reforçar esses perfis 
 
 ## Regras de Conteúdo
 
-- Criar rascunho: `academic_author` e `admin`.
+- Criar conteúdo: `academic_author` cria em `draft`; `reviewer_professor` e `admin` criam em `approved`, com autorização por papel auditada.
 - Editar rascunho próprio: autora do conteúdo em `draft`.
 - Editar qualquer conteúdo permitido: `admin`, conforme estado e operação.
 - Enviar para revisão: autora do rascunho próprio ou `admin`.
 - Solicitar ajustes: `reviewer_professor` ou `admin` quando o conteúdo está em `in_review`.
 - Aprovar: `reviewer_professor` ou `admin` quando o conteúdo está em `in_review`.
-- Publicar: somente `admin` quando o conteúdo está em `approved`.
+- Publicar: `reviewer_professor` ou `admin` quando o conteúdo está em `approved`; `academic_author` somente quando é a pessoa autora e há aprovação registrada por professor/revisor ou Admin.
 - Arquivar: somente `admin` quando o conteúdo está em `published`.
 - Ver auditoria e histórico: `reviewer_professor` e `admin`; autora pode ver histórico dos próprios conteúdos quando a regra da tela permitir.
 

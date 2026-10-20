@@ -94,11 +94,15 @@ it('cria notificações editoriais, lista apenas as próprias e permite marcá-l
     ]);
     $this->assertDatabaseHas('admin_notifications', [
         'recipient_id' => $author->id,
+        'type' => 'approved',
+    ]);
+    $this->assertDatabaseHas('admin_notifications', [
+        'recipient_id' => $author->id,
         'type' => 'published',
     ]);
     $this->assertDatabaseHas('admin_notifications', [
         'recipient_id' => $author->id,
         'type' => 'archived',
     ]);
-    Mail::assertSent(AdminActionRequiredMail::class, 8);
+    Mail::assertSent(AdminActionRequiredMail::class, 9);
 });

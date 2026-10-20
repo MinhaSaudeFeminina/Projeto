@@ -42,8 +42,9 @@ Não criar rotas para app mobile, cadastro/login de usuárias finais, perfil de 
 - Usuários administrativos inativos devem ser redirecionados para login ou tela de acesso negado.
 - A UI pode ocultar ações indisponíveis, mas o backend continua sendo a fonte decisiva de autorização.
 - Guards por perfil devem refletir os perfis canônicos:
-  - `academic_author`: cria, edita e envia próprios rascunhos para revisão.
-  - `reviewer_professor`: acessa revisão, solicita ajustes e aprova.
+  - `academic_author`: aluno/acadêmica autora cria, edita e envia próprios rascunhos para revisão obrigatória, publicando somente o próprio conteúdo aprovado.
+  - `reviewer_professor`: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado sem segunda revisão e acessa revisão de conteúdo de alunos/autoras para solicitar ajustes ou aprovar.
+  - `admin`: cria conteúdo diretamente Aprovado, publica conteúdo Aprovado e mantém o arquivamento explícito.
   - `admin`: gerencia usuários, permissões, taxonomias, publicação, arquivamento, auditoria e notificações.
 
 ## Layout Administrativo

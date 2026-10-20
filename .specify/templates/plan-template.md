@@ -60,7 +60,9 @@
 - Access control: identify actors, permission model, email verification impact,
   and least-privilege enforcement.
 - Editorial workflow and auditability: if content is involved, map workflow
-  states, role transitions, authorship or approval records, and audit events.
+  states, role-dependent initial status, mandatory review versus authorized
+  bypass, publication and archive permissions per role, authorship or approval
+  records, and audit events.
 - Accessibility and language: confirm PT-BR copy for MVP and document readability
   and accessibility expectations for affected interfaces.
 - MVP discipline: justify the feature as MVP-compatible or document why it is

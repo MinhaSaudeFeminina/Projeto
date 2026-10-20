@@ -22,7 +22,7 @@ class AdminNotificationService
         ],
         'approved' => [
             'title' => 'Conteúdo aprovado para publicação',
-            'message' => 'Há um conteúdo aprovado aguardando publicação no portal administrativo.',
+            'message' => 'O conteúdo foi aprovado. Pessoas autorizadas podem publicá-lo no portal administrativo.',
         ],
         'published' => [
             'title' => 'Conteúdo publicado',

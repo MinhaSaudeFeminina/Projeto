@@ -3,6 +3,7 @@
 use App\Models\AdminRole;
 use App\Models\AgeRange;
 use App\Models\ContentCategory;
+use App\Models\EducationalContent;
 use App\Models\LifeStage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -66,4 +67,51 @@ it('validates the complete draft payload', function (): void {
             'life_stage_ids.0',
             'age_range_ids.0',
         ]);
+});
+
+it('creates professor content already approved without a second review', function (): void {
+    $professor = adminUserWithCanonicalRole(AdminRole::REVIEWER);
+    $category = ContentCategory::create(['name' => 'Prevenção', 'slug' => 'prevencao']);
+
+    $response = $this->actingAs($professor, 'sanctum')->postJson('/api/v1/admin/contents', [
+        'title' => 'Prevenção e saúde integral',
+        'summary' => 'Orientações educativas revisadas pela professora autora.',
+        'body' => 'Conteúdo educativo com indicação de atendimento profissional.',
+        'category_id' => $category->id,
+    ]);
+
+    $response
+        ->assertCreated()
+        ->assertJsonPath('data.status', EducationalContent::APPROVED)
+        ->assertJsonPath('data.author_id', $professor->id)
+        ->assertJsonPath('data.reviewed_by', $professor->id)
+        ->assertJsonPath('data.approved_by', $professor->id)
+        ->assertJsonPath('data.submitted_by', null);
+
+    $contentId = $response->json('data.id');
+
+    $this->assertDatabaseHas('editorial_audit_events', [
+        'content_id' => $contentId,
+        'actor_id' => $professor->id,
+        'action' => 'content_created',
+        'new_status' => EducationalContent::APPROVED,
+    ]);
+});
+
+it('creates admin content already approved without a second review', function (): void {
+    $admin = adminUserWithCanonicalRole(AdminRole::ADMIN);
+    $category = ContentCategory::create(['name' => 'Bem-estar', 'slug' => 'bem-estar']);
+
+    $this->actingAs($admin, 'sanctum')->postJson('/api/v1/admin/contents', [
+        'title' => 'Bem-estar e autocuidado',
+        'summary' => 'Orientações educativas aprovadas pela administradora autora.',
+        'body' => 'Conteúdo educativo que não substitui atendimento profissional.',
+        'category_id' => $category->id,
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.status', EducationalContent::APPROVED)
+        ->assertJsonPath('data.author_id', $admin->id)
+        ->assertJsonPath('data.reviewed_by', $admin->id)
+        ->assertJsonPath('data.approved_by', $admin->id)
+        ->assertJsonPath('data.submitted_by', null);
 });
