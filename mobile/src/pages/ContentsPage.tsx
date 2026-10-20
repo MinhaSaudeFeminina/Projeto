@@ -49,13 +49,13 @@ export function ContentsPage() {
     <AppScreen contentContainerStyle={styles.screen}>
       <ScreenHero style={styles.hero}>
         <AppHeader
-          subtitle="Informacao segura para sua saude e bem-estar"
-          title="Conteudos"
+          subtitle="Informação segura para sua saúde e bem-estar"
+          title="Conteúdos"
         />
         <AppTextInput
-          accessibilityLabel="Buscar conteudo"
+          accessibilityLabel="Buscar conteúdo"
           onChangeText={setSearch}
-          placeholder="Buscar conteudo..."
+          placeholder="Buscar conteúdo..."
           value={search}
         />
       </ScreenHero>
@@ -87,7 +87,7 @@ export function ContentsPage() {
       </ScrollView>
 
       {contents.loading ? (
-        <LoadingState message="Buscando conteudos publicados." />
+        <LoadingState message="Buscando conteúdos publicados." />
       ) : (
         <View style={[styles.list, contents.refreshing && styles.refreshing]}>
           {(contents.data ?? []).map((content) => (
@@ -128,7 +128,7 @@ export function ContentsPage() {
       {!contents.loading && (contents.data ?? []).length === 0 && (
         <EmptyState
           message="Tente buscar por outro termo ou categoria."
-          title="Nenhum conteudo encontrado"
+          title="Nenhum conteúdo encontrado"
         />
       )}
     </AppScreen>

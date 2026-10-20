@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Pressable,
   StyleSheet,
@@ -38,7 +39,7 @@ export function AppHeader({
               onPress={onBack}
               style={styles.backButton}
             >
-              <Text style={styles.backText}>{'<'}</Text>
+              <Ionicons color={theme.colors.primary} name="arrow-back" size={22} />
             </Pressable>
           ) : null)}
       </View>
@@ -62,14 +63,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.radii.md,
-    height: 40,
+    height: 44,
     justifyContent: 'center',
-    width: 40,
-  },
-  backText: {
-    color: theme.colors.primary,
-    fontFamily: theme.typography.fonts.extraBold,
-    fontSize: theme.typography.sizes.xl,
+    width: 44,
   },
   container: {
     alignItems: 'center',
@@ -85,7 +81,7 @@ const styles = StyleSheet.create({
   side: {
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 40,
+    minWidth: 44,
   },
   subtitle: {
     color: theme.colors.mutedForeground,

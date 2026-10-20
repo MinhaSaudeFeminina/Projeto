@@ -5,6 +5,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { quickActions } from '../../data/staticContent';
 import type { DayLogFocus } from '../../utils/navigationTypes';
@@ -91,15 +92,19 @@ export function QuickActionsSheet({
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.title}>Acao rapida</Text>
+            <Text style={styles.title}>Ações rápidas</Text>
             <Pressable
-              accessibilityLabel="Fechar acoes rapidas"
+              accessibilityLabel="Fechar ações rápidas"
               accessibilityRole="button"
               hitSlop={8}
               onPress={onClose}
               style={styles.closeButton}
             >
-              <Text style={styles.closeText}>x</Text>
+              <Ionicons
+                color={theme.colors.mutedForeground}
+                name="close"
+                size={22}
+              />
             </Pressable>
           </View>
 
@@ -155,14 +160,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.muted,
     borderRadius: theme.radii.md,
-    height: 36,
+    height: 44,
     justifyContent: 'center',
-    width: 36,
-  },
-  closeText: {
-    color: theme.colors.mutedForeground,
-    fontFamily: theme.typography.fonts.bold,
-    fontSize: theme.typography.sizes.md,
+    width: 44,
   },
   grid: {
     flexDirection: 'row',

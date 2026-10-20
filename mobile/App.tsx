@@ -75,7 +75,7 @@ defaultTextProps.defaultProps.style = [
 const screenTitles: Record<keyof MainTabParamList, string> = {
   Today: 'Hoje',
   Cycle: 'Ciclo',
-  Contents: 'Conteudos',
+  Contents: 'Conteúdos',
   Profile: 'Perfil',
 };
 
@@ -210,7 +210,7 @@ function MainTabBar({ descriptors, navigation, state }: BottomTabBarProps) {
             return (
               <View key={route.key} style={styles.tabSlotWithAction}>
                 <Pressable
-                  accessibilityLabel="Abrir acoes rapidas"
+                  accessibilityLabel="Abrir ações rápidas"
                   accessibilityRole="button"
                   onPress={() => setQuickActionsVisible(true)}
                   style={styles.quickActionButton}
@@ -282,7 +282,7 @@ function RootNavigator() {
     return (
       <SafeAreaScreen>
         <LoadingState
-          message="Estamos preparando sua sessao."
+          message="Estamos preparando sua sessão."
           title="Entrando"
         />
       </SafeAreaScreen>

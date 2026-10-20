@@ -10,7 +10,7 @@ export function getSupportInfo(): SupportInfo {
   return {
     contacts: emergencyContacts,
     description:
-      'Em situacoes de urgencia, violencia ou sofrimento emocional, procure apoio imediatamente pelos canais disponiveis.',
+      'Em situações de urgência, violência ou sofrimento emocional, procure apoio imediatamente pelos canais disponíveis.',
     title: 'Você não está sozinha',
   };
 }

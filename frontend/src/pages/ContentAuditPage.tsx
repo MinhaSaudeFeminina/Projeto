@@ -109,7 +109,7 @@ export default function ContentAuditPage() {
       <section className="space-y-4" aria-labelledby="revision-history-heading">
         <div>
           <h2 id="revision-history-heading" className="text-xl font-semibold">Histórico de versões</h2>
-          <p className="text-sm text-muted-foreground">Snapshots preservados a cada alteração editorial relevante.</p>
+          <p className="text-sm text-muted-foreground">Versões preservadas a cada alteração editorial relevante.</p>
         </div>
         {revisions.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p> : (
           <div className="space-y-3">

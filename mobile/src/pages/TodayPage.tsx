@@ -66,18 +66,18 @@ export function TodayPage() {
           {position === null ? (
             <View style={styles.cycleInfo}>
               <Text style={styles.muted}>
-                Registre sua menstruacao para acompanhar seu ciclo aqui.
+                Registre sua menstruação para acompanhar seu ciclo aqui.
               </Text>
               <AppButton
                 onPress={() => navigation.navigate('MainTabs', { screen: 'Cycle' })}
-                title="Registrar menstruacao"
+                title="Registrar menstruação"
                 variant="ghost"
               />
             </View>
           ) : position.isLate ? (
             <View style={styles.cycleInfo}>
               <Text style={styles.lateTitle}>
-                Menstruacao atrasada ha {position.lateDays}{' '}
+                Menstruação atrasada há {position.lateDays}{' '}
                 {position.lateDays === 1 ? 'dia' : 'dias'}
               </Text>
               <Text style={styles.muted}>
@@ -97,7 +97,7 @@ export function TodayPage() {
               <View style={styles.nextPeriod}>
                 <Text style={styles.days}>{position.daysUntilNextPeriod}</Text>
                 <Text style={styles.muted}>
-                  {position.estimated ? 'dias (estimativa)' : 'dias para a proxima'}
+                  {position.estimated ? 'dias (estimativa)' : 'dias para a próxima'}
                 </Text>
               </View>
             </View>
@@ -162,7 +162,7 @@ export function TodayPage() {
       </AppCard>
 
       <View style={styles.tip}>
-        <Text style={styles.tipTitle}>Dica de saude do dia</Text>
+        <Text style={styles.tipTitle}>Dica de saúde do dia</Text>
         <Text style={styles.tipText}>{cycle.data?.healthTip}</Text>
       </View>
 

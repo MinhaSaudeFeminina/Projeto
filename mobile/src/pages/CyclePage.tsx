@@ -95,12 +95,12 @@ export function CyclePage() {
             loading={saving}
             onPress={() => runAction(endPeriodToday)}
             size="lg"
-            title="Minha menstruacao terminou"
+            title="Minha menstruação terminou"
           />
           <AppButton
             onPress={() => runAction(() => shiftOngoingPeriodStart(-1))}
             size="sm"
-            title="Na verdade comecou um dia antes"
+            title="Na verdade começou um dia antes"
             variant="ghost"
           />
         </View>
@@ -114,7 +114,7 @@ export function CyclePage() {
             loading={saving}
             onPress={() => runAction(startPeriodToday)}
             size="lg"
-            title="Minha menstruacao comecou hoje"
+            title="Minha menstruação começou hoje"
           />
         )
       )}
@@ -136,10 +136,10 @@ export function CyclePage() {
           action={
             <AppButton
               onPress={() => navigation.navigate('PeriodEditor')}
-              title="Registrar uma menstruacao anterior"
+              title="Registrar uma menstruação anterior"
             />
           }
-          message="Assim que voce registrar sua primeira menstruacao o app comeca a mostrar a previsao das proximas."
+          message="Assim que você registrar sua primeira menstruação, o app começará a mostrar a previsão das próximas."
           title="Ainda não há nada por aqui"
         />
       ) : (
@@ -149,7 +149,7 @@ export function CyclePage() {
       <AppButton
         fullWidth
         onPress={() => navigation.navigate('CycleHistory')}
-        title="Historico de ciclos"
+        title="Histórico de ciclos"
         variant="secondary"
       />
       <AppButton
@@ -171,8 +171,8 @@ function CycleHero({ summary }: { summary: CycleSummary }) {
     return (
       <AppCard style={styles.heroCard}>
         <Text style={styles.muted}>
-          Registre sua menstruacao para acompanhar o ciclo e ver a previsao das
-          proximas.
+          Registre sua menstruação para acompanhar o ciclo e ver a previsão das
+          próximas.
         </Text>
       </AppCard>
     );
@@ -190,14 +190,14 @@ function CycleHero({ summary }: { summary: CycleSummary }) {
             value={`${position.lateDays}`}
           />
           <View style={styles.heroInfo}>
-            <Text style={styles.heroTitle}>Menstruacao atrasada</Text>
+            <Text style={styles.heroTitle}>Menstruação atrasada</Text>
             <Text style={styles.muted}>
               Ciclos variam bastante. Se o atraso te preocupa, converse com uma
-              profissional de saude.
+              profissional de saúde.
             </Text>
             {stats.lastPeriodStart && (
               <Text style={styles.muted}>
-                Ultima menstruacao em {formatShortDate(stats.lastPeriodStart)}.
+                Última menstruação em {formatShortDate(stats.lastPeriodStart)}.
               </Text>
             )}
           </View>
@@ -221,7 +221,7 @@ function CycleHero({ summary }: { summary: CycleSummary }) {
           />
           {position.periodDay !== null && (
             <Text style={styles.heroTitle}>
-              Dia {position.periodDay} da menstruacao
+              Dia {position.periodDay} da menstruação
             </Text>
           )}
           <Text style={styles.muted}>{describeNextPeriod(position)}</Text>
@@ -233,14 +233,14 @@ function CycleHero({ summary }: { summary: CycleSummary }) {
 
 function describeNextPeriod(position: CyclePosition) {
   if (position.daysUntilNextPeriod === 0) {
-    return 'A proxima menstruacao pode comecar hoje';
+    return 'A próxima menstruação pode começar hoje';
   }
 
   if (position.daysUntilNextPeriod === 1) {
-    return 'A proxima menstruacao pode comecar amanha';
+    return 'A próxima menstruação pode começar amanhã';
   }
 
-  return `Faltam ${position.daysUntilNextPeriod} dias para a proxima`;
+  return `Faltam ${position.daysUntilNextPeriod} dias para a próxima menstruação`;
 }
 
 function CycleStatsGrid({ summary }: { summary: CycleSummary }) {
@@ -256,7 +256,7 @@ function CycleStatsGrid({ summary }: { summary: CycleSummary }) {
   return (
     <View style={styles.statsGrid}>
       <StatCard
-        label="Proxima menstruacao"
+        label="Próxima menstruação"
         value={
           position && !position.isLate
             ? `${position.daysUntilNextPeriod} dias`
@@ -264,11 +264,11 @@ function CycleStatsGrid({ summary }: { summary: CycleSummary }) {
         }
       />
       <StatCard
-        label={stats.averageCycleDays ? sample : 'Sem media ainda'}
+        label={stats.averageCycleDays ? sample : 'Sem média ainda'}
         value={stats.averageCycleDays ? `${stats.averageCycleDays} dias` : '--'}
       />
       <StatCard
-        label="Duracao da menstruacao"
+        label="Duração da menstruação"
         value={stats.averagePeriodDays ? `${stats.averagePeriodDays} dias` : '--'}
       />
       <StatCard label="Regularidade" value={stats.regularity} />

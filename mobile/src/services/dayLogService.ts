@@ -218,12 +218,12 @@ function describeSync(
 
   switch (action.type) {
     case 'create':
-      return `Menstruacao registrada em ${day}.`;
+      return `Menstruação registrada em ${day}.`;
     case 'range':
     case 'merge':
-      return `Sua menstruacao foi ajustada para incluir ${day}.`;
+      return `Sua menstruação foi ajustada para incluir ${day}.`;
     case 'delete':
-      return `A menstruacao de ${day} foi removida.`;
+      return `A menstruação de ${day} foi removida.`;
     default:
       return null;
   }

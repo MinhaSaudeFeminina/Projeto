@@ -39,8 +39,8 @@ export function ContentDetailPage({
   if (content.loading) {
     return (
       <AppScreen>
-        <AppHeader onBack={handleBack} title="Conteudo" />
-        <LoadingState message="Carregando o conteudo." />
+        <AppHeader onBack={handleBack} title="Conteúdo" />
+        <LoadingState message="Carregando o conteúdo." />
       </AppScreen>
     );
   }
@@ -48,7 +48,7 @@ export function ContentDetailPage({
   if (!content.data) {
     return (
       <AppScreen>
-        <AppHeader onBack={handleBack} title="Conteudo" />
+        <AppHeader onBack={handleBack} title="Conteúdo" />
         <ErrorMessage
           action={
             <AppButton onPress={handleBack} title="Voltar" variant="secondary" />

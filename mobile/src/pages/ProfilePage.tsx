@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
@@ -69,21 +71,21 @@ export function ProfilePage() {
         />
       </AppCard>
 
-      <AppCard title="Informacoes do ciclo">
+      <AppCard title="Informações do ciclo">
         <InfoRow
-          label="Duracao media do ciclo"
+          label="Duração média do ciclo"
           value={
             stats?.averageCycleDays ? `${stats.averageCycleDays} dias` : '--'
           }
         />
         <InfoRow
-          label="Duracao media do periodo"
+          label="Duração média da menstruação"
           value={
             stats?.averagePeriodDays ? `${stats.averagePeriodDays} dias` : '--'
           }
         />
         <InfoRow
-          label="Ultima menstruacao"
+          label="Última menstruação"
           value={
             stats?.lastPeriodStart
               ? formatShortDate(stats.lastPeriodStart)
@@ -92,12 +94,12 @@ export function ProfilePage() {
         />
       </AppCard>
 
-      <AppCard title="Estatisticas">
+      <AppCard title="Estatísticas">
         <View style={styles.stats}>
           <StatCard label="Ciclos" value={`${stats?.cyclesRecorded ?? 0}`} />
           <StatCard label="Regularidade" value={stats?.regularity ?? 'Sem dados'} />
           <StatCard
-            label="Duracao media"
+            label="Duração média"
             value={stats?.averageCycleDays ? `${stats.averageCycleDays}d` : '--'}
           />
         </View>
@@ -105,12 +107,12 @@ export function ProfilePage() {
 
       <View style={styles.links}>
         <QuickLink
-          icon="!"
+          icon="heart-circle-outline"
           label="Suporte e acolhimento"
           onPress={() => navigation.navigate('Support')}
         />
         <QuickLink
-          icon="*"
+          icon="flower-outline"
           label="Trilhas por fase da vida"
           onPress={() => navigation.navigate('LifeStages')}
         />
@@ -151,7 +153,7 @@ function QuickLink({
   label,
   onPress,
 }: {
-  icon: string;
+  icon: ComponentProps<typeof Ionicons>['name'];
   label: string;
   onPress: () => void;
 }) {
@@ -161,7 +163,7 @@ function QuickLink({
       onPress={onPress}
       style={({ pressed }) => [styles.quickLink, pressed && styles.pressed]}
     >
-      <Text style={styles.quickIcon}>{icon}</Text>
+      <Ionicons color={theme.colors.primary} name={icon} size={24} />
       <Text style={styles.quickLabel}>{label}</Text>
     </Pressable>
   );
@@ -205,12 +207,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.82,
-  },
-  quickIcon: {
-    color: theme.colors.primary,
-    fontFamily: theme.typography.fonts.extraBold,
-    fontSize: theme.typography.sizes.lg,
-    width: 24,
   },
   quickLabel: {
     color: theme.colors.foreground,

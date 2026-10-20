@@ -67,14 +67,14 @@ export function validatePeriod(
   if (!parseIsoDate(draft.startDate)) {
     return {
       code: 'INVALID_START',
-      message: 'Informe a data de inicio no formato DD/MM/AAAA.',
+      message: 'Informe a data de início no formato DD/MM/AAAA.',
     };
   }
 
   if (draft.endDate !== null && !parseIsoDate(draft.endDate)) {
     return {
       code: 'INVALID_END',
-      message: 'Informe a data de termino no formato DD/MM/AAAA.',
+      message: 'Informe a data de término no formato DD/MM/AAAA.',
     };
   }
 
@@ -117,7 +117,7 @@ export function validatePeriod(
   if (draft.endDate === null && others.some((cycle) => cycle.start_date > draft.startDate)) {
     return {
       code: 'ONGOING_NOT_LAST',
-      message: 'So a menstruacao mais recente pode ficar sem data de termino.',
+      message: 'Só a menstruação mais recente pode ficar sem data de término.',
     };
   }
 
@@ -130,7 +130,7 @@ export function validatePeriod(
   if (overlapping) {
     return {
       code: 'OVERLAP',
-      message: `Ja existe uma menstruacao registrada a partir de ${formatShortDate(overlapping.start_date)}.`,
+      message: `Já existe uma menstruação registrada a partir de ${formatShortDate(overlapping.start_date)}.`,
     };
   }
 
@@ -146,7 +146,7 @@ export function validatePeriod(
   if (tooClose) {
     return {
       code: 'TOO_CLOSE',
-      message: `Isso fica a poucos dias da menstruacao de ${formatShortDate(tooClose.start_date)}. Edite aquela em vez de criar outra.`,
+      message: `Isso fica a poucos dias da menstruação de ${formatShortDate(tooClose.start_date)}. Edite aquela em vez de criar outra.`,
     };
   }
 
@@ -159,7 +159,7 @@ export function describePeriodWarning(draft: PeriodDraft, today = todayIso()) {
   const length = daysBetween(draft.startDate, end) + 1;
 
   return length > longPeriodDays
-    ? `Foram ${length} dias. Se a menstruacao esta durando muito, vale conversar com uma profissional de saude.`
+    ? `Foram ${length} dias. Se a menstruação está durando muito, vale conversar com uma profissional de saúde.`
     : null;
 }
 

@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: 'row',
     gap: theme.spacing.xs,
-    minHeight: 34,
+    minHeight: 44,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
   },

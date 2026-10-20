@@ -31,7 +31,7 @@ export const reminderRecurrences: {
   { label: 'Não repete', value: 'nenhuma' },
   { label: 'Todo dia', value: 'diaria' },
   { label: 'Toda semana', value: 'semanal' },
-  { label: 'Todo mes', value: 'mensal' },
+  { label: 'Todo mês', value: 'mensal' },
   { label: 'Todo ano', value: 'anual' },
 ];
 
@@ -76,7 +76,7 @@ export async function addReminder(
   reminder: ReminderDraft,
 ): Promise<ApiResult<ReminderViewModel>> {
   if (!reminder.title.trim()) {
-    return fail('EMPTY_REMINDER_TITLE', 'Informe um titulo para o lembrete.');
+    return fail('EMPTY_REMINDER_TITLE', 'Informe um título para o lembrete.');
   }
 
   const created: Reminder = {
@@ -118,7 +118,7 @@ export async function toggleReminderCompleted(
 
 export function getReminderFeedbackMessage(reminder?: ReminderViewModel) {
   if (reminder?.recurring) {
-    return `Ocorrencia concluida! A proxima e em ${reminder.formattedDate}.`;
+    return `Ocorrência concluída! A próxima é em ${reminder.formattedDate}.`;
   }
 
   return 'Lembrete atualizado!';

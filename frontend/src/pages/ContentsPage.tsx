@@ -59,7 +59,7 @@ export default function ContentsPage() {
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-44"><SelectValue placeholder="Categoria" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Todas categorias</SelectItem>
+            <SelectItem value="todos">Todas as categorias</SelectItem>
             {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -133,7 +133,7 @@ export default function ContentsPage() {
             <div><Label>O que é normal</Label><Textarea placeholder="Descreva o que é considerado normal..." rows={3} /></div>
             <div><Label>Quando procurar a UBS</Label><Textarea placeholder="Orientações para buscar atendimento..." rows={3} /></div>
             <div><Label>O que você pode fazer em casa</Label><Textarea placeholder="Dicas de cuidado em casa..." rows={3} /></div>
-            <div><Label>Disclaimer médico</Label><Textarea placeholder="Este conteúdo é educativo e não substitui avaliação médica." rows={2} /></div>
+            <div><Label>Aviso médico</Label><Textarea placeholder="Este conteúdo é educativo e não substitui avaliação médica." rows={2} /></div>
             <div><Label>Tags (separadas por vírgula)</Label><Input placeholder="saúde, mulher, orientação" /></div>
           </div>
           <DialogFooter className="flex gap-2">

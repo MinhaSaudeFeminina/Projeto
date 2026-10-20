@@ -103,9 +103,9 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
       {formOpen && (
         <AppCard title="Novo lembrete">
           <AppTextInput
-            label="Titulo"
+            label="Título"
             onChangeText={setTitle}
-            placeholder="Consulta ginecologica"
+            placeholder="Consulta ginecológica"
             value={title}
           />
           <AppTextInput
@@ -146,7 +146,7 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
               <Pressable
                 accessibilityLabel={
                   reminder.recurring
-                    ? 'Concluir esta ocorrencia do lembrete'
+                    ? 'Concluir esta ocorrência do lembrete'
                     : reminder.completed
                       ? 'Marcar lembrete como pendente'
                       : 'Marcar lembrete como concluido'
@@ -185,7 +185,7 @@ export function RemindersPage({ navigation }: RemindersPageProps) {
 
       {!loading && reminders.length === 0 && (
         <EmptyState
-          message="Adicione consultas, exames ou vacinas, com ou sem repeticao. Os lembretes ficam salvos apenas neste dispositivo."
+          message="Adicione consultas, exames ou vacinas, com ou sem repetição. Os lembretes ficam salvos apenas neste dispositivo."
           title="Nenhum lembrete cadastrado"
         />
       )}

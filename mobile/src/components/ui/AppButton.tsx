@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondaryForeground,
   },
   sm: {
-    minHeight: 38,
+    minHeight: 44,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },

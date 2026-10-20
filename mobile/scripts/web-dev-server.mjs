@@ -81,7 +81,7 @@ const proxy = http.createServer((request, response) => {
       response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
     }
 
-    response.end('O servidor de desenvolvimento nao respondeu.');
+    response.end('O servidor de desenvolvimento não respondeu.');
   });
 
   // A browser that goes away mid-response destroys the socket. Without these
@@ -118,7 +118,7 @@ proxy.on('upgrade', (request, socket, head) => {
 });
 
 process.on('uncaughtException', (error) => {
-  console.error('Erro nao tratado no proxy:', error);
+  console.error('Erro não tratado no proxy:', error);
 });
 
 await waitForMetro();
@@ -141,7 +141,7 @@ async function waitForMetro() {
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
-  throw new Error(`Metro nao subiu na porta ${metroPort}.`);
+  throw new Error(`Metro não subiu na porta ${metroPort}.`);
 }
 
 function canConnect() {
