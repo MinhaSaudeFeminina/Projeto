@@ -139,3 +139,28 @@ test("does not let toolbar buttons steal focus from the editor", async () => {
     expect(event.defaultPrevented, `${label} deveria cancelar o mousedown`).toBe(true);
   }
 });
+
+test("uploads a pasted image and inserts the managed URL into the document", async () => {
+  const uploadImage = vi.fn().mockResolvedValue({ url: "http://localhost:8000/storage/editorial-images/sinais.png" });
+
+  function ImageEditorHarness() {
+    const [value, setValue] = useState("");
+
+    return (
+      <>
+        <span id="body-label">Conteúdo educativo</span>
+        <RichTextEditor id="body" labelledBy="body-label" value={value} onChange={setValue} contentId={10} uploadImage={uploadImage} />
+        <output data-testid="html">{value}</output>
+      </>
+    );
+  }
+
+  render(<ImageEditorHarness />);
+  const image = new File(["imagem"], "sinais.png", { type: "image/png" });
+  const editor = screen.getByLabelText("Conteúdo educativo");
+
+  fireEvent.paste(editor, { clipboardData: { files: [image], getData: () => "" } });
+
+  await waitFor(() => expect(uploadImage).toHaveBeenCalledWith(10, image));
+  await waitFor(() => expect(screen.getByTestId("html").textContent).toContain('<img src="http://localhost:8000/storage/editorial-images/sinais.png" alt="Imagem educativa">'));
+});

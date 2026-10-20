@@ -27,19 +27,24 @@ const isolationHeaders = {
   'Cross-Origin-Opener-Policy': 'same-origin',
 };
 
-// So the script also works when invoked directly, not only through `npm run`.
-const localBin = fileURLToPath(new URL('../node_modules/.bin', import.meta.url));
+// Call Expo through Node so this works consistently on Windows and Unix shells,
+// including when the script is invoked directly rather than through `npm run`.
+const expoCli = fileURLToPath(new URL('../node_modules/expo/bin/cli', import.meta.url));
 
-const metro = spawn('expo', ['start', '--web', '--port', String(metroPort)], {
+const metro = spawn(process.execPath, [expoCli, 'start', '--web', '--port', String(metroPort)], {
   env: {
     ...process.env,
     BROWSER: 'none',
-    PATH: `${localBin}:${process.env.PATH ?? ''}`,
   },
   // stdin is ignored rather than inherited: under `docker compose up` it is
   // closed, and Expo shuts itself down when the terminal it is attached to
   // goes away.
   stdio: ['ignore', 'inherit', 'inherit'],
+});
+
+metro.on('error', (error) => {
+  console.error('\nNao foi possivel iniciar o Expo:', error);
+  process.exit(1);
 });
 
 metro.on('exit', (code, signal) => {

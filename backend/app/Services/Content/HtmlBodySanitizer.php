@@ -32,6 +32,7 @@ class HtmlBodySanitizer
         'li' => [],
         'blockquote' => [],
         'a' => ['href'],
+        'img' => ['src', 'alt'],
     ];
 
     /** Esquemas aceitos em `href`; demais viram texto sem link. */
@@ -110,6 +111,12 @@ class HtmlBodySanitizer
             return;
         }
 
+        if ($tag === 'img' && ! $this->hasManagedImageSrc($element)) {
+            $element->parentNode?->removeChild($element);
+
+            return;
+        }
+
         $this->cleanChildren($element);
     }
 
@@ -129,6 +136,11 @@ class HtmlBodySanitizer
         $scheme = strtolower((string) parse_url($href, PHP_URL_SCHEME));
 
         return in_array($scheme, self::ALLOWED_SCHEMES, true);
+    }
+
+    private function hasManagedImageSrc(DOMElement $element): bool
+    {
+        return app(EditorialImageStorage::class)->isManagedUrl(trim($element->getAttribute('src')));
     }
 
     /**
