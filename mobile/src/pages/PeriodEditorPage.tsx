@@ -100,7 +100,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
 
     Alert.alert(
       'Apagar menstruacao',
-      'Isso remove esse registro e recalcula suas previsoes. Nao da para desfazer.',
+      'Isso remove esse registro e recalcula suas previsões. Não dá para desfazer.',
       [
         { style: 'cancel', text: 'Cancelar' },
         {
@@ -157,7 +157,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
         />
 
         <AppToggle
-          description="Deixe ligado se a menstruacao ainda nao terminou."
+          description="Deixe ligado se a menstruação ainda não terminou."
           label="Ainda estou menstruada"
           onValueChange={setOngoing}
           value={ongoing}

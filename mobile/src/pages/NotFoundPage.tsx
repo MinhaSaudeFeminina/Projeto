@@ -13,7 +13,7 @@ export function NotFoundPage({ navigation, route }: NotFoundPageProps) {
     <AppScreen contentContainerStyle={styles.screen}>
       <AppCard contentStyle={styles.card}>
         <Text style={styles.code}>404</Text>
-        <Text style={styles.title}>Tela nao encontrada</Text>
+        <Text style={styles.title}>Tela não encontrada</Text>
         <Text style={styles.message}>
           {route.params?.attemptedRoute
             ? `Rota solicitada: ${route.params.attemptedRoute}`

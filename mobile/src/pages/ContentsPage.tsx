@@ -38,7 +38,7 @@ export function ContentsPage() {
           message={
             categories.error ??
             contents.error ??
-            'Nao foi possivel carregar os conteudos.'
+            'Não foi possível carregar os conteúdos.'
           }
         />
       </AppScreen>

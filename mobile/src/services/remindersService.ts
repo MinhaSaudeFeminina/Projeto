@@ -28,7 +28,7 @@ export const reminderRecurrences: {
   label: string;
   value: ReminderRecurrence;
 }[] = [
-  { label: 'Nao repete', value: 'nenhuma' },
+  { label: 'Não repete', value: 'nenhuma' },
   { label: 'Todo dia', value: 'diaria' },
   { label: 'Toda semana', value: 'semanal' },
   { label: 'Todo mes', value: 'mensal' },
@@ -102,7 +102,7 @@ export async function toggleReminderCompleted(
   const reminders = await readReminders();
 
   if (!reminders.some((reminder) => reminder.id === id)) {
-    return fail('REMINDER_NOT_FOUND', 'Lembrete nao encontrado.', false);
+    return fail('REMINDER_NOT_FOUND', 'Lembrete não encontrado.', false);
   }
 
   const updated = reminders.map((reminder) =>
@@ -264,7 +264,7 @@ async function writeReminders(
   } catch {
     return fail(
       'REMINDER_STORAGE_FAILED',
-      'Nao foi possivel salvar o lembrete neste dispositivo.',
+      'Não foi possível salvar o lembrete neste dispositivo.',
     );
   }
 }
@@ -284,6 +284,6 @@ function toViewModel(reminder: Reminder, today: string): ReminderViewModel {
 function recurrenceLabel(recurrence: ReminderRecurrence) {
   return (
     reminderRecurrences.find((option) => option.value === recurrence)?.label ??
-    'Nao repete'
+    'Não repete'
   );
 }

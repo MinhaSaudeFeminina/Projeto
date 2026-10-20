@@ -47,7 +47,7 @@ export function LoginPage() {
     <AuthScreenLayout
       footer={
         <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Ainda nao tem conta?</Text>
+          <Text style={styles.switchText}>Ainda não tem conta?</Text>
           <Pressable
             accessibilityRole="button"
             hitSlop={8}
@@ -66,7 +66,7 @@ export function LoginPage() {
         <FeedbackMessage
           message={error}
           onDismiss={clearError}
-          title="Nao foi possivel entrar"
+          title="Não foi possível entrar"
           variant="warning"
         />
       ) : null}

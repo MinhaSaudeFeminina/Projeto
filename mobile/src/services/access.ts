@@ -40,7 +40,7 @@ export function databaseFailure(error: unknown) {
     if (error.reason === 'notIsolated') {
       return fail(
         'DB_NOT_ISOLATED',
-        'O registro do ciclo funciona no aplicativo do celular. Neste navegador ele nao esta disponivel.',
+        'O registro do ciclo funciona no aplicativo do celular. Neste navegador ele não está disponível.',
         false,
       );
     }
@@ -48,6 +48,6 @@ export function databaseFailure(error: unknown) {
 
   return fail(
     'DB_UNAVAILABLE',
-    'Nao foi possivel abrir seus dados neste aparelho.',
+    'Não foi possível abrir seus dados neste aparelho.',
   );
 }

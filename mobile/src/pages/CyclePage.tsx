@@ -140,7 +140,7 @@ export function CyclePage() {
             />
           }
           message="Assim que voce registrar sua primeira menstruacao o app comeca a mostrar a previsao das proximas."
-          title="Ainda nao ha nada por aqui"
+          title="Ainda não há nada por aqui"
         />
       ) : (
         data && <CycleStatsGrid summary={data} />

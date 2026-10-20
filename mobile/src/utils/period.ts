@@ -81,7 +81,7 @@ export function validatePeriod(
   if (draft.endDate !== null && draft.endDate < draft.startDate) {
     return {
       code: 'END_BEFORE_START',
-      message: 'O termino nao pode ser antes do inicio.',
+      message: 'O término não pode ser antes do início.',
     };
   }
 
@@ -90,14 +90,14 @@ export function validatePeriod(
   if (draft.startDate > today) {
     return {
       code: 'FUTURE_START',
-      message: 'Nao da para registrar uma menstruacao que ainda nao aconteceu.',
+      message: 'Não dá para registrar uma menstruação que ainda não aconteceu.',
     };
   }
 
   if (draft.endDate !== null && draft.endDate > today) {
     return {
       code: 'FUTURE_END',
-      message: 'O termino nao pode ser uma data futura.',
+      message: 'O término não pode ser uma data futura.',
     };
   }
 

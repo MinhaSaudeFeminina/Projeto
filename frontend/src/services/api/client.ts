@@ -28,8 +28,8 @@ export async function apiRequest<T>(
   });
 
   if (!response.ok) {
-    const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.message ?? "Não foi possível concluir a solicitação.");
+    const payload = await response.json().catch(() => null);
+    throw new Error(errorMessage(response.status, payload));
   }
 
   if (response.status === 204) {
@@ -37,4 +37,34 @@ export async function apiRequest<T>(
   }
 
   return response.json() as Promise<T>;
+}
+
+const GENERIC_ERROR = "Não foi possível concluir a solicitação. Tente novamente em instantes.";
+const SERVER_ERROR = "Ocorreu um erro inesperado no servidor. Tente novamente em instantes.";
+
+// Text that reads like an exception, a stack trace or a framework default must
+// never reach the screen; the user gets a generic sentence instead.
+const TECHNICAL_TEXT = /SQLSTATE|Exception|\\|::|\.php|Unauthenticated\.|This action is unauthorized|The route|No query results|Too Many Attempts|Server Error|field is required|field must/i;
+
+type ErrorPayload = {
+  message?: unknown;
+  errors?: Record<string, unknown>;
+};
+
+function errorMessage(status: number, payload: ErrorPayload | null): string {
+  if (status >= 500) {
+    return SERVER_ERROR;
+  }
+
+  const firstFieldError = Object.values(payload?.errors ?? {})
+    .flat()
+    .find((value): value is string => typeof value === "string");
+
+  for (const candidate of [firstFieldError, payload?.message]) {
+    if (typeof candidate === "string" && candidate.trim() !== "" && !TECHNICAL_TEXT.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  return GENERIC_ERROR;
 }

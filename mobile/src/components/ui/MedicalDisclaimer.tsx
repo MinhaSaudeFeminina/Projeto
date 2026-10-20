@@ -20,7 +20,7 @@ export function MedicalDisclaimer({
   if (compact) {
     return (
       <Text style={[styles.compactText, style]}>
-        Essas informacoes nao substituem avaliacao medica.
+        Essas informações não substituem avaliação médica.
       </Text>
     );
   }
@@ -29,7 +29,7 @@ export function MedicalDisclaimer({
     <View style={[styles.container, style]}>
       <Text style={styles.icon}>!</Text>
       <Text style={styles.text}>
-        Estas informacoes nao substituem avaliacao medica. Procure sempre a UBS
+        Estas informações não substituem avaliação médica. Procure sempre a UBS
         para confirmacao e acompanhamento.
       </Text>
     </View>

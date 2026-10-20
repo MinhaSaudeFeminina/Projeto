@@ -109,7 +109,7 @@ export async function saveDayLog(
   if (draft.date > todayIso()) {
     return fail(
       'FUTURE_DAY',
-      'Nao da para registrar um dia que ainda nao aconteceu.',
+      'Não dá para registrar um dia que ainda não aconteceu.',
     );
   }
 

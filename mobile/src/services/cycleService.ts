@@ -273,7 +273,7 @@ export async function endPeriodToday(): Promise<ApiResult<SavedPeriod>> {
     if (!ongoing) {
       return fail(
         'NO_ONGOING_PERIOD',
-        'Nao ha menstruacao em andamento para encerrar.',
+        'Não há menstruação em andamento para encerrar.',
       );
     }
 
@@ -305,7 +305,7 @@ export async function shiftOngoingPeriodStart(
     if (!ongoing) {
       return fail(
         'NO_ONGOING_PERIOD',
-        'Nao ha menstruacao em andamento para ajustar.',
+        'Não há menstruação em andamento para ajustar.',
       );
     }
 

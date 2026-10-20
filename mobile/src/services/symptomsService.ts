@@ -86,7 +86,7 @@ export async function addCustomSymptom(
 
     return created
       ? ok(toOption(created))
-      : fail('SYMPTOM_NOT_SAVED', 'Nao foi possivel salvar esse sintoma.');
+      : fail('SYMPTOM_NOT_SAVED', 'Não foi possível salvar esse sintoma.');
   } catch (error) {
     return databaseFailure(error);
   }

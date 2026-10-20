@@ -50,24 +50,19 @@ export async function requestJson<T>(
 
     if (!response.ok) {
       const errorPayload = isObject(payload) ? payload : null;
-      const validationMessage =
-        errorPayload &&
-        'errors' in errorPayload &&
-        errorPayload.errors &&
-        Object.values(errorPayload.errors)[0]?.[0];
-      const message =
-        validationMessage ||
-        (errorPayload && 'message' in errorPayload && errorPayload.message) ||
-        'Nao foi possivel concluir a solicitacao.';
 
-      return fail(`HTTP_${response.status}`, message, response.status < 500);
+      return fail(
+        `HTTP_${response.status}`,
+        errorMessage(response.status, errorPayload),
+        response.status < 500,
+      );
     }
 
     return ok(payload as T);
   } catch {
     return fail(
       'NETWORK_ERROR',
-      'Nao foi possivel conectar ao servidor. Verifique a internet e tente novamente.',
+      'Não foi possível conectar ao servidor. Verifique a internet e tente novamente.',
     );
   }
 }
@@ -90,6 +85,30 @@ function buildQueryString(query: RequestOptions['query']) {
     .join('&');
 
   return `?${search}`;
+}
+
+const genericError = 'Não foi possível concluir a solicitação. Tente novamente em instantes.';
+const serverError = 'Ocorreu um erro inesperado no servidor. Tente novamente em instantes.';
+
+// Text that reads like an exception or a framework default must never reach
+// the screen; the user gets a generic sentence instead.
+const technicalText =
+  /SQLSTATE|Exception|\\|::|\.php|Unauthenticated\.|This action is unauthorized|The route|No query results|Too Many Attempts|Server Error|field is required|field must/i;
+
+function errorMessage(status: number, payload: LaravelErrorPayload | null) {
+  if (status >= 500) {
+    return serverError;
+  }
+
+  const firstFieldError = Object.values(payload?.errors ?? {}).flat()[0];
+
+  for (const candidate of [firstFieldError, payload?.message]) {
+    if (typeof candidate === 'string' && candidate.trim() !== '' && !technicalText.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  return genericError;
 }
 
 function isObject(value: unknown): value is LaravelErrorPayload {

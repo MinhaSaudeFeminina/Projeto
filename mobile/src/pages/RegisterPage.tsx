@@ -40,7 +40,7 @@ export function RegisterPage() {
         ? `A senha precisa ter ao menos ${minimumPasswordLength} caracteres.`
         : undefined,
     passwordConfirmation:
-      passwordConfirmation !== password ? 'As senhas nao conferem.' : undefined,
+      passwordConfirmation !== password ? 'As senhas não conferem.' : undefined,
     acceptedTerms: !acceptedTerms
       ? 'E necessario aceitar os termos para continuar.'
       : undefined,
@@ -93,7 +93,7 @@ export function RegisterPage() {
         <FeedbackMessage
           message={error}
           onDismiss={clearError}
-          title="Nao foi possivel criar sua conta"
+          title="Não foi possível criar sua conta"
           variant="warning"
         />
       ) : null}

@@ -73,7 +73,7 @@ export async function restoreSession(): Promise<ApiResult<AuthSession | null>> {
 
     return fail(
       'SESSION_RESTORE_FAILED',
-      'Nao foi possivel recuperar sua sessao. Entre novamente.',
+      'Não foi possível recuperar sua sessão. Entre novamente.',
     );
   }
 }
@@ -117,7 +117,7 @@ async function persistAuthResponse(
   } catch {
     return fail(
       'SESSION_STORAGE_FAILED',
-      'Nao foi possivel salvar sua sessao neste dispositivo.',
+      'Não foi possível salvar sua sessão neste dispositivo.',
     );
   }
 }

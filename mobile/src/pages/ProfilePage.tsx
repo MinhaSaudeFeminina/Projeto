@@ -37,7 +37,7 @@ export function ProfilePage() {
         <AppHeader title="Perfil" />
         <ErrorMessage
           action={<AppButton onPress={refreshProfile} title="Tentar novamente" />}
-          message={error ?? 'Nao foi possivel carregar o perfil.'}
+          message={error ?? 'Não foi possível carregar o perfil.'}
         />
       </AppScreen>
     );
@@ -60,7 +60,7 @@ export function ProfilePage() {
         <InfoRow
           label="Data de nascimento"
           value={
-            profile.birthDate ? formatShortDate(profile.birthDate) : 'Nao informada'
+            profile.birthDate ? formatShortDate(profile.birthDate) : 'Não informada'
           }
         />
         <InfoRow

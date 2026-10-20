@@ -53,7 +53,7 @@ export function ContentDetailPage({
           action={
             <AppButton onPress={handleBack} title="Voltar" variant="secondary" />
           }
-          message={content.error ?? 'Conteudo nao encontrado.'}
+          message={content.error ?? 'Conteúdo não encontrado.'}
         />
       </AppScreen>
     );
