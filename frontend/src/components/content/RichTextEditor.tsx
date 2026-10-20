@@ -1,15 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Link2, Undo2, Redo2 } from "lucide-react";
+import Image from "@tiptap/extension-image";
+import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Link2, ImagePlus, Undo2, Redo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uploadContentImage } from "@/services/api/contentImageApi";
 
 type RichTextEditorProps = {
   id: string;
   /** Id do elemento que rotula o editor; `label htmlFor` não associa contenteditable. */
   labelledBy: string;
   value: string;
+  contentId?: number | null;
   disabled?: boolean;
+  uploadImage?: typeof uploadContentImage;
   onChange: (html: string) => void;
 };
 
@@ -51,9 +55,12 @@ const toolbarButtonClass =
  * Editor de texto rico do conteúdo educativo. O valor trafega como HTML, com o
  * mesmo conjunto de tags aceito pelo sanitizador do backend.
  */
-export function RichTextEditor({ id, labelledBy, value, disabled = false, onChange }: RichTextEditorProps) {
+export function RichTextEditor({ id, labelledBy, value, contentId = null, disabled = false, uploadImage = uploadContentImage, onChange }: RichTextEditorProps) {
   /** Último HTML emitido daqui; o pai apenas o devolve como `value`. */
   const lastEmittedRef = useRef(value);
+  const editorRef = useRef<Editor | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -65,6 +72,7 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
         horizontalRule: false,
         link: { openOnClick: false, autolink: false },
       }),
+      Image.configure({ inline: false, allowBase64: false }),
     ],
     content: value,
     editable: !disabled,
@@ -86,10 +94,25 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
           "[&_p]:mt-2 [&_ul]:mt-2 [&_ol]:mt-2 [&_li]:ml-6",
           "[&_ul]:list-disc [&_ol]:list-decimal",
           "[&_a]:text-primary [&_a]:underline",
+          "[&_img]:my-4 [&_img]:max-w-full [&_img]:rounded-md",
         ),
+      },
+      handlePaste: (_view, event) => {
+        const image = Array.from(event.clipboardData?.files ?? []).find((file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type));
+        if (!image || disabled || !contentId || isUploadingImage) return false;
+        event.preventDefault();
+        setUploadError(null);
+        setIsUploadingImage(true);
+        void uploadImage(contentId, image)
+          .then(({ url }) => editorRef.current?.chain().focus().setImage({ src: url, alt: "Imagem educativa" }).run())
+          .catch((caught: Error) => setUploadError(caught.message || "Não foi possível enviar a imagem."))
+          .finally(() => setIsUploadingImage(false));
+        return true;
       },
     },
   });
+
+  editorRef.current = editor;
 
   /**
    * No TipTap 3 o `useEditor` não re-renderiza a cada transação: sem esta
@@ -105,6 +128,7 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
       bulletList: current?.isActive("bulletList") ?? false,
       orderedList: current?.isActive("orderedList") ?? false,
       link: current?.isActive("link") ?? false,
+      image: current?.isActive("image") ?? false,
       canUndo: current?.can().undo() ?? false,
       canRedo: current?.can().redo() ?? false,
     }),
@@ -150,6 +174,12 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
     current.chain().focus().extendMarkRange("link").setLink({ href }).run();
   }
 
+  function editImageDescription(current: Editor) {
+    if (!current.isActive("image")) return;
+    const description = window.prompt("Descrição da imagem", current.getAttributes("image").alt as string ?? "Imagem educativa");
+    if (description !== null) current.chain().focus().updateAttributes("image", { alt: description || "Imagem educativa" }).run();
+  }
+
   return (
     <div className={cn("rounded-md border", disabled && "opacity-60")}>
       <div className="flex flex-wrap items-center gap-1 border-b bg-muted/40 p-1" role="toolbar" aria-label="Formatação do conteúdo">
@@ -182,6 +212,9 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
         >
           <Link2 className="h-4 w-4" />
         </button>
+        <button type="button" title="Editar descrição da imagem" aria-label="Editar descrição da imagem" disabled={disabled || !toolbarState.image} onMouseDown={keepEditorFocus} onClick={() => editImageDescription(editor)} className={toolbarButtonClass}>
+          <ImagePlus className="h-4 w-4" />
+        </button>
 
         <span className="mx-1 h-5 w-px bg-border" />
         <button type="button" title="Desfazer" aria-label="Desfazer" onMouseDown={keepEditorFocus} disabled={disabled || !toolbarState.canUndo} onClick={() => editor.chain().focus().undo().run()} className={toolbarButtonClass}>
@@ -191,6 +224,9 @@ export function RichTextEditor({ id, labelledBy, value, disabled = false, onChan
           <Redo2 className="h-4 w-4" />
         </button>
       </div>
+      {!contentId && !disabled ? <p className="border-b px-3 py-2 text-xs text-muted-foreground">Salve o rascunho antes de colar imagens.</p> : null}
+      {isUploadingImage ? <p role="status" className="border-b px-3 py-2 text-xs text-muted-foreground">Enviando imagem…</p> : null}
+      {uploadError ? <p role="alert" className="border-b px-3 py-2 text-xs text-destructive">{uploadError}</p> : null}
       <EditorContent editor={editor} />
     </div>
   );
