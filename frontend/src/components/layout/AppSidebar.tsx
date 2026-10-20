@@ -5,8 +5,9 @@ import { hasAdminRole } from '@/state/adminAuthStore';
 import {
   LayoutDashboard, FileText, FileCheck2, FolderOpen, Thermometer,
   Users, Send, Phone,
-  BarChart3, UserCog, ChevronLeft, Heart
+  BarChart3, UserCog, ChevronLeft
 } from 'lucide-react';
+import logo from '@/assets/logo.jpg';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -38,9 +39,7 @@ export function AppSidebar() {
     )}>
       {/* Logo */}
       <div className="flex items-center gap-2 px-4 py-5 border-b border-sidebar-border">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary">
-          <Heart className="h-5 w-5 text-sidebar-primary-foreground" />
-        </div>
+        <img src={logo} alt="Logo Minha Saúde Feminina" className="h-9 w-9 shrink-0 rounded-lg object-cover" />
         {!collapsed && (
           <div className="overflow-hidden">
             <h1 className="font-display text-lg text-sidebar-primary-foreground truncate leading-none">Minha Saúde</h1>

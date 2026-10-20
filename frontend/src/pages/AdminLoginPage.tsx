@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Loader2, Lock, Mail } from "lucide-react";
+import { Loader2, Lock, Mail } from "lucide-react";
 import floral from "@/assets/login-floral.jpg";
+import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,9 +66,7 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded bg-primary shadow-lg shadow-primary/30">
-              <Heart className="h-6 w-6 text-primary-foreground" fill="currentColor" />
-            </div>
+            <img src={logo} alt="Logo Minha Saúde Feminina" className="h-12 w-12 rounded-lg object-cover" />
             <div>
               <h1 className="font-display text-2xl leading-none text-primary">Minha Saúde</h1>
               <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
