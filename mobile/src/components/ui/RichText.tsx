@@ -1,5 +1,5 @@
 import { Fragment, useMemo } from 'react';
-import { Linking, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { Image, Linking, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 
 import {
   parseRichText,
@@ -34,6 +34,8 @@ export function RichText({ html, style }: RichTextProps) {
 
 function Block({ block, first }: { block: RichTextBlock; first: boolean }) {
   switch (block.kind) {
+    case 'image':
+      return <Image accessible accessibilityLabel={block.alt} source={{ uri: block.src }} resizeMode="contain" style={[styles.image, first && styles.firstBlock]} />;
     case 'heading':
       return (
         <Text
@@ -148,6 +150,13 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.sizes.md,
     lineHeight: 23,
     marginTop: theme.spacing.sm,
+  },
+  image: {
+    alignSelf: 'stretch',
+    aspectRatio: 1.5,
+    borderRadius: theme.radii.md,
+    marginTop: theme.spacing.md,
+    width: '100%',
   },
   italic: {
     fontFamily: theme.typography.fonts.italic,

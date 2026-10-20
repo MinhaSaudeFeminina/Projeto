@@ -16,6 +16,7 @@ export type InlineSpan = {
 };
 
 export type RichTextBlock =
+  | { kind: 'image'; src: string; alt: string }
   | { kind: 'heading'; level: 2 | 3; spans: InlineSpan[] }
   | { kind: 'paragraph'; spans: InlineSpan[] }
   | { kind: 'quote'; spans: InlineSpan[] }
@@ -31,6 +32,8 @@ type ElementNode = {
   type: 'element';
   tag: string;
   href: string | null;
+  src: string | null;
+  alt: string | null;
   children: HtmlNode[];
 };
 
@@ -67,7 +70,7 @@ export function parseRichText(html: string | null | undefined): RichTextBlock[] 
   collectBlocks(parseNodes(html), blocks, 0);
 
   return blocks.filter((block) =>
-    block.spans.some((span) => span.text.trim().length > 0),
+    block.kind === 'image' || block.spans.some((span) => span.text.trim().length > 0),
   );
 }
 
@@ -76,6 +79,8 @@ function parseNodes(html: string): HtmlNode[] {
     type: 'element',
     tag: 'root',
     href: null,
+    src: null,
+    alt: null,
     children: [],
   };
   const stack: ElementNode[] = [root];
@@ -100,12 +105,14 @@ function parseNodes(html: string): HtmlNode[] {
       type: 'element',
       tag,
       href: tag === 'a' ? extractHref(attributes) : null,
+      src: tag === 'img' ? extractAttribute(attributes, 'src') : null,
+      alt: tag === 'img' ? extractAttribute(attributes, 'alt') : null,
       children: [],
     };
 
     stack[stack.length - 1].children.push(element);
 
-    if (tag !== 'br' && !raw.trimEnd().endsWith('/>')) {
+    if (tag !== 'br' && tag !== 'img' && !raw.trimEnd().endsWith('/>')) {
       stack.push(element);
     }
   }
@@ -135,7 +142,11 @@ function closeTag(stack: ElementNode[], tag: string) {
 }
 
 function extractHref(attributes: string) {
-  const match = /href\s*=\s*("([^"]*)"|'([^']*)')/i.exec(attributes);
+  return extractAttribute(attributes, 'href');
+}
+
+function extractAttribute(attributes: string, name: string) {
+  const match = new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, 'i').exec(attributes);
 
   return match ? decodeEntities(match[2] ?? match[3] ?? '') : null;
 }
@@ -152,6 +163,9 @@ function collectBlocks(
     }
 
     switch (node.tag) {
+      case 'img':
+        if (node.src) blocks.push({ kind: 'image', src: node.src, alt: node.alt || 'Imagem educativa' });
+        break;
       case 'h2':
       case 'h3':
         pushSpans(
@@ -196,7 +210,7 @@ function collectQuote(
   }
 
   for (const block of inner) {
-    blocks.push({ kind: 'quote', spans: block.spans });
+    if (block.kind !== 'image') blocks.push({ kind: 'quote', spans: block.spans });
   }
 }
 
@@ -238,7 +252,7 @@ function collectList(
 
 function pushSpans(
   blocks: RichTextBlock[],
-  block: RichTextBlock,
+  block: Exclude<RichTextBlock, { kind: 'image' }>,
   nodes: HtmlNode[],
 ) {
   collectSpans(nodes, [], null, block.spans);
