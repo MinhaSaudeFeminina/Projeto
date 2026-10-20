@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\AppUserController;
 use App\Http\Controllers\Api\V1\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\V1\Admin\ContentAuditController as AdminContentAuditController;
 use App\Http\Controllers\Api\V1\Admin\ContentController as AdminContentController;
+use App\Http\Controllers\Api\V1\Admin\ContentImageController;
 use App\Http\Controllers\Api\V1\Admin\ContentRevisionController as AdminContentRevisionController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\EditorialActionController;
@@ -73,6 +74,7 @@ Route::prefix('v1/admin')->name('api.v1.admin.')->group(function (): void {
         Route::delete('symptoms/{symptom}', [AdminSymptomController::class, 'destroy'])->name('symptoms.destroy');
         Route::get('contents', [AdminContentController::class, 'index'])->name('contents.index');
         Route::post('contents', [AdminContentController::class, 'store'])->name('contents.store');
+        Route::post('contents/{content}/images', [ContentImageController::class, 'store'])->name('contents.images.store');
         Route::get('contents/{content}', [AdminContentController::class, 'show'])->name('contents.show');
         Route::patch('contents/{content}', [AdminContentController::class, 'update'])->name('contents.update');
         Route::post('contents/{content}/submit-review', [EditorialActionController::class, 'submitReview'])->name('contents.submit-review');

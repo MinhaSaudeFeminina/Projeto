@@ -37,6 +37,18 @@ it('keeps links that use a safe scheme', function (): void {
     expect($this->sanitizer->sanitize($html))->toBe($html);
 });
 
+it('keeps a managed editorial image with its accessible description', function (): void {
+    $html = '<p>Veja o exemplo:</p><img src="http://localhost/storage/editorial-images/sinais.png" alt="Diagrama dos sinais de alerta">';
+
+    expect($this->sanitizer->sanitize($html))->toBe($html);
+});
+
+it('removes image sources outside editorial storage', function (): void {
+    $html = '<p>Antes</p><img src="data:image/png;base64,abc" onerror="alert(1)" alt="Perigosa"><img src="https://externo.test/foto.png" alt="Externa"><p>Depois</p>';
+
+    expect($this->sanitizer->sanitize($html))->toBe('<p>Antes</p><p>Depois</p>');
+});
+
 it('unwraps unsupported tags without losing the text', function (): void {
     $result = $this->sanitizer->sanitize('<div><span>Texto <b>importante</b></span></div>');
 
