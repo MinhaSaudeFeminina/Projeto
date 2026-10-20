@@ -9,9 +9,7 @@ import ContentEditorPage from "@/pages/ContentEditorPage";
 import ContentAuditPage from "@/pages/ContentAuditPage";
 import ReviewQueuePage from "@/pages/ReviewQueuePage";
 import CategoriesPage from "@/pages/CategoriesPage";
-import LifeStagesPage from "@/pages/LifeStagesPage";
 import SymptomsPage from "@/pages/SymptomsPage";
-import RemindersPage from "@/pages/RemindersPage";
 import AppUsersPage from "@/pages/AppUsersPage";
 import AdminNotificationsPage from "@/pages/AdminNotificationsPage";
 import SupportPage from "@/pages/SupportPage";
@@ -38,9 +36,7 @@ const App = () => (
               <Route path="/conteudos/novo" element={<ContentEditorPage />} />
               <Route path="/conteudos/:id" element={<ContentEditorPage />} />
               <Route path="/conteudos/:id/auditoria" element={<ContentAuditPage />} />
-              <Route path="/trilhas" element={<LifeStagesPage />} />
               <Route path="/sintomas" element={<SymptomsPage />} />
-              <Route path="/lembretes" element={<RemindersPage />} />
               <Route path="/usuarias" element={<AppUsersPage />} />
               <Route path="/notificacoes" element={<AdminNotificationsPage />} />
               <Route path="/relatorios" element={<ReportsPage />} />

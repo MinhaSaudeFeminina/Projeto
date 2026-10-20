@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { hasAdminRole } from '@/state/adminAuthStore';
 import {
-  LayoutDashboard, FileText, FileCheck2, FolderOpen, Route, Thermometer,
-  Bell, Users, Send, Phone,
+  LayoutDashboard, FileText, FileCheck2, FolderOpen, Thermometer,
+  Users, Send, Phone,
   BarChart3, UserCog, ChevronLeft, Heart
 } from 'lucide-react';
 
@@ -13,9 +13,7 @@ const menuItems = [
   { label: 'Conteúdos Educativos', icon: FileText, path: '/conteudos' },
   { label: 'Fila de Revisão', icon: FileCheck2, path: '/revisoes' },
   { label: 'Categorias', icon: FolderOpen, path: '/categorias' },
-  { label: 'Trilhas por Fase da Vida', icon: Route, path: '/trilhas' },
   { label: 'Sintomas e Queixas', icon: Thermometer, path: '/sintomas' },
-  { label: 'Lembretes e Campanhas', icon: Bell, path: '/lembretes' },
   { label: 'Usuárias / Perfis', icon: Users, path: '/usuarias' },
   { label: 'Notificações', icon: Send, path: '/notificacoes' },
   { label: 'Apoio e Contatos', icon: Phone, path: '/apoio' },
