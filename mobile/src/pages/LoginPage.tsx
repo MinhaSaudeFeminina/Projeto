@@ -59,8 +59,8 @@ export function LoginPage() {
       }
       formSubtitle="Informe seus dados para continuar."
       formTitle="Acesse sua conta"
-      heroSubtitle="Entre para acompanhar sua saude de um jeito simples e seguro."
-      heroTitle="Seu cuidado comeca aqui."
+      heroSubtitle="Entre para acompanhar sua saúde de um jeito simples e seguro."
+      heroTitle="Seu cuidado começa aqui."
     >
       {error ? (
         <FeedbackMessage

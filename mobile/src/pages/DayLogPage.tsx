@@ -164,7 +164,7 @@ export function DayLogPage({ navigation, route }: DayLogPageProps) {
   };
 
   const flowNote = isBleeding(draft.flow) && !detail.data?.insidePeriod
-    ? 'Esse dia entra na sua menstruacao.'
+    ? 'Esse dia entra na sua menstruação.'
     : null;
 
   return (
@@ -291,7 +291,7 @@ export function DayLogPage({ navigation, route }: DayLogPageProps) {
       </AppCard>
 
       <AppCard
-        title="Como voce se sentiu"
+        title="Como você se sentiu"
         titleStyle={focus === 'mood' ? styles.focused : undefined}
       >
         <View style={styles.chipGroup}>
@@ -313,7 +313,7 @@ export function DayLogPage({ navigation, route }: DayLogPageProps) {
         <AppTextInput
           multiline
           onChangeText={(notes) => update({ notes })}
-          placeholder="O que voce quer lembrar sobre hoje?"
+          placeholder="O que você quer lembrar sobre hoje?"
           value={draft.notes}
         />
       </AppCard>

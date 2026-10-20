@@ -36,7 +36,7 @@ jest.mock('../symptomsService', () => ({
           isCustom: false,
           key: 'colica',
           name: 'Cólica',
-          severityAlertText: 'Procure avaliacao profissional.',
+          severityAlertText: 'Procure avaliação profissional.',
           shortDescription: null,
         },
       ],
@@ -59,7 +59,7 @@ const catalog = [
     isCustom: false,
     key: 'colica',
     name: 'Cólica',
-    severityAlertText: 'Procure avaliacao profissional.',
+    severityAlertText: 'Procure avaliação profissional.',
     shortDescription: null,
   },
 ];
@@ -109,7 +109,7 @@ describe('saveDayLog', () => {
       catalog,
     );
 
-    expect(expectOk(result).periodNote).toContain('Menstruacao registrada');
+    expect(expectOk(result).periodNote).toContain('Menstruação registrada');
 
     const periods = await listPeriods(mockDatabase as never, 7);
     expect(periods).toHaveLength(1);
@@ -153,7 +153,7 @@ describe('saveDayLog', () => {
       catalog,
     );
 
-    expect(expectOk(result).guidance).toContain('avaliacao profissional');
+    expect(expectOk(result).guidance).toContain('avaliação profissional');
   });
 
   it('refuses a day that has not happened yet', async () => {

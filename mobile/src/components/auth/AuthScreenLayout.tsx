@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useRef, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -30,6 +31,29 @@ export function AuthScreenLayout({
   children,
   footer,
 }: AuthScreenLayoutProps) {
+  const scrollRef = useRef<ScrollView>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const scrollToTop = () => {
+        scrollRef.current?.scrollTo({ animated: false, y: 0 });
+      };
+
+      scrollToTop();
+      const frame = requestAnimationFrame(() => {
+        scrollToTop();
+      });
+      // Native-stack finishes its web transition after the first frame and can
+      // restore the previous screen's scroll offset. Reset once more afterward.
+      const timeout = setTimeout(scrollToTop, 250);
+
+      return () => {
+        cancelAnimationFrame(frame);
+        clearTimeout(timeout);
+      };
+    }, []),
+  );
+
   return (
     <SafeAreaScreen style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -39,6 +63,7 @@ export function AuthScreenLayout({
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.screen}>
@@ -57,7 +82,7 @@ export function AuthScreenLayout({
                   />
                 </View>
                 <View>
-                  <Text style={styles.brandName}>Minha Saude</Text>
+                  <Text style={styles.brandName}>Minha Saúde</Text>
                   <Text style={styles.brandSuffix}>Feminina</Text>
                 </View>
               </View>
@@ -128,7 +153,7 @@ const styles = StyleSheet.create({
   footer: {
     gap: 12,
     marginTop: 'auto',
-    paddingBottom: 24,
+    paddingBottom: 16,
     paddingTop: 8,
   },
   formHeading: {
@@ -157,7 +182,7 @@ const styles = StyleSheet.create({
   },
   hero: {
     gap: 34,
-    minHeight: 286,
+    minHeight: 260,
     paddingBottom: 56,
     paddingHorizontal: 24,
     paddingTop: 28,
@@ -185,10 +210,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.gradients.warm[0],
   },
   screen: {
+    alignSelf: 'center',
     backgroundColor: theme.colors.background,
     flex: 1,
+    maxWidth: 560,
+    width: '100%',
   },
   scrollContent: {
+    alignItems: 'center',
     flexGrow: 1,
   },
   securityNote: {

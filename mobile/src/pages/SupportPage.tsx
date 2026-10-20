@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AppHeader } from '../components/layout/AppHeader';
 import { AppScreen } from '../components/layout/AppScreen';
@@ -29,26 +30,26 @@ export function SupportPage({ navigation }: SupportPageProps) {
         <Text style={styles.emergencyIcon}>SOS</Text>
         <Text style={styles.emergencyTitle}>Preciso de ajuda</Text>
         <Text style={styles.emergencyText}>
-          Ligue 180 - Central de Atendimento a Mulher
+          Ligue 180 — Central de Atendimento à Mulher
         </Text>
         <Text style={styles.emergencyText}>24h, gratuito e sigiloso</Text>
       </AppCard>
 
-      <AppCard title="Violencia contra a mulher">
+      <AppCard title="Violência contra a mulher">
         <Text style={styles.bodyText}>
-          A violencia contra a mulher pode ser fisica, psicologica, sexual,
-          patrimonial ou moral. Nenhuma forma de violencia e aceitavel. Na UBS,
-          voce pode relatar situacoes de violencia com sigilo e sem julgamentos.
+          A violência contra a mulher pode ser física, psicológica, sexual,
+          patrimonial ou moral. Nenhuma forma de violência é aceitável. Na UBS,
+          você pode relatar situações de violência com sigilo e sem julgamentos.
         </Text>
       </AppCard>
 
       <View style={styles.contacts}>
-        <Text style={styles.sectionTitle}>Telefones uteis</Text>
+        <Text style={styles.sectionTitle}>Telefones úteis</Text>
         {supportInfo.contacts.map((contact) => (
           <AppCard key={contact.number}>
             <View style={styles.contactRow}>
               <View style={styles.phoneCircle}>
-                <Text style={styles.phoneIcon}>tel</Text>
+                <Ionicons color={theme.colors.primary} name="call" size={20} />
               </View>
               <View style={styles.contactCopy}>
                 <Text style={styles.contactName}>{contact.name}</Text>
@@ -64,9 +65,9 @@ export function SupportPage({ navigation }: SupportPageProps) {
 
       <AppCard title="Procure sua UBS">
         <Text style={styles.bodyText}>
-          A Unidade Basica de Saude e a porta de entrada para cuidados de saude
-          da mulher. La voce pode realizar exames preventivos, pre-natal,
-          planejamento familiar e receber orientacao sobre saude intima.
+          A Unidade Básica de Saúde é a porta de entrada para cuidados de saúde
+          da mulher. Lá você pode realizar exames preventivos, pré-natal,
+          planejamento familiar e receber orientação sobre saúde íntima.
         </Text>
       </AppCard>
     </AppScreen>
@@ -134,11 +135,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     width: 40,
-  },
-  phoneIcon: {
-    color: theme.colors.primary,
-    fontFamily: theme.typography.fonts.bold,
-    fontSize: theme.typography.sizes.xs,
   },
   screen: {
     paddingTop: 0,

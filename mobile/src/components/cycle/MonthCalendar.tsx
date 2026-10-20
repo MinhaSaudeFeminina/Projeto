@@ -6,7 +6,7 @@ import { theme } from '../../utils/theme';
 export const monthNames = [
   'Janeiro',
   'Fevereiro',
-  'Marco',
+  'Março',
   'Abril',
   'Maio',
   'Junho',
@@ -39,7 +39,7 @@ export function MonthCalendar({
     <View style={styles.container}>
       <View style={styles.monthNav}>
         <Pressable
-          accessibilityLabel="Mes anterior"
+          accessibilityLabel="Mês anterior"
           accessibilityRole="button"
           onPress={() => onChangeMonth(-1)}
           style={styles.navButton}
@@ -50,7 +50,7 @@ export function MonthCalendar({
           {monthNames[monthDate.getMonth()]} {monthDate.getFullYear()}
         </Text>
         <Pressable
-          accessibilityLabel="Proximo mes"
+          accessibilityLabel="Próximo mês"
           accessibilityRole="button"
           onPress={() => onChangeMonth(1)}
           style={styles.navButton}
@@ -87,10 +87,10 @@ export function MonthCalendar({
 export function CalendarLegend() {
   return (
     <View style={styles.legend}>
-      <LegendItem label="Menstruacao" style={styles.periodDay} />
-      <LegendItem label="Previsao" style={styles.predictedPeriodDay} />
-      <LegendItem label="Periodo fertil" style={styles.fertileDay} />
-      <LegendItem label="Ovulacao" style={styles.ovulationDay} />
+      <LegendItem label="Menstruação" style={styles.periodDay} />
+      <LegendItem label="Previsão" style={styles.predictedPeriodDay} />
+      <LegendItem label="Período fértil" style={styles.fertileDay} />
+      <LegendItem label="Ovulação" style={styles.ovulationDay} />
       <View style={styles.legendItem}>
         <View style={styles.legendSymptom}>
           <View style={styles.symptomDot} />
@@ -144,11 +144,11 @@ function LegendItem({ label, style }: { label: string; style: object }) {
 }
 
 const statusLabels = {
-  fertile: 'Periodo fertil',
-  none: 'Sem marcacao',
-  ovulation: 'Ovulacao',
-  period: 'Menstruacao',
-  predictedPeriod: 'Menstruacao prevista',
+  fertile: 'Período fértil',
+  none: 'Sem marcação',
+  ovulation: 'Ovulação',
+  period: 'Menstruação',
+  predictedPeriod: 'Menstruação prevista',
 };
 
 const styles = StyleSheet.create({
@@ -223,9 +223,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: theme.colors.muted,
     borderRadius: theme.radii.md,
-    height: 40,
+    height: 44,
     justifyContent: 'center',
-    width: 40,
+    width: 44,
   },
   navText: {
     color: theme.colors.foreground,

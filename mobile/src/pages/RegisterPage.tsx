@@ -42,7 +42,7 @@ export function RegisterPage() {
     passwordConfirmation:
       passwordConfirmation !== password ? 'As senhas não conferem.' : undefined,
     acceptedTerms: !acceptedTerms
-      ? 'E necessario aceitar os termos para continuar.'
+      ? 'É necessário aceitar os termos para continuar.'
       : undefined,
   };
 
@@ -78,7 +78,7 @@ export function RegisterPage() {
     <AuthScreenLayout
       footer={
         <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Ja tem uma conta?</Text>
+          <Text style={styles.switchText}>Já tem uma conta?</Text>
           <Pressable accessibilityRole="button" hitSlop={8} onPress={goToLogin}>
             <Text style={styles.switchLink}>Entrar</Text>
           </Pressable>
@@ -86,8 +86,8 @@ export function RegisterPage() {
       }
       formSubtitle="Leva menos de um minuto."
       formTitle="Criar conta"
-      heroSubtitle="Crie sua conta para acompanhar seu ciclo, sintomas e conteudos feitos para voce."
-      heroTitle="Vamos comecar juntas."
+      heroSubtitle="Crie sua conta para acompanhar seu ciclo, sintomas e conteúdos feitos para você."
+      heroTitle="Vamos começar juntas."
     >
       {error ? (
         <FeedbackMessage
@@ -106,7 +106,7 @@ export function RegisterPage() {
           icon="person-outline"
           label="Nome"
           onChangeText={setName}
-          placeholder="Como voce quer ser chamada"
+          placeholder="Como você quer ser chamada"
           returnKeyType="next"
           textContentType="name"
           value={name}
@@ -179,7 +179,7 @@ export function RegisterPage() {
             ) : null}
           </View>
           <Text style={styles.termsText}>
-            Li e aceito os termos de uso e a politica de privacidade.
+            Li e aceito os termos de uso e a política de privacidade.
           </Text>
         </Pressable>
         {errorFor('acceptedTerms') ? (

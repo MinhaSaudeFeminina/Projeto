@@ -32,7 +32,7 @@ export function databaseFailure(error: unknown) {
     if (error.reason === 'lockedByAnotherTab') {
       return fail(
         'DB_LOCKED',
-        'Seus dados ja estao abertos em outra aba. Feche as outras abas e recarregue esta pagina.',
+        'Seus dados já estão abertos em outra aba. Feche as outras abas e recarregue esta página.',
         false,
       );
     }

@@ -19,7 +19,7 @@ export function LifeStagesPage({ navigation }: LifeStagesPageProps) {
     <AppScreen>
       <AppHeader
         onBack={handleBack}
-        subtitle="Conteudos e cuidados para cada momento da sua jornada"
+        subtitle="Conteúdos e cuidados para cada momento da sua jornada"
         title="Trilhas por fase da vida"
       />
 
@@ -40,7 +40,7 @@ export function LifeStagesPage({ navigation }: LifeStagesPageProps) {
                   onPress={() =>
                     navigation.navigate('MainTabs', { screen: 'Contents' })
                   }
-                  title="Ver conteudos"
+                  title="Ver conteúdos"
                   variant="ghost"
                 />
               </View>

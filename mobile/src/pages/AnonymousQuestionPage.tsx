@@ -23,7 +23,7 @@ import { theme } from '../utils/theme';
 type AnonymousQuestionPageProps = RootStackScreenProps<'AnonymousQuestion'>;
 
 const welcomeMessage = createAnonymousMessage(
-  'Ola! Este e um espaco seguro para tirar suas duvidas sobre saude feminina. Suas perguntas sao anonimas e as respostas sao educativas.',
+  'Olá! Este é um espaço seguro para tirar suas dúvidas sobre saúde feminina. Suas perguntas são anônimas e as respostas são educativas.',
   false,
 );
 
@@ -80,8 +80,8 @@ export function AnonymousQuestionPage({
       >
         <AppHeader
           onBack={handleBack}
-          subtitle="Suas duvidas sao sigilosas"
-          title="Pergunta anonima"
+          subtitle="Suas dúvidas são sigilosas"
+          title="Pergunta anônima"
         />
 
         <ScrollView
@@ -125,7 +125,7 @@ export function AnonymousQuestionPage({
               containerStyle={styles.inputContainer}
               onChangeText={setInput}
               onSubmitEditing={handleSend}
-              placeholder="Digite sua duvida..."
+              placeholder="Digite sua dúvida..."
               returnKeyType="send"
               value={input}
             />

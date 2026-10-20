@@ -37,4 +37,4 @@ export function fail(
 }
 
 export const fullAccessRequiredMessage =
-  'Aceite os termos de uso e a politica de privacidade para registrar ciclos e sintomas.';
+  'Aceite os termos de uso e a política de privacidade para registrar ciclos e sintomas.';

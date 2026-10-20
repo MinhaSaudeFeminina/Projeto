@@ -51,8 +51,8 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
   if (periodId !== null && existing.loading) {
     return (
       <AppScreen>
-        <AppHeader onBack={handleBack} title="Editar menstruacao" />
-        <LoadingState message="Carregando a menstruacao." />
+        <AppHeader onBack={handleBack} title="Editar menstruação" />
+        <LoadingState message="Carregando a menstruação." />
       </AppScreen>
     );
   }
@@ -61,7 +61,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
     const start = brDateToIso(startDate);
 
     if (!start) {
-      setError('Informe o inicio no formato DD/MM/AAAA.');
+      setError('Informe o início no formato DD/MM/AAAA.');
       return;
     }
 
@@ -71,7 +71,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
       end = brDateToIso(endDate);
 
       if (!end) {
-        setError('Informe o termino no formato DD/MM/AAAA.');
+        setError('Informe o término no formato DD/MM/AAAA.');
         return;
       }
     }
@@ -99,7 +99,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
     }
 
     Alert.alert(
-      'Apagar menstruacao',
+      'Apagar menstruação',
       'Isso remove esse registro e recalcula suas previsões. Não dá para desfazer.',
       [
         { style: 'cancel', text: 'Cancelar' },
@@ -133,10 +133,10 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
         onBack={handleBack}
         subtitle={
           periodId === null
-            ? 'Registre uma menstruacao que ja passou para melhorar suas previsoes'
-            : 'Ajuste as datas dessa menstruacao'
+            ? 'Registre uma menstruação que já passou para melhorar suas previsões'
+            : 'Ajuste as datas dessa menstruação'
         }
-        title={periodId === null ? 'Adicionar menstruacao' : 'Editar menstruacao'}
+        title={periodId === null ? 'Adicionar menstruação' : 'Editar menstruação'}
       />
 
       {error && (
@@ -150,7 +150,7 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
       <AppCard>
         <AppTextInput
           keyboardType="number-pad"
-          label="Comecou em"
+          label="Começou em"
           onChangeText={(value) => setStartDate(maskBrDate(value))}
           placeholder="DD/MM/AAAA"
           value={startDate}
@@ -186,15 +186,15 @@ export function PeriodEditorPage({ navigation, route }: PeriodEditorPageProps) {
         <AppButton
           fullWidth
           onPress={confirmDelete}
-          title="Apagar essa menstruacao"
+          title="Apagar essa menstruação"
           variant="danger"
         />
       )}
 
       <View style={styles.hint}>
         <Text style={styles.hintText}>
-          Duas menstruacoes registradas ja bastam para o app calcular a duracao
-          media do seu ciclo. Quanto mais voce registrar, melhor fica a previsao.
+          Duas menstruações registradas já bastam para o app calcular a duração
+          média do seu ciclo. Quanto mais você registrar, melhor fica a previsão.
         </Text>
       </View>
     </AppScreen>

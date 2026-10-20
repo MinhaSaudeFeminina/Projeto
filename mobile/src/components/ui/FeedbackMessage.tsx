@@ -6,6 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { theme } from '../../utils/theme';
 
@@ -43,7 +44,7 @@ export function FeedbackMessage({
           onPress={onDismiss}
           style={styles.dismiss}
         >
-          <Text style={styles.dismissText}>x</Text>
+          <Ionicons color={theme.colors.foreground} name="close" size={21} />
         </Pressable>
       )}
     </View>
@@ -65,14 +66,9 @@ const styles = StyleSheet.create({
   },
   dismiss: {
     alignItems: 'center',
-    height: 28,
+    height: 44,
     justifyContent: 'center',
-    width: 28,
-  },
-  dismissText: {
-    color: theme.colors.foreground,
-    fontFamily: theme.typography.fonts.bold,
-    fontSize: theme.typography.sizes.md,
+    width: 44,
   },
   message: {
     color: theme.colors.foreground,

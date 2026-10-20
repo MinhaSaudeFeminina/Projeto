@@ -26,7 +26,7 @@ export function CycleHistoryPage({ navigation }: CycleHistoryPageProps) {
   if (history.loading) {
     return (
       <AppScreen>
-        <AppHeader onBack={handleBack} title="Historico de ciclos" />
+        <AppHeader onBack={handleBack} title="Histórico de ciclos" />
         <LoadingState message="Carregando seus ciclos." />
       </AppScreen>
     );
@@ -38,8 +38,8 @@ export function CycleHistoryPage({ navigation }: CycleHistoryPageProps) {
     <AppScreen>
       <AppHeader
         onBack={handleBack}
-        subtitle="Toque em uma menstruacao para corrigir as datas"
-        title="Historico de ciclos"
+        subtitle="Toque em uma menstruação para corrigir as datas"
+        title="Histórico de ciclos"
       />
 
       {history.error && <ErrorMessage compact message={history.error} />}
@@ -49,11 +49,11 @@ export function CycleHistoryPage({ navigation }: CycleHistoryPageProps) {
           action={
             <AppButton
               onPress={() => openEditor()}
-              title="Adicionar menstruacao"
+              title="Adicionar menstruação"
             />
           }
-          message="Registre as menstruacoes que voce lembra para o app comecar a prever as proximas."
-          title="Nenhuma menstruacao registrada"
+          message="Registre as menstruações que você lembra para o app começar a prever as próximas."
+          title="Nenhuma menstruação registrada"
         />
       ) : (
         <View style={styles.list}>
@@ -66,7 +66,7 @@ export function CycleHistoryPage({ navigation }: CycleHistoryPageProps) {
       <AppButton
         fullWidth
         onPress={() => openEditor()}
-        title="Adicionar menstruacao anterior"
+        title="Adicionar menstruação anterior"
         variant="secondary"
       />
     </AppScreen>
@@ -93,8 +93,8 @@ function HistoryCard({
 
       <Text style={styles.detail}>
         {entry.periodDays === null
-          ? 'Duracao ainda em aberto'
-          : `${entry.periodDays} dias de menstruacao`}
+          ? 'Duração ainda em aberto'
+          : `${entry.periodDays} dias de menstruação`}
         {entry.cycleDays === null ? '' : ` - ciclo de ${entry.cycleDays} dias`}
       </Text>
 

@@ -6,7 +6,7 @@ import {
 import { isBlank, normalizeText } from '../utils/text';
 
 const UBS_GUIDANCE =
-  ' Para uma avaliacao personalizada, procure sua UBS. Os profissionais de saude estao preparados para te acolher e orientar.';
+  ' Para uma avaliação personalizada, procure sua UBS. Os profissionais de saúde estão preparados para acolher e orientar você.';
 
 export type AnonymousQuestionResult = {
   userMessage: AnonymousMessage;
